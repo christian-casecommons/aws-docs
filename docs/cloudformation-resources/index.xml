@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cloudformation-resources on AWS CloudFormation Tutorial</title>
+    <link>https://casecommons.github.io/aws-docs/cloudformation-resources/index.xml</link>
+    <description>Recent content in Cloudformation-resources on AWS CloudFormation Tutorial</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Released under the MIT license</copyright>
+    <lastBuildDate>Mon, 20 Feb 2017 06:39:45 +1300</lastBuildDate>
+    <atom:link href="https://casecommons.github.io/aws-docs/cloudformation-resources/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>CloudFormation Resources</title>
+      <link>https://casecommons.github.io/aws-docs/cloudformation-resources/</link>
+      <pubDate>Mon, 20 Feb 2017 06:39:45 +1300</pubDate>
+      
+      <guid>https://casecommons.github.io/aws-docs/cloudformation-resources/</guid>
+      <description>
+
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/casecommons/aws-cloudformation&#34;&gt;aws-cloudformation&lt;/a&gt; role includes a &lt;a href=&#34;https://github.com/casecommons/aws-cloudformation/blob/master/templates/cfn.yml.j2&#34;&gt;CloudFormation resources template&lt;/a&gt; that is designed to define the following AWS resources:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;S3 bucket for CloudFormation templates&lt;/li&gt;
+&lt;li&gt;S3 bucket for Lambda functions used to support CloudFormation custom resources&lt;/li&gt;
+&lt;li&gt;Key Management Service (KMS) Key used for secrets management in CloudFormation stacks&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;By default, without any custom configuration, the CloudFormation resources template will create each of the above resources.&lt;/p&gt;
+
+&lt;p&gt;The template currently includes some optional configuration parameters as described below:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;config_cfn_lambda_remote_accounts&lt;/code&gt; - optional list of accounts that the S3 bucket for Lambda functions will be shared with.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;config_cfn_kms_admins&lt;/code&gt; - optional list of IAM roles that have administration level access to manage the KMS key.&lt;br /&gt;
+By default the &lt;strong&gt;admin&lt;/strong&gt; role created by the &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/&#34;&gt;security resources playbook&lt;/a&gt; is granted this access.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;config_cfn_kms_encrypters&lt;/code&gt; - optional list of IAM roles that have permission to encrypt ciphertext using the KMS key.&lt;br /&gt;
+By default the &lt;strong&gt;admin&lt;/strong&gt; role created by the &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/&#34;&gt;security resources playbook&lt;/a&gt; is granted this access.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;config_cfn_kms_decrypters&lt;/code&gt; - optional list of IAM roles that have permission to decrypt ciphertext using the KMS key.&lt;br /&gt;
+By default the &lt;strong&gt;admin&lt;/strong&gt; role created by the &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/&#34;&gt;security resources playbook&lt;/a&gt; is granted this access.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&#34;admonition note&#34;&gt;
+&lt;p class=&#34;admonition-title&#34;&gt;Note&lt;/p&gt;
+&lt;p&gt;Before commencing the tasks below, ensure you have successfully completed all tasks in &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/&#34;&gt;Security Resources&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;creating-the-playbook&#34;&gt;Creating the Playbook&lt;/h2&gt;
+
+&lt;p&gt;We will get started by establishing a CloudFormation resources playbook that defines CloudFormation resources for &lt;strong&gt;Demo Resources&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;p&gt;1. Clone the &lt;a href=&#34;https://github.com/casecommons/aws-starter&#34;&gt;AWS Starter&lt;/a&gt; to a local folder called &lt;code&gt;demo-cloudformation-resources&lt;/code&gt; and the re-initialise the Git repository.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:casecommons/aws-starter.git demo-cloudformation-resources
+  Cloning into &#39;demo-cloudformation-resources&#39;...
+  remote: Counting objects: 22, done.
+  remote: Compressing objects: 100% (14/14), done.
+  remote: Total 22 (delta 4), reused 22 (delta 4), pack-reused 0
+  Receiving objects: 100% (22/22), done.
+  Resolving deltas: 100% (4/4), done
+$ cd demo-cloudformation-resources
+$ rm -rf .git
+$ git init
+Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-cloudformation-resources/.git/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3.  Update the &lt;code&gt;roles/requirements.yml&lt;/code&gt; file to the desired versions for each role:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# You can specify git tag, commit or branch for the version property&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;&lt;span class=&#34;nd&#34;&gt;@github.com&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;scm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;  &lt;span class=&#34;n&#34;&gt;version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;0.7&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;&lt;span class=&#34;nd&#34;&gt;@github.com&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;scm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;  &lt;span class=&#34;n&#34;&gt;version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;0.1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;4.  Install the roles using the &lt;code&gt;ansible-galaxy&lt;/code&gt; command as demonstrated below:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ansible&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;galaxy&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;install&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;requirements&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;yml&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;force&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;extracting&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;to&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Users&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;jmenga&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Source&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;demo&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;was&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;installed&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;successfully&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;extracting&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;to&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Users&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;jmenga&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Source&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;demo&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;was&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;installed&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;successfully&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;5.  Modify the &lt;code&gt;group_vars/all/vars.yml&lt;/code&gt; file, which contains global settings for the playbook:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Stack Settings&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;cf_stack_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;n&#34;&gt;cf_stack_template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;templates/cfn.yml.j2&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cf_stack_tags&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;business&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;owner&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Casecommons&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;business&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;product&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CloudFormation&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Resources&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;business&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;severity&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;High&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tech&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;environment&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;{{ env }}&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tech&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contact&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pema&lt;/span&gt;&lt;span class=&#34;nd&#34;&gt;@casecommons.org&lt;/span&gt;
+  
+&lt;span class=&#34;c1&#34;&gt;# CloudFormation settings&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# This sets a policy that disables updates to existing resources&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# This requires you to explicitly set the cf_disable_stack_policy flag to true when running the playbook&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;cf_stack_policy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;Statement&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Effect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Deny&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Action&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Update:*&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Principal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;*&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Resource&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;*&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Notice that we reference the &lt;a href=&#34;https://github.com/casecommons/aws-cloudformation/blob/master/templates/cfn.yml.j2&#34;&gt;templates/cfn.yml.y2 template&lt;/a&gt; that is embedded within the &lt;a href=&#34;https://github.com/casecommons/aws-cloudformation&#34;&gt;aws-cloudformation role&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;7. Remove the local &lt;code&gt;templates&lt;/code&gt; folder, since we are using a template that is embedded within the &lt;code&gt;aws-cloudformation&lt;/code&gt; role:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ rm -rf templates
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;defining-a-new-environment&#34;&gt;Defining a New Environment&lt;/h2&gt;
+
+&lt;p&gt;We will now add a new environment called &lt;strong&gt;demo-resources&lt;/strong&gt; to the playbook, which will be used to create CloudFormation resources in the &lt;strong&gt;demo-resources&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;p&gt;1. Modify the &lt;code&gt;inventory&lt;/code&gt; file so that it defines a single environment called &lt;strong&gt;demo-resources&lt;/strong&gt;, ensuring you specify &lt;code&gt;ansible_connection=local&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-toml&#34;&gt;[demo-resources]
+demo-resources ansible_connection=local
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2. Remove the &lt;code&gt;group_vars/non-prod&lt;/code&gt; environment folder that is included in the starter template:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ rm -rf group_vars/non-prod
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3. Create a file called &lt;code&gt;group_vars/demo-resources/vars.yml&lt;/code&gt;, which will hold all environment specific configuration for the &lt;strong&gt;demo-resources&lt;/strong&gt; environment:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ mkdir -p group_vars/demo-resources
+$ touch group_vars/demo-resources/vars.yml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;4. Finally add the &lt;code&gt;sts_role_arn&lt;/code&gt; setting to &lt;code&gt;group_vars/demo-resources/vars.yml&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# STS role in the target AWS account to assume
+sts_role_arn: &amp;quot;arn:aws:iam::094411466117:role/admin&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;running-the-playbook&#34;&gt;Running the Playbook&lt;/h2&gt;
+
+&lt;p&gt;The CloudFormation template in the &lt;code&gt;aws-cloudformation&lt;/code&gt; role will create the following resources by default:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;An S3 bucket for CloudFormation templates&lt;/li&gt;
+&lt;li&gt;An S3 bucket for Lambda functions used to support CloudFormation custom resources&lt;/li&gt;
+&lt;li&gt;A Key Management Service (KMS) Key used for secrets management in CloudFormation stacks&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let&amp;rsquo;s now run the playbook to create these resources.&lt;/p&gt;
+
+&lt;p&gt;1. Ensure your local AWS environment is configured to target the &lt;strong&gt;demo-resources&lt;/strong&gt; account:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ export AWS_PROFILE=demo-resources-admin
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2. Run the Ansible playbook targeting the &lt;code&gt;demo-resources&lt;/code&gt; environment as demonstrated below:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;$ ansible-playbook site.yml -e &lt;span class=&#34;nv&#34;&gt;env&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;demo-resources
+
+PLAY &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Assume Role&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; *************************************************************
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : set_fact&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ******************************************************
+ok: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-resources&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : checking &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; sts functions are sts_disabled&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ********************
+skipping: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-resources&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : setting empty sts_session_output result&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ***********************
+skipping: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-resources&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : setting sts_creds &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; legacy AWS credentials are present &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;e.g. &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; Ansible Tower&lt;span class=&#34;o&#34;&gt;)]&lt;/span&gt; ***
+skipping: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-resources&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : assume sts role&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ***********************************************
+Enter MFA code: ******
+ok: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-resources&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+...
+...
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-cloudformation : &lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; path fact &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; s3 upload disabled&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; **********
+ok: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-resources&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-cloudformation : configure application stack&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ************************
+...
+...
+PLAY RECAP *********************************************************************
+demo-resources             : &lt;span class=&#34;nv&#34;&gt;ok&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;20&lt;/span&gt;   &lt;span class=&#34;nv&#34;&gt;changed&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;unreachable&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;failed&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;3.  The playbook will take a few minutes to create the CloudFormation stack and associated resources.  Whilst the CloudFormation stack is being created, you can review the CloudFormation stack that was generated in the &lt;code&gt;build/&amp;lt;timestamp&amp;gt;&lt;/code&gt; folder:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ tree build
+build
+└── 20170226195006
+    ├── cloudformation-resources-config.json
+    ├── cloudformation-resources-policy.json
+    ├── cloudformation-resources-stack.json
+    └── cloudformation-resources-stack.yml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The following shows the &lt;code&gt;cloudformation-resources-stack.yml&lt;/code&gt; file that was generated and uploaded to CloudFormation:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;AWSTemplateFormatVersion: &amp;quot;2010-09-09&amp;quot;
+
+Description: CloudFormation Resources
+
+Resources:
+  CfnTemplatesBucket:
+    Type: &amp;quot;AWS::S3::Bucket&amp;quot;
+    Properties:
+      BucketName:
+        Fn::Sub: &amp;quot;${AWS::AccountId}-cfn-templates&amp;quot;
+      Tags:
+        - Key: Name
+          Value: 
+            Fn::Sub: &amp;quot;${AWS::AccountId}-cfn-templates&amp;quot;
+  CfnLambdaBucket:
+    Type: &amp;quot;AWS::S3::Bucket&amp;quot;
+    Properties:
+      BucketName: 
+        Fn::Sub: &amp;quot;${AWS::AccountId}-cfn-lambda&amp;quot;
+      VersioningConfiguration:
+        Status: &amp;quot;Enabled&amp;quot;
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: &amp;quot;${AWS::AccountId}-cfn-lambda&amp;quot;
+  CfnMasterKey:
+    Type: &amp;quot;AWS::KMS::Key&amp;quot;
+    Properties:
+      Description: 
+        Fn::Sub: &amp;quot;Credential Store Master Key for ${AWS::StackName}&amp;quot;
+      Enabled: &amp;quot;true&amp;quot;
+      KeyPolicy:
+        Version: &amp;quot;2012-10-17&amp;quot;
+        Id: &amp;quot;key-policy&amp;quot;
+        Statement: 
+          - Sid: &amp;quot;Allow root account access to key&amp;quot;
+            Effect: &amp;quot;Allow&amp;quot;
+            Principal:
+              AWS:
+                Fn::Sub: &amp;quot;arn:aws:iam::${AWS::AccountId}:root&amp;quot;
+            Action: &amp;quot;kms:*&amp;quot;
+            Resource: &amp;quot;*&amp;quot;
+          - Sid: &amp;quot;Allow administration of the key&amp;quot;
+            Effect: &amp;quot;Allow&amp;quot;
+            Principal:
+              AWS:
+              - Fn::Sub: &amp;quot;arn:aws:iam::${AWS::AccountId}:role/admin&amp;quot;
+            Action:
+            - &amp;quot;kms:Create*&amp;quot;
+            - &amp;quot;kms:Describe*&amp;quot;
+            - &amp;quot;kms:Enable*&amp;quot;
+            - &amp;quot;kms:List*&amp;quot;
+            - &amp;quot;kms:Put*&amp;quot;
+            - &amp;quot;kms:Update*&amp;quot;
+            - &amp;quot;kms:Revoke*&amp;quot;
+            - &amp;quot;kms:Disable*&amp;quot;
+            - &amp;quot;kms:Get*&amp;quot;
+            - &amp;quot;kms:Delete*&amp;quot;
+            - &amp;quot;kms:ScheduleKeyDeletion&amp;quot;
+            - &amp;quot;kms:CancelKeyDeletion&amp;quot;
+            Resource: &amp;quot;*&amp;quot;
+          - Sid: &amp;quot;Allow encryption use&amp;quot;
+            Effect: &amp;quot;Allow&amp;quot;
+            Principal:
+              AWS:
+              - Fn::Sub: &amp;quot;arn:aws:iam::${AWS::AccountId}:role/admin&amp;quot;
+            Action:
+            - &amp;quot;kms:Encrypt&amp;quot;
+            - &amp;quot;kms:ReEncrypt*&amp;quot;
+            - &amp;quot;kms:GenerateDataKey*&amp;quot;
+            - &amp;quot;kms:DescribeKey&amp;quot;
+            Resource: &amp;quot;*&amp;quot;
+          - Sid: &amp;quot;Allow decryption use&amp;quot;
+            Effect: &amp;quot;Allow&amp;quot;
+            Principal:
+              AWS:
+              - Fn::Sub: &amp;quot;arn:aws:iam::${AWS::AccountId}:role/admin&amp;quot;
+            Action:
+            - &amp;quot;kms:Decrypt&amp;quot;
+            - &amp;quot;kms:DescribeKey&amp;quot;
+            Resource: &amp;quot;*&amp;quot;
+Outputs:
+  CfnTemplatesBucketName:
+    Description: &amp;quot;CloudFormation Templates Bucket Name&amp;quot;
+    Value:
+      Fn::Sub: &amp;quot;${CfnTemplatesBucket.DomainName}&amp;quot;
+    Export:
+      Name: &amp;quot;CfnTemplatesBucket&amp;quot;
+  CfnTemplatesBucketURL:
+    Description: &amp;quot;CloudFormation Templates Bucket URL&amp;quot;
+    Value: 
+      Fn::Sub: &amp;quot;${CfnTemplatesBucket.WebsiteURL}&amp;quot;
+    Export:
+      Name: &amp;quot;CfnTemplatesBucketURL&amp;quot;
+  CfnMasterKey:
+    Description: &amp;quot;CloudFormation Master Key ID&amp;quot;
+    Value: 
+      Fn::Sub: &amp;quot;${CfnMasterKey}&amp;quot;
+    Export:
+      Name: &amp;quot;CfnMasterKey&amp;quot;
+  CfnMasterKeyArn:
+    Description: &amp;quot;CloudFormation Master Key ARN&amp;quot;
+    Value: 
+      Fn::Sub: &amp;quot;${CfnMasterKey.Arn}&amp;quot;
+    Export:
+      Name: &amp;quot;CfnMasterKeyArn&amp;quot;
+  CfnLambdaBucketName:
+    Description: &amp;quot;CloudFormation Lambda Bucket Name&amp;quot;
+    Value: 
+      Fn::Sub: &amp;quot;${CfnLambdaBucket.DomainName}&amp;quot;
+    Export:
+      Name: &amp;quot;CfnLambdaBucket&amp;quot;
+  CfnLambdaBucketURL:
+    Description: &amp;quot;CloudFormation Lambda Bucket URL&amp;quot;
+    Value: 
+      Fn::Sub: &amp;quot;${CfnLambdaBucket.WebsiteURL}&amp;quot;
+    Export:
+      Name: &amp;quot;CfnLambdaBucketURL&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;4. Once the playbook execution completes successfully, login to the &lt;strong&gt;demo-resources&lt;/strong&gt; account.  You should see a new CloudFormation stack called &lt;code&gt;cloudformation-resources&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/cloudformation-resources.png&#34; alt=&#34;CloudFormation Resources Stack&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Notice that two S3 buckets and a KMS key have been created.&lt;/p&gt;
+
+&lt;p&gt;5. Select the &lt;strong&gt;CloudFormation&lt;/strong&gt; dropdown and click on &lt;strong&gt;Exports&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/cloudformation-exports.png&#34; alt=&#34;Selecting CloudFormation Exports&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;6. Notice that a number of CloudFormation exports have been created by both the &lt;strong&gt;security-resources&lt;/strong&gt; and &lt;strong&gt;cloudformation-resources&lt;/strong&gt; stacks.  These exports can be referenced in other stacks by their logical &lt;strong&gt;Export Name&lt;/strong&gt; using the CloudFormation &lt;a href=&#34;http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html&#34;&gt;Fn::ImportValue intrinsic function&lt;/a&gt;, making it easier to consume these resources.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/cfn-cloudformation-exports.png&#34; alt=&#34;CloudFormation Exports&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap Up&lt;/h2&gt;
+
+&lt;p&gt;We created CloudFormation resources in our &lt;strong&gt;demo-resources&lt;/strong&gt; account, which provide the supporting resources for creating additional CloudFormation stacks that require features such as CloudFormation custom resources and secrets management.&lt;/p&gt;
+
+&lt;div class=&#34;admonition note&#34;&gt;
+&lt;p class=&#34;admonition-title&#34;&gt;Note&lt;/p&gt;
+&lt;p&gt;At this point you should commit your changes to the CloudFormation resources playbook before continuing.&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

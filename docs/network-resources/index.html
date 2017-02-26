@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+  
+  
+  
+  
+   <html class="no-js"> 
+
+  <head lang="en-us">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=10" />
+    <title>Network Resources - AWS CloudFormation Tutorial</title>
+    <meta name="generator" content="Hugo 0.18.1" />
+
+    
+    <meta name="description" content="AWS CloudFormation Tutorial">
+    
+    <link rel="canonical" href="https://casecommons.github.io/aws-docs/network-resources/">
+    
+    <meta name="author" content="Justin Menga">
+    
+
+    <meta property="og:url" content="https://casecommons.github.io/aws-docs/network-resources/">
+    <meta property="og:title" content="AWS CloudFormation Tutorial">
+    <meta property="og:image" content="https://casecommons.github.io/aws-docs/images/logo.png">
+    <meta name="apple-mobile-web-app-title" content="AWS CloudFormation Tutorial">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="shortcut icon" type="image/x-icon" href="https://casecommons.github.io/aws-docs/images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://casecommons.github.io/aws-docs/images/favicon.ico">
+
+    <style>
+      @font-face {
+        font-family: 'Icon';
+        src: url('https://casecommons.github.io/aws-docs/fonts/icon.eot');
+        src: url('https://casecommons.github.io/aws-docs/fonts/icon.eot')
+               format('embedded-opentype'),
+             url('https://casecommons.github.io/aws-docs/fonts/icon.woff')
+               format('woff'),
+             url('https://casecommons.github.io/aws-docs/fonts/icon.ttf')
+               format('truetype'),
+             url('https://casecommons.github.io/aws-docs/fonts/icon.svg')
+               format('svg');
+        font-weight: normal;
+        font-style: normal;
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/application.css">
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/temporary.css">
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/palettes.css">
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/highlight/highlight.css">
+
+    
+    
+    
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu&#43;Mono">
+    <style>
+      body, input {
+        font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+      }
+      pre, code {
+        font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+      }
+    </style>
+
+    
+    <script src="https://casecommons.github.io/aws-docs/javascripts/modernizr.js"></script>
+
+    
+
+  </head>
+  <body class="palette-primary-red palette-accent-teal">
+
+
+
+
+<div class="backdrop">
+	<div class="backdrop-paper"></div>
+</div>
+
+<input class="toggle" type="checkbox" id="toggle-drawer">
+<input class="toggle" type="checkbox" id="toggle-search">
+<label class="toggle-button overlay" for="toggle-drawer"></label>
+
+<header class="header">
+	<nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        Network Resources
+      </div>
+    </div>
+
+    
+    <div class="button button-twitter" role="button" aria-label="Twitter">
+       <a href="https://twitter.com/jmenga" title="@jmenga on Twitter" target="_blank" class="toggle-button icon icon-twitter"></a>
+    </div>
+    
+
+    
+    <div class="button button-github" role="button" aria-label="GitHub">
+      <a href="https://github.com/mixja" title="@mixja on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
+    </div>
+    
+    
+        
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+</header>
+
+<main class="main">
+	<div class="drawer">
+		<nav aria-label="Navigation">
+  <a href="https://casecommons.github.io/aws-docs/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="https://casecommons.github.io/aws-docs/images/logo.png">
+        </div>
+      
+      <div class="name">
+        <strong>AWS CloudFormation Tutorial <span class="version">v0.1</span></strong>
+        
+      </div>
+    </div>
+  </a>
+
+  <div class="scrollable">
+    <div class="wrapper">
+      
+
+      <div class="toc">
+        
+        <ul>
+          
+
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Introduction" href="https://casecommons.github.io/aws-docs/">
+	
+	Introduction
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Local Setup" href="https://casecommons.github.io/aws-docs/local-setup/">
+	
+	Local Setup
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Security Resources" href="https://casecommons.github.io/aws-docs/security-resources/">
+	
+	Security Resources
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="CloudFormation Resources" href="https://casecommons.github.io/aws-docs/cloudformation-resources/">
+	
+	CloudFormation Resources
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a class="current" title="Network Resources" href="https://casecommons.github.io/aws-docs/network-resources/">
+	
+	Network Resources
+</a>
+
+
+<ul id="scrollspy">
+</ul>
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="EC2 Container Registry Resources" href="https://casecommons.github.io/aws-docs/ecr-resources/">
+	
+	EC2 Container Registry Resources
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Web Proxy Stack" href="https://casecommons.github.io/aws-docs/web-proxy/">
+	
+	Web Proxy Stack
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Intake API Stack" href="https://casecommons.github.io/aws-docs/intake-api/">
+	
+	Intake API Stack
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Intake Accelerator Stack" href="https://casecommons.github.io/aws-docs/intake-accelerator/">
+	
+	Intake Accelerator Stack
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="License" href="https://casecommons.github.io/aws-docs/license/">
+	
+	License
+</a>
+
+
+
+  
+</li>
+
+
+        </ul>
+        
+
+        
+        <hr>
+        <span class="section">The author</span>
+        
+        <ul>
+          
+          <li>
+            <a href="https://twitter.com/jmenga" target="_blank" title="@jmenga on Twitter">
+              @jmenga on Twitter
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://github.com/mixja" target="_blank" title="@mixja on GitHub">
+              @mixja on GitHub
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="mailto:justin.menga@gmail.com" title="Email of justin.menga@gmail.com">
+              Contact via email
+            </a>
+          </li>
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+
+	</div>
+
+	<article class="article">
+		<div class="wrapper">
+			<h1>Network Resources </h1>
+
+			
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The <a href="https://github.com/casecommons/aws-cloudformation">aws-cloudformation</a> role includes a <a href="https://github.com/casecommons/aws-cloudformation/blob/master/templates/network.yml.j2">network resources template</a> that is designed to define the following AWS resources:</p>
+
+<ul>
+<li>Subnets</li>
+<li>Route Tables</li>
+<li>Internet Gateways</li>
+<li>DHCP Option Sets</li>
+<li>VPC Endpoints</li>
+<li>VPC Flow Logs</li>
+<li>Route53 Public Zones</li>
+<li>Route53 Private Zones</li>
+</ul>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before commencing the tasks below, ensure you have successfully completed all tasks in the following sections:</p>
+
+<ul>
+<li><a href="https://casecommons.github.io/aws-docs/security-resources/">Security Resources</a></li>
+<li><a href="https://casecommons.github.io/aws-docs/cloudformation-resources/">CloudFormation Resources</a></li>
+</ul>
+</p>
+</div>
+
+<h2 id="creating-the-playbook">Creating the Playbook</h2>
+
+<p>We will get started by establishing a network resources playbook that defines network resources for <strong>Demo Resources</strong> account.</p>
+
+<p>1. Clone the <a href="https://github.com/casecommons/aws-starter">AWS Starter</a> to a local folder called <code>demo-network-resources</code> and the re-initialise the Git repository.</p>
+
+<pre><code class="language-bash">$ git clone git@github.com:casecommons/aws-starter.git demo-network-resources
+  Cloning into 'demo-network-resources'...
+  remote: Counting objects: 22, done.
+  remote: Compressing objects: 100% (14/14), done.
+  remote: Total 22 (delta 4), reused 22 (delta 4), pack-reused 0
+  Receiving objects: 100% (22/22), done.
+  Resolving deltas: 100% (4/4), done
+$ cd demo-network-resources
+$ rm -rf .git
+$ git init
+Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-network-resources/.git/
+</code></pre>
+
+<p>3.  Update the <code>roles/requirements.yml</code> file to the desired versions for each role:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># You can specify git tag, commit or branch for the version property</span>
+<span class="o">-</span> <span class="n">src</span><span class="p">:</span> <span class="n">git</span><span class="nd">@github.com</span><span class="p">:</span><span class="n">casecommons</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">.</span><span class="n">git</span>
+  <span class="n">scm</span><span class="p">:</span> <span class="n">git</span>
+<span class="hll">  <span class="n">version</span><span class="p">:</span> <span class="mf">0.7</span><span class="o">.</span><span class="mi">0</span>
+</span>  <span class="n">name</span><span class="p">:</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
+<span class="o">-</span> <span class="n">src</span><span class="p">:</span> <span class="n">git</span><span class="nd">@github.com</span><span class="p">:</span><span class="n">casecommons</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">sts</span><span class="o">.</span><span class="n">git</span>
+  <span class="n">scm</span><span class="p">:</span> <span class="n">git</span>
+<span class="hll">  <span class="n">version</span><span class="p">:</span> <span class="mf">0.1</span><span class="o">.</span><span class="mi">2</span>
+</span>  <span class="n">name</span><span class="p">:</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span>
+</code></pre></div>
+
+
+<p>4.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="err">$</span> <span class="n">ansible</span><span class="o">-</span><span class="n">galaxy</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">roles</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">force</span>
+<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">demo</span><span class="o">-</span><span class="n">network</span><span class="o">-</span><span class="n">resources</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
+<span class="o">-</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">was</span> <span class="n">installed</span> <span class="n">successfully</span>
+<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">demo</span><span class="o">-</span><span class="n">network</span><span class="o">-</span><span class="n">resources</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">sts</span>
+<span class="o">-</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span> <span class="n">was</span> <span class="n">installed</span> <span class="n">successfully</span>
+</code></pre></div>
+
+
+<p>5.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># Stack Settings</span>
+<span class="n">cf_stack_name</span><span class="p">:</span> <span class="n">network</span><span class="o">-</span><span class="n">resources</span>
+<span class="hll"><span class="n">cf_stack_template</span><span class="p">:</span> <span class="s2">&quot;templates/network.yml.j2&quot;</span>
+</span><span class="n">cf_stack_tags</span><span class="p">:</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">owner</span><span class="p">:</span> <span class="n">Casecommons</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">product</span><span class="p">:</span> <span class="n">Network</span> <span class="n">Resources</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">severity</span><span class="p">:</span> <span class="n">High</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">tech</span><span class="p">:</span><span class="n">environment</span><span class="p">:</span> <span class="s2">&quot;{{ env }}&quot;</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">tech</span><span class="p">:</span><span class="n">contact</span><span class="p">:</span> <span class="n">pema</span><span class="nd">@casecommons.org</span>
+  
+<span class="c1"># CloudFormation settings</span>
+<span class="c1"># This sets a policy that disables updates to existing resources</span>
+<span class="c1"># This requires you to explicitly set the cf_disable_stack_policy flag to true when running the playbook</span>
+<span class="n">cf_stack_policy</span><span class="p">:</span>
+  <span class="n">Statement</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">Effect</span><span class="p">:</span> <span class="s2">&quot;Deny&quot;</span>
+    <span class="n">Action</span><span class="p">:</span> <span class="s2">&quot;Update:*&quot;</span>
+    <span class="n">Principal</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span>
+    <span class="n">Resource</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span>
+</code></pre></div>
+
+
+<p>Notice that we reference the <a href="https://github.com/casecommons/aws-cloudformation/blob/master/templates/network.yml.j2">templates/network.yml.y2 template</a> that is embedded within the <a href="https://github.com/casecommons/aws-cloudformation">aws-cloudformation role</a>.</p>
+
+<p>7. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
+
+<pre><code class="language-bash">$ rm -rf templates
+</code></pre>
+
+<h2 id="defining-a-new-environment">Defining a New Environment</h2>
+
+<p>We will now add a new environment called <strong>demo-resources</strong> to the playbook, which will be used to create CloudFormation resources in the <strong>demo-resources</strong> account.</p>
+
+<p>1. Modify the <code>inventory</code> file so that it defines a single environment called <strong>demo-resources</strong>, ensuring you specify <code>ansible_connection=local</code>:</p>
+
+<pre><code class="language-toml">[demo-resources]
+demo-resources ansible_connection=local
+</code></pre>
+
+<p>2. Remove the <code>group_vars/non-prod</code> environment folder that is included in the starter template:</p>
+
+<pre><code class="language-bash">$ rm -rf group_vars/non-prod
+</code></pre>
+
+<p>3. Create a file called <code>group_vars/demo-resources/vars.yml</code>, which will hold all environment specific configuration for the <strong>demo-resources</strong> environment:</p>
+
+<pre><code class="language-bash">$ mkdir -p group_vars/demo-resources
+$ touch group_vars/demo-resources/vars.yml
+</code></pre>
+
+<p>4. Add the following settings to <code>group_vars/demo-resources/vars.yml</code>:</p>
+
+<pre><code class="language-python"># STS role in the target AWS account to assume
+sts_role_arn: &quot;arn:aws:iam::160775127577:role/admin&quot;
+
+# VPC CIDR Block
+config_vpc_cidr: 192.168.16.0/20
+
+# VPC Domain Settings
+# This will configure a private Route53 zone of &lt;vpc-id&gt;.&lt;config_vpc_root_domain&gt;
+config_vpc_root_domain: casecommons.org
+
+# AZ Count
+config_az_count: 3
+
+# Public Route53 Zones
+config_public_domains:
+  - demo.cloudhotspot.co
+</code></pre>
+
+<p>Here we target the <strong>demo-resources</strong> account by specifying the <strong>demo-resources</strong> IAM <strong>admin</strong> role in the <code>sts_role_arn</code> variable, whilst the following settings customize the network resources that will be created:</p>
+
+<ul>
+<li><p><code>config_vpc_cidr</code> - defines the CIDR block for the VPC that will be created.  The CIDR block must be large enough to create the required number of subnets, which can be calculated by multiplying the number of security zones (4 by default) by the number of availability zones (3 as defined by <code>config_az_count</code>) - i.e. 12 subnets with a default size/subnet mask of /24 or 255.255.255.0.  The value of <code>192.168.16.0/20</code> will accommodate 16 x /24 subnets, so is sufficiently sized.</p></li>
+
+<li><p><code>config_vpc_root_domain</code> - when configured creates a Route53 private zone in the format <code>&lt;vpc-id&gt;.&lt;config_vpc_root_domain&gt;</code>.  In this example, if the VPC ID is <code>vpc-1234567</code> then the configuration above would create a private zone of <code>vpc-1234567.casecommons.org</code>.</p></li>
+
+<li><p><code>config_az_count</code> - defines the number of availability zones to create subnets in.</p></li>
+
+<li><p><code>config_public_domains</code> - defines a list of public Route53 domains or zones to create</p></li>
+</ul>
+
+<h2 id="running-the-playbook">Running the Playbook</h2>
+
+<p>Now that we&rsquo;ve defined environment settings for the <strong>demo-resources</strong> environment, let&rsquo;s run the playbook to create network resources for the environment.</p>
+
+<p>1. Ensure your local AWS environment is configured to target the <strong>demo-resources</strong> account:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+</code></pre>
+
+<p>2. Run the Ansible playbook targeting the <code>demo-resources</code> environment as demonstrated below:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ ansible-playbook site.yml -e <span class="nv">env</span><span class="o">=</span>demo-resources
+
+PLAY <span class="o">[</span>Assume Role<span class="o">]</span> *************************************************************
+
+TASK <span class="o">[</span>aws-sts : set_fact<span class="o">]</span> ******************************************************
+ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : checking <span class="k">if</span> sts functions are sts_disabled<span class="o">]</span> ********************
+skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : setting empty sts_session_output result<span class="o">]</span> ***********************
+skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : setting sts_creds <span class="k">if</span> legacy AWS credentials are present <span class="o">(</span>e.g. <span class="k">for</span> Ansible Tower<span class="o">)]</span> ***
+skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : assume sts role<span class="o">]</span> ***********************************************
+Enter MFA code: ******
+ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+...
+...
+TASK <span class="o">[</span>aws-cloudformation : <span class="nb">set</span> <span class="nb">local</span> path fact <span class="k">if</span> s3 upload disabled<span class="o">]</span> **********
+ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-cloudformation : configure application stack<span class="o">]</span> ************************
+...
+...
+PLAY RECAP *********************************************************************
+demo-resources             : <span class="nv">ok</span><span class="o">=</span><span class="m">20</span>   <span class="nv">changed</span><span class="o">=</span><span class="m">1</span>    <span class="nv">unreachable</span><span class="o">=</span><span class="m">0</span>    <span class="nv">failed</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+
+
+<p>3.  The playbook will take a few minutes to create the CloudFormation stack and associated resources.  Whilst the CloudFormation stack is being created, you can review the CloudFormation stack that was generated in the <code>build/&lt;timestamp&gt;</code> folder:</p>
+
+<pre><code class="language-bash">$ tree build
+build
+└── 20170226211011
+    ├── network-resources-config.json
+    ├── network-resources-policy.json
+    ├── network-resources-stack.json
+    └── network-resources-stack.yml
+</code></pre>
+
+<p>The following shows the <code>network-resources-stack.yml</code> file that was generated and uploaded to CloudFormation:</p>
+
+<pre><code class="language-python">AWSTemplateFormatVersion: &quot;2010-09-09&quot;
+
+Description: Core Network Resources
+    
+Resources:
+  Vpc:
+    Type: &quot;AWS::EC2::VPC&quot;
+    Properties:
+      CidrBlock: &quot;192.168.16.0/20&quot;
+      EnableDnsSupport: True
+      EnableDnsHostnames: True
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;default-vpc&quot;
+  InternetGateway:
+    Type: &quot;AWS::EC2::InternetGateway&quot;
+    Properties: 
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;default-igw&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;public&quot;
+  InternetGatewayAttachment:
+    Type: &quot;AWS::EC2::VPCGatewayAttachment&quot;
+    Properties:
+      InternetGatewayId: { &quot;Ref&quot;: &quot;InternetGateway&quot; }
+      VpcId:
+        Ref: Vpc
+  PublicRouteTable:
+    Type: &quot;AWS::EC2::RouteTable&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;default-public-route-table&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;public&quot;
+  PrivateRouteTable:
+    Type: &quot;AWS::EC2::RouteTable&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;default-private-route-table&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;mixed&quot;
+  PublicDefaultRoute:
+    Type: &quot;AWS::EC2::Route&quot;
+    DependsOn: &quot;InternetGatewayAttachment&quot;
+    Properties:
+      DestinationCidrBlock: &quot;0.0.0.0/0&quot;
+      GatewayId: { &quot;Ref&quot;: &quot;InternetGateway&quot; }
+      RouteTableId: { &quot;Ref&quot;: &quot;PublicRouteTable&quot; }
+  S3Endpoint:
+    Type: &quot;AWS::EC2::VPCEndpoint&quot;
+    Properties:
+      RouteTableIds: 
+        - { &quot;Ref&quot; : &quot;PublicRouteTable&quot; }
+        - { &quot;Ref&quot; : &quot;PrivateRouteTable&quot; }
+      ServiceName: 
+        Fn::Sub: &quot;com.amazonaws.${AWS::Region}.s3&quot;
+      VpcId:
+        Ref: Vpc
+  VpcFlowLog:
+    Type: &quot;AWS::EC2::FlowLog&quot;
+    Properties:
+      DeliverLogsPermissionArn:
+        Fn::Sub: &quot;arn:aws:iam::${AWS::AccountId}:role/${VpcFlowLogRole}&quot;
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/vpc/FlowLog
+      ResourceId: { &quot;Ref&quot;: &quot;Vpc&quot; }
+      ResourceType: &quot;VPC&quot;
+      TrafficType: &quot;ALL&quot;
+  VpcFlowLogRole:
+    Type: &quot;AWS::IAM::Role&quot;
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: &quot;2012-10-17&quot;
+        Statement:
+          - Effect: &quot;Allow&quot;
+            Principal: 
+              Service: [ &quot;vpc-flow-logs.amazonaws.com&quot; ]
+            Action: [ &quot;sts:AssumeRole&quot; ]
+      Path: &quot;/&quot;
+      Policies:
+      - PolicyName: CloudWatchLogs
+        PolicyDocument:
+          Version: &quot;2012-10-17&quot;
+          Statement:
+            - Effect: Allow
+              Action:
+              - &quot;logs:CreateLogGroup&quot;
+              - &quot;logs:CreateLogStream&quot;
+              - &quot;logs:PutLogEvents&quot;
+              - &quot;logs:DescribeLogGroups&quot;
+              - &quot;logs:DescribeLogStreams&quot;
+              Resource:
+                Fn::Sub: &quot;arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AWS::StackName}/vpc/FlowLog*&quot;
+  VpcFlowLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/vpc/FlowLog
+      RetentionInDays: 7
+  VpcPrivateZone:
+    Type: &quot;AWS::Route53::HostedZone&quot;
+    Properties: 
+      HostedZoneConfig: 
+        Comment: 
+          Fn::Sub: &quot;${Vpc} private zone&quot;
+      HostedZoneTags:
+        - Key: &quot;Name&quot;
+          Value: 
+            Fn::Sub: &quot;${Vpc}.casecommons.org&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;mixed&quot;
+      Name:
+        Fn::Sub: &quot;${Vpc}.casecommons.org&quot;
+      VPCs:
+        - VPCId: { &quot;Ref&quot;: &quot;Vpc&quot; }
+          VPCRegion: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+  DemoCloudhotspotCoZone:
+      Type: &quot;AWS::Route53::HostedZone&quot;
+      Properties: 
+        HostedZoneConfig: 
+          Comment: &quot;demo.cloudhotspot.co zone&quot;
+        HostedZoneTags:
+          - Key: &quot;Name&quot;
+            Value: &quot;demo.cloudhotspot.co&quot;
+          - Key: &quot;org:security:level&quot;
+            Value: &quot;mixed&quot;
+        Name: &quot;demo.cloudhotspot.co&quot;
+  PublicSubnetA:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.16.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}a&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;public-a&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;public&quot;
+  PublicSubnetARouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PublicRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;PublicSubnetA&quot; }
+  PublicSubnetB:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.17.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}b&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;public-b&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;public&quot;
+  PublicSubnetBRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PublicRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;PublicSubnetB&quot; }
+  PublicSubnetC:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.18.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}c&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;public-c&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;public&quot;
+  PublicSubnetCRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PublicRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;PublicSubnetC&quot; }
+  MediumSubnetA:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.19.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}a&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;medium-a&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;medium&quot;
+  MediumSubnetARouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;MediumSubnetA&quot; }
+  MediumSubnetB:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.20.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}b&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;medium-b&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;medium&quot;
+  MediumSubnetBRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;MediumSubnetB&quot; }
+  MediumSubnetC:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.21.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}c&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;medium-c&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;medium&quot;
+  MediumSubnetCRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;MediumSubnetC&quot; }
+  HighSubnetA:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.22.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}a&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;high-a&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;high&quot;
+  HighSubnetARouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;HighSubnetA&quot; }
+  HighSubnetB:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.23.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}b&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;high-b&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;high&quot;
+  HighSubnetBRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;HighSubnetB&quot; }
+  HighSubnetC:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.24.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}c&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;high-c&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;high&quot;
+  HighSubnetCRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;HighSubnetC&quot; }
+  ManagementSubnetA:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.25.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}a&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;management-a&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;management&quot;
+  ManagementSubnetARouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;ManagementSubnetA&quot; }
+  ManagementSubnetB:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.26.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}b&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;management-b&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;management&quot;
+  ManagementSubnetBRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;ManagementSubnetB&quot; }
+  ManagementSubnetC:
+    Type: &quot;AWS::EC2::Subnet&quot;
+    Properties:
+      VpcId:
+        Ref: Vpc
+      CidrBlock: &quot;192.168.27.0/24&quot;
+      AvailabilityZone: 
+        Fn::Sub: &quot;${AWS::Region}c&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;management-c&quot;
+        - Key: &quot;org:security:level&quot;
+          Value: &quot;management&quot;
+  ManagementSubnetCRouting:
+    Type: &quot;AWS::EC2::SubnetRouteTableAssociation&quot;
+    Properties:
+      RouteTableId: { &quot;Ref&quot;: &quot;PrivateRouteTable&quot; }
+      SubnetId: { &quot;Ref&quot;: &quot;ManagementSubnetC&quot; }
+
+
+Outputs:
+  DefaultVpcId:
+    Description: &quot;Default VPC Identifier&quot;
+    Value:
+      Ref: Vpc
+    Export:
+      Name: &quot;DefaultVpcId&quot;
+  DefaultVpcCidr:
+    Description: &quot;Default VPC CIDR Block&quot;
+    Value: &quot;192.168.16.0/20&quot;
+    Export:
+      Name: &quot;DefaultVpcCidr&quot;
+  DefaultVpcDnsServer:
+    Description: &quot;Default VPC AWS Provided DNS Server IP Address&quot;
+    Value: &quot;192.168.16.2&quot;
+    Export:
+      Name: &quot;DefaultVpcDnsServer&quot;
+  DefaultVpcDomain:
+    Description: &quot;Default VPC Domain&quot;
+    Value: 
+      Fn::Sub: &quot;${Vpc}.casecommons.org&quot;
+    Export:
+      Name: &quot;DefaultVpcDomain&quot;
+  DefaultVpcZone:
+    Description: &quot;Default VPC Zone&quot;
+    Value: 
+      Fn::Sub: &quot;${Vpc}.casecommons.org.&quot;
+    Export:
+      Name: &quot;DefaultVpcZone&quot;
+  DefaultPublicSubnetA:
+    Description: &quot;DefaultPublic Subnet Availability Zone A&quot;
+    Value: { &quot;Ref&quot;: &quot;PublicSubnetA&quot; }
+    Export:
+      Name: &quot;DefaultPublicSubnetA&quot;
+  DefaultPublicSubnetACidr:
+    Description: &quot;Default Public Subnet  Availability Zone A CIDR&quot;
+    Value: &quot;192.168.16.0/24&quot;
+    Export:
+      Name: &quot;DefaultPublicSubnetACidr&quot;
+  DefaultPublicSubnetB:
+    Description: &quot;DefaultPublic Subnet Availability Zone B&quot;
+    Value: { &quot;Ref&quot;: &quot;PublicSubnetB&quot; }
+    Export:
+      Name: &quot;DefaultPublicSubnetB&quot;
+  DefaultPublicSubnetBCidr:
+    Description: &quot;Default Public Subnet  Availability Zone B CIDR&quot;
+    Value: &quot;192.168.17.0/24&quot;
+    Export:
+      Name: &quot;DefaultPublicSubnetBCidr&quot;
+  DefaultPublicSubnetC:
+    Description: &quot;DefaultPublic Subnet Availability Zone C&quot;
+    Value: { &quot;Ref&quot;: &quot;PublicSubnetC&quot; }
+    Export:
+      Name: &quot;DefaultPublicSubnetC&quot;
+  DefaultPublicSubnetCCidr:
+    Description: &quot;Default Public Subnet  Availability Zone C CIDR&quot;
+    Value: &quot;192.168.18.0/24&quot;
+    Export:
+      Name: &quot;DefaultPublicSubnetCCidr&quot;
+  DefaultMediumSubnetA:
+    Description: &quot;DefaultMedium Subnet Availability Zone A&quot;
+    Value: { &quot;Ref&quot;: &quot;MediumSubnetA&quot; }
+    Export:
+      Name: &quot;DefaultMediumSubnetA&quot;
+  DefaultMediumSubnetACidr:
+    Description: &quot;Default Medium Subnet  Availability Zone A CIDR&quot;
+    Value: &quot;192.168.19.0/24&quot;
+    Export:
+      Name: &quot;DefaultMediumSubnetACidr&quot;
+  DefaultMediumSubnetB:
+    Description: &quot;DefaultMedium Subnet Availability Zone B&quot;
+    Value: { &quot;Ref&quot;: &quot;MediumSubnetB&quot; }
+    Export:
+      Name: &quot;DefaultMediumSubnetB&quot;
+  DefaultMediumSubnetBCidr:
+    Description: &quot;Default Medium Subnet  Availability Zone B CIDR&quot;
+    Value: &quot;192.168.20.0/24&quot;
+    Export:
+      Name: &quot;DefaultMediumSubnetBCidr&quot;
+  DefaultMediumSubnetC:
+    Description: &quot;DefaultMedium Subnet Availability Zone C&quot;
+    Value: { &quot;Ref&quot;: &quot;MediumSubnetC&quot; }
+    Export:
+      Name: &quot;DefaultMediumSubnetC&quot;
+  DefaultMediumSubnetCCidr:
+    Description: &quot;Default Medium Subnet  Availability Zone C CIDR&quot;
+    Value: &quot;192.168.21.0/24&quot;
+    Export:
+      Name: &quot;DefaultMediumSubnetCCidr&quot;
+  DefaultHighSubnetA:
+    Description: &quot;DefaultHigh Subnet Availability Zone A&quot;
+    Value: { &quot;Ref&quot;: &quot;HighSubnetA&quot; }
+    Export:
+      Name: &quot;DefaultHighSubnetA&quot;
+  DefaultHighSubnetACidr:
+    Description: &quot;Default High Subnet  Availability Zone A CIDR&quot;
+    Value: &quot;192.168.22.0/24&quot;
+    Export:
+      Name: &quot;DefaultHighSubnetACidr&quot;
+  DefaultHighSubnetB:
+    Description: &quot;DefaultHigh Subnet Availability Zone B&quot;
+    Value: { &quot;Ref&quot;: &quot;HighSubnetB&quot; }
+    Export:
+      Name: &quot;DefaultHighSubnetB&quot;
+  DefaultHighSubnetBCidr:
+    Description: &quot;Default High Subnet  Availability Zone B CIDR&quot;
+    Value: &quot;192.168.23.0/24&quot;
+    Export:
+      Name: &quot;DefaultHighSubnetBCidr&quot;
+  DefaultHighSubnetC:
+    Description: &quot;DefaultHigh Subnet Availability Zone C&quot;
+    Value: { &quot;Ref&quot;: &quot;HighSubnetC&quot; }
+    Export:
+      Name: &quot;DefaultHighSubnetC&quot;
+  DefaultHighSubnetCCidr:
+    Description: &quot;Default High Subnet  Availability Zone C CIDR&quot;
+    Value: &quot;192.168.24.0/24&quot;
+    Export:
+      Name: &quot;DefaultHighSubnetCCidr&quot;
+  DefaultManagementSubnetA:
+    Description: &quot;DefaultManagement Subnet Availability Zone A&quot;
+    Value: { &quot;Ref&quot;: &quot;ManagementSubnetA&quot; }
+    Export:
+      Name: &quot;DefaultManagementSubnetA&quot;
+  DefaultManagementSubnetACidr:
+    Description: &quot;Default Management Subnet  Availability Zone A CIDR&quot;
+    Value: &quot;192.168.25.0/24&quot;
+    Export:
+      Name: &quot;DefaultManagementSubnetACidr&quot;
+  DefaultManagementSubnetB:
+    Description: &quot;DefaultManagement Subnet Availability Zone B&quot;
+    Value: { &quot;Ref&quot;: &quot;ManagementSubnetB&quot; }
+    Export:
+      Name: &quot;DefaultManagementSubnetB&quot;
+  DefaultManagementSubnetBCidr:
+    Description: &quot;Default Management Subnet  Availability Zone B CIDR&quot;
+    Value: &quot;192.168.26.0/24&quot;
+    Export:
+      Name: &quot;DefaultManagementSubnetBCidr&quot;
+  DefaultManagementSubnetC:
+    Description: &quot;DefaultManagement Subnet Availability Zone C&quot;
+    Value: { &quot;Ref&quot;: &quot;ManagementSubnetC&quot; }
+    Export:
+      Name: &quot;DefaultManagementSubnetC&quot;
+  DefaultManagementSubnetCCidr:
+    Description: &quot;Default Management Subnet  Availability Zone C CIDR&quot;
+    Value: &quot;192.168.27.0/24&quot;
+    Export:
+      Name: &quot;DefaultManagementSubnetCCidr&quot;
+</code></pre>
+
+<p>4. Once the playbook execution completes successfully, login to the <strong>demo-resources</strong> account.  You should see a new CloudFormation stack called <code>network-resources</code>:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/network-resources.png" alt="Network Resources Stack" /></p>
+
+<p>Notice that a large number of network resources have been created.</p>
+
+<p>5. If you select the <strong>CloudFormation</strong> dropdown and click on <strong>Exports</strong>, notice that a large number of CloudFormation exports have been created by the <strong>network-resources</strong> stack.</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/network-resources-exports.png" alt="CloudFormation Exports" /></p>
+
+<p>6. If you open the VPC dashboard and select <strong>Subnets</strong>, a large number of subnets have now been created:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/network-subnets.png" alt="Network Subnets" /></p>
+
+<p>Notice that /24 subnets for availability zones A, B and C have been created in the <strong>public</strong>, <strong>medium</strong>, <strong>high</strong> and <strong>management</strong> security zones.</p>
+
+<p>7. If you open the Route53 dashboard and select <strong>Hosted zones</strong>, two Route53 zones have been created:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/network-domains.png" alt="Route53 Domains" /></p>
+
+<p>Notice that a public Route53 zone for <code>demo.cloudhotspot.co</code> has been created, along with a private Route53 zone for <code>&lt;vpc-id&gt;.casecommons.org</code>.</p>
+
+<h2 id="wrap-up">Wrap Up</h2>
+
+<p>We created network resources in our <strong>demo-resources</strong> account, which provide the supporting network infrastructure for creating CloudFormation stacks for our applications.</p>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>At this point you should commit your changes to the network resources playbook before continuing.</p>
+</div>
+
+
+			<aside class="copyright" role="note">
+				
+				&copy; 2017 Released under the MIT license &ndash;
+				
+				Documentation built with
+				<a href="https://www.gohugo.io" target="_blank">Hugo</a>
+				using the
+				<a href="http://github.com/digitalcraftsman/hugo-material-docs" target="_blank">Material</a> theme.
+			</aside>
+
+			<footer class="footer">
+				
+
+<nav class="pagination" aria-label="Footer">
+  <div class="previous">
+  
+      <a href="https://casecommons.github.io/aws-docs/cloudformation-resources/" title="CloudFormation Resources">
+        <span class="direction">
+          Previous
+        </span>
+        <div class="page">
+          <div class="button button-previous" role="button" aria-label="Previous">
+            <i class="icon icon-back"></i>
+          </div>
+          <div class="stretch">
+            <div class="title">
+              CloudFormation Resources
+            </div>
+          </div>
+        </div>
+      </a>
+  
+  </div>
+
+  <div class="next">
+  
+      <a href="https://casecommons.github.io/aws-docs/ecr-resources/" title="EC2 Container Registry Resources">
+        <span class="direction">
+          Next
+        </span>
+        <div class="page">
+          <div class="stretch">
+            <div class="title">
+              EC2 Container Registry Resources
+            </div>
+          </div>
+          <div class="button button-next" role="button" aria-label="Next">
+            <i class="icon icon-forward"></i>
+          </div>
+        </div>
+      </a>
+  
+  </div>
+</nav>
+
+
+
+
+
+			</footer>
+		</div>
+	</article>
+
+	<div class="results" role="status" aria-live="polite">
+		<div class="scrollable">
+			<div class="wrapper">
+				<div class="meta"></div>
+				<div class="list"></div>
+			</div>
+		</div>
+	</div>
+</main>
+
+    <script>
+    
+      var base_url = '';
+      var repo_id  = '';
+    
+    </script>
+
+    <script src="https://casecommons.github.io/aws-docs/javascripts/application.js"></script>
+    
+
+    <script>
+      /* Add headers to scrollspy */
+      var headers   = document.getElementsByTagName("h2");
+      var scrollspy = document.getElementById('scrollspy');
+
+      if(scrollspy) {
+        if(headers.length > 0) {
+          for(var i = 0; i < headers.length; i++) {
+            var li = document.createElement("li");
+            li.setAttribute("class", "anchor");
+
+            var a  = document.createElement("a");
+            a.setAttribute("href", "#" + headers[i].id);
+            a.setAttribute("title", headers[i].innerHTML);
+            a.innerHTML = headers[i].innerHTML;
+
+            li.appendChild(a)
+            scrollspy.appendChild(li);
+          }
+        } else {
+          scrollspy.parentElement.removeChild(scrollspy)
+        }
+
+
+        /* Add permanent link next to the headers */
+        var headers = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+
+        for(var i = 0; i < headers.length; i++) {
+            var a = document.createElement("a");
+            a.setAttribute("class", "headerlink");
+            a.setAttribute("href", "#" + headers[i].id);
+            a.setAttribute("title", "Permanent link")
+            a.innerHTML = "#";
+            headers[i].appendChild(a);
+        }
+      }
+    </script>
+
+    
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
+

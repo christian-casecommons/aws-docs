@@ -1,0 +1,25 @@
+.article code {
+  background: #f3f3f3;  
+}
+
+.article li pre {
+  margin: 1em -18px 2em
+}
+
+li div.admonition.note {
+  margin: 1em -18px 2em;
+}
+
+.hll { 
+  background-color: #ffffcc;
+  padding: 4px;
+  margin-left: -4px 
+}
+
+div.admonition.note a {
+  color: white;
+}
+
+div.admonition.note a:hover {
+  color: cyan;
+}

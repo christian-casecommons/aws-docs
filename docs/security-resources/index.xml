@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Security-resources on AWS CloudFormation Tutorial</title>
+    <link>https://casecommons.github.io/aws-docs/security-resources/index.xml</link>
+    <description>Recent content in Security-resources on AWS CloudFormation Tutorial</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Released under the MIT license</copyright>
+    <lastBuildDate>Sat, 18 Feb 2017 23:54:48 +1300</lastBuildDate>
+    <atom:link href="https://casecommons.github.io/aws-docs/security-resources/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Security Resources</title>
+      <link>https://casecommons.github.io/aws-docs/security-resources/</link>
+      <pubDate>Sat, 18 Feb 2017 23:54:48 +1300</pubDate>
+      
+      <guid>https://casecommons.github.io/aws-docs/security-resources/</guid>
+      <description>
+
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+
+&lt;p&gt;The initial set of AWS resources that need to be created for any AWS account are security resources, which establish the base IAM roles and groups that are required to create and manage additional AWS resources in each account.&lt;/p&gt;
+
+&lt;p&gt;In this tutorial, we first need to create security resources for the &lt;strong&gt;Demo Users&lt;/strong&gt; account, after which we need to establish create security resources in the &lt;strong&gt;Demo Resources&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;h2 id=&#34;security-resources-template&#34;&gt;Security Resources Template&lt;/h2&gt;
+
+&lt;p&gt;The &lt;code&gt;aws-cloudformation&lt;/code&gt; role includes a security resources template that is designed to define the following security resources:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;IAM roles&lt;/li&gt;
+&lt;li&gt;IAM groups&lt;/li&gt;
+&lt;li&gt;ACM certificates&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;By default, without any custom configuration, the security template creates the following resources:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;An &lt;strong&gt;admin&lt;/strong&gt; IAM role that has the AWS &lt;strong&gt;AdministratorAccess&lt;/strong&gt; managed policy attached and trusts your AWS account and an optional list of other AWS accounts to assume the role&lt;/li&gt;
+&lt;li&gt;An &lt;strong&gt;Administrators&lt;/strong&gt; IAM group that has an IAM policy attached that permits members of this group the ability to assume the &lt;strong&gt;admin&lt;/strong&gt; role.&lt;/li&gt;
+&lt;li&gt;A &lt;strong&gt;Users&lt;/strong&gt; IAM group that has an IAM policy attached that enforces a requirement for multi-factor authentication (MFA) for all AWS operations except for a minimal set of IAM operations that allow a user to register/resync his/her MFA device and change his/her password.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;creating-a-temporary-user&#34;&gt;Creating a Temporary User&lt;/h2&gt;
+
+&lt;p&gt;The security resources stack is the first stack you will create in a given AWS account, and requires a temporary administrative user to be created with an API access key configured to run the security resources playbook.  This temporary user is required to seed an initial administrative IAM role - once established, we can remove the temporary user and configure regular users that can assume the administrative IAM role as required to manage all AWS resources in the account.&lt;/p&gt;
+
+&lt;p&gt;We will first create a temporary user in the &lt;strong&gt;Demo Users&lt;/strong&gt; account - later on you will repeat these instructions to create a temporary user in the &lt;strong&gt;Demo Resources&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;These instructions assume you are configuring a new account and have logged in to the account using root credentials to perform initial setup.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;In the IAM dashboard, select  &lt;strong&gt;Users&lt;/strong&gt; on the left panel and click &lt;strong&gt;Add User&lt;/strong&gt;.
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-dashboard.png&#34; alt=&#34;IAM Dashboard&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Specify an appropriate user name, select the option to enable &lt;strong&gt;Programmatic access&lt;/strong&gt;, and click &lt;strong&gt;Next: Permissions&lt;/strong&gt;.
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-add-user.png&#34; alt=&#34;Add User&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Select the &lt;strong&gt;Attach existing policies directly&lt;/strong&gt; option and type &lt;strong&gt;AdministratorAccess&lt;/strong&gt; in the &lt;strong&gt;Filter&lt;/strong&gt; input.  Ensure the &lt;strong&gt;AdministratorAccess&lt;/strong&gt; policy is selected and then click &lt;strong&gt;Next: Review&lt;/strong&gt;.
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-set-permissions.png&#34; alt=&#34;Set Permissions&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Click on the &lt;strong&gt;Create User&lt;/strong&gt; button.
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-create-user.png&#34; alt=&#34;Create User&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Click on the &lt;strong&gt;Show&lt;/strong&gt; link to display the secret access key for the newly created user.
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-access-key.png&#34; alt=&#34;Access Key&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Copy the &lt;strong&gt;Access key ID&lt;/strong&gt; and &lt;strong&gt;Secret access key&lt;/strong&gt; values which you will need to configure the environment.&lt;br /&gt;
+Once you have copied these values, click on the &lt;strong&gt;Close&lt;/strong&gt; button.
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-show-access-key.png&#34; alt=&#34;Show Access Key&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Open a new shell prompt and export the access key ID and secret access key values as demonstrated below.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ export AWS_ACCESS_KEY_ID=AKIAIRJGYMTD252YWCTQ
+$ export AWS_SECRET_ACCESS_KEY=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
+$ export AWS_DEFAULT_REGION=us-west-2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;creating-the-playbook&#34;&gt;Creating the Playbook&lt;/h2&gt;
+
+&lt;p&gt;We will now establish a security resources playbook which will define security resources for both our &lt;strong&gt;Demo Users&lt;/strong&gt; account and &lt;strong&gt;Demo Resources&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;p&gt;1. Fork the &lt;a href=&#34;https://github.com/casecommons/aws-starter&#34;&gt;AWS Starter&lt;/a&gt; to a new repository in your Github account.  In this tutorial, we&amp;rsquo;ll call the repository &lt;strong&gt;demo-security-resources&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;2. Clone the repository locally and change to the new repository folder:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:jmenga/demo-security-resources.git
+  Cloning into &#39;demo-security&#39;...
+  remote: Counting objects: 32, done.
+  remote: Total 32 (delta 0), reused 0 (delta 0), pack-reused 32
+  Receiving objects: 100% (32/32), 4.78 KiB | 0 bytes/s, done.
+  Resolving deltas: 100% (7/7), done.
+$ cd demo-security-resources
+$ tree
+.
+├── README.md
+├── ansible.cfg
+├── group_vars
+│   ├── all
+│   │   └── vars.yml
+│   └── non-prod
+│       └── vars.yml
+├── inventory
+├── roles
+│   └── requirements.yml
+└── site.yml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3.  Review the &lt;code&gt;roles/requirements.yml&lt;/code&gt; file, which specifies the location and version of Ansible roles that the playbook relies on.  By default the &lt;code&gt;version&lt;/code&gt; for each role is set to install the latest commit from the &lt;code&gt;master&lt;/code&gt; branch, however it is a good idea to lock each role to a specific version as demonstrated below:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# You can specify git tag, commit or branch for the version property&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;&lt;span class=&#34;nd&#34;&gt;@github.com&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;scm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;  &lt;span class=&#34;n&#34;&gt;version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;0.7&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;&lt;span class=&#34;nd&#34;&gt;@github.com&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;scm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;  &lt;span class=&#34;n&#34;&gt;version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;0.1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;4.  Install the roles using the &lt;code&gt;ansible-galaxy&lt;/code&gt; command as demonstrated below:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ansible&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;galaxy&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;install&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;requirements&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;yml&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;force&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;extracting&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;to&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Users&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;jmenga&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Source&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;demo&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;security&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;was&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;installed&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;successfully&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;extracting&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;to&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Users&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;jmenga&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Source&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;casecommons&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;demo&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;security&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;was&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;installed&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;successfully&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;5. Notice that this installs the roles locally into the &lt;code&gt;roles&lt;/code&gt; folder, as per the &lt;code&gt;roles_path&lt;/code&gt; setting in the local &lt;code&gt;ansible.cfg&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;$ cat ansible.cfg
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;defaults&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;inventory&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; inventory
+&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;nv&#34;&gt;roles_path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; roles
+&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;retry_files_enabled&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; False
+
+$ tree roles -L &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+roles
+├── aws-cloudformation
+├── aws-sts
+└── requirements.yml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class=&#34;admonition note&#34;&gt;
+&lt;p class=&#34;admonition-title&#34;&gt;Note&lt;/p&gt;
+&lt;p&gt;You only need to run the &lt;code&gt;ansible-galaxy install&lt;/code&gt; command as demonstrated above in the following scenarios:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Cloning the repository for the first time&lt;/li&gt;
+&lt;li&gt;Updating the locally installed roles to a newer version&lt;/li&gt;
+&lt;li&gt;Resetting the locally installed roles to their original state&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Using the &lt;code&gt;--force&lt;/code&gt; flag ensures the role will be overwritten regardless of whether or not the role is currently present locally.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;p&gt;6.  Modify the &lt;code&gt;group_vars/all/vars.yml&lt;/code&gt; file, which contains global settings for the playbook.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Stack Settings&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;cf_stack_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;security&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;n&#34;&gt;cf_stack_template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;templates/security.yml.j2&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cf_stack_tags&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;business&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;owner&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Casecommons&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;business&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;product&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Security&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;business&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;severity&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;High&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tech&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;environment&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;{{ env }}&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tech&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contact&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pema&lt;/span&gt;&lt;span class=&#34;nd&#34;&gt;@casecommons.org&lt;/span&gt;
+  
+&lt;span class=&#34;c1&#34;&gt;# CloudFormation settings&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# This sets a policy that disables updates to existing resources&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# This requires you to explicitly set the cf_disable_stack_policy flag to true when running the playbook&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;cf_stack_policy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;Statement&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+  &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Effect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Deny&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Action&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Update:*&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Principal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;*&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Resource&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;*&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Notice that we set four variables, each prefixed with &lt;code&gt;cf_&lt;/code&gt;, which by convention refers to variables that are input or output by the &lt;code&gt;aws-cloudformation&lt;/code&gt; role:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;cf_stack_name&lt;/code&gt; - defines the name of the stack.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;cf_stack_template&lt;/code&gt; - defines the CloudFormation template used to create the stack.  Here we reference &lt;code&gt;templates/security.yml.j2&lt;/code&gt;, which is a relative reference to a template included within the &lt;code&gt;aws-cloudformation&lt;/code&gt; role, rather than a template in the local playbook.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;cf_stack_tags&lt;/code&gt; - defines tags that will be attached to all resources created within the CloudFormation stack&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;cf_stack_policy&lt;/code&gt; - defines a CloudFormation stack policy.  This is a safety mechanism that requires you to temporarily explicity disable the stack policy if you want to make updates to an existing CloudFormation stack.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;7. Remove the local &lt;code&gt;templates&lt;/code&gt; folder, since we are using a template that is embedded within the &lt;code&gt;aws-cloudformation&lt;/code&gt; role:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ rm -rf templates
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;8. Finally review the &lt;code&gt;site.yml&lt;/code&gt; file, which contains the main playbook:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Assume&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Role&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;hosts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;{{ env }}&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;gather_facts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;no&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sts&lt;/span&gt;
+
+&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Stack&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Deployment&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;hosts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;{{ env }}&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;environment&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;{{ sts_creds }}&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;roles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aws&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cloudformation&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Notice the playbook is very simple with two plays defined:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Assume Role&lt;/strong&gt; - this calls the &lt;code&gt;aws-sts&lt;/code&gt; role and assumes the role defined by the &lt;code&gt;sts_role_arn&lt;/code&gt; setting for a given environment.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Stack Deployment&lt;/strong&gt; - this calls the &lt;code&gt;aws-cloudformation&lt;/code&gt; role and creates a CloudFormation stack for a given environment.  Notice that we inject &lt;code&gt;sts_creds&lt;/code&gt; into the environment, which contains the temporary session credentials obtained via the previous Assume Role play.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In both plays, notice that the &lt;code&gt;hosts&lt;/code&gt; variable references the &lt;code&gt;env&lt;/code&gt; variable, which we must always supply at runtime:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ ansible-playbook site.yml -e env=&amp;lt;environment-name&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;An interesting aspect of the framework is that you typically don&amp;rsquo;t need to modify the primary &lt;code&gt;site.yml&lt;/code&gt; playbook, unless you want to perform some custom pre-deployment or post-deployment actions.&lt;/p&gt;
+
+&lt;h2 id=&#34;defining-a-new-environment&#34;&gt;Defining a New Environment&lt;/h2&gt;
+
+&lt;p&gt;In this section we will add a new environment called &lt;strong&gt;demo-users&lt;/strong&gt; to the playbook, which will be used to create security resources in our new &lt;strong&gt;demo-users&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;p&gt;1. Modify the &lt;code&gt;inventory&lt;/code&gt; file so that it defines a single environment called &lt;strong&gt;demo-users&lt;/strong&gt;, ensuring you specify &lt;code&gt;ansible_connection=local&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-toml&#34;&gt;[demo-users]
+demo-users ansible_connection=local
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2. Remove the &lt;code&gt;group_vars/non-prod&lt;/code&gt; environment folder that is included in the starter template:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ rm -rf group_vars/non-prod
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3. Create a file called &lt;code&gt;group_vars/demo-users/vars.yml&lt;/code&gt;, which will hold all environment specific configuration for the &lt;strong&gt;demo-users&lt;/strong&gt; environment:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ mkdir -p group_vars/demo-users
+$ touch group_vars/demo-users/vars.yml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;4. Finally add the &lt;code&gt;sts_role_arn&lt;/code&gt; setting to &lt;code&gt;group_vars/demo-users/vars.yml&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# STS role in the target AWS account to assume
+sts_role_arn: &amp;quot;arn:aws:iam::094411466117:role/admin&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;sts_role_arn&lt;/code&gt; setting defines the Amazon Resource Name (ARN) of the IAM role the &lt;code&gt;aws-sts&lt;/code&gt; Ansible role (take care not to confuse IAM and Ansible roles) will attempt to assume.  This is a very important setting, as it establishes the target account that the playbook will create a CloudFormation stack and associated resources in, and must be defined for every environment that you create.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Ensure you replace the value &lt;code&gt;094411466117&lt;/code&gt; above with the account ID of your own &amp;ldquo;&lt;strong&gt;demo-users&lt;/strong&gt;&amp;rdquo; account.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;running-the-playbook&#34;&gt;Running the Playbook&lt;/h2&gt;
+
+&lt;p&gt;The security template in the &lt;code&gt;aws-cloudformation&lt;/code&gt; role will create the following resources by default:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;An IAM role named &lt;strong&gt;admin&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;An IAM group named &lt;strong&gt;Administrators&lt;/strong&gt; that grants members the ability to assume the &lt;strong&gt;admin&lt;/strong&gt; role&lt;/li&gt;
+&lt;li&gt;An IAM group named &lt;strong&gt;Users&lt;/strong&gt; that requires users to authenticate using multi-factor authentication (MFA)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let&amp;rsquo;s now run the playbook to create these resources.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;These instructions assume you have configured your local environment with the AWS access key and AWS secret access key created earlier in  &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/#creating-a-temporary-user&#34;&gt;Creating a Temporary User&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;First run the Ansible playbook targeting the &lt;code&gt;demo-users&lt;/code&gt; environment as demonstrated below:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;$ ansible-playbook site.yml -e &lt;span class=&#34;nv&#34;&gt;env&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;demo-users
+
+PLAY &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Assume Role&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; *************************************************************
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : set_fact&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ******************************************************
+ok: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : checking &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; sts functions are sts_disabled&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ********************
+skipping: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : setting empty sts_session_output result&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ***********************
+skipping: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : setting sts_creds &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; legacy AWS credentials are present &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;e.g. &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; Ansible Tower&lt;span class=&#34;o&#34;&gt;)]&lt;/span&gt; ***
+skipping: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : assume sts role&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ***********************************************
+&lt;span class=&#34;hll&#34;&gt;fatal: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: FAILED! &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;changed&amp;quot;&lt;/span&gt;: false, &lt;span class=&#34;s2&#34;&gt;&amp;quot;cmd&amp;quot;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;quot;aws sts assume-role --role-arn=\&amp;quot;arn:aws:iam::625916301437:role/admin\&amp;quot; &lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;--role-session-name=\&amp;quot;adminSession\&amp;quot;&amp;quot;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;delta&amp;quot;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;quot;0:00:02.143031&amp;quot;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;end&amp;quot;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;quot;2017-02-19 14:42:24.227270&amp;quot;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;failed&amp;quot;&lt;/span&gt;: true, 
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;rc&amp;quot;&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;255&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;start&amp;quot;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;quot;2017-02-19 14:42:22.084239&amp;quot;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;stderr&amp;quot;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;quot;\nAn error occurred (AccessDenied) when calling the AssumeRole &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;operation: Not authorized to perform sts:AssumeRole&amp;quot;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;stdout&amp;quot;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;stdout_lines&amp;quot;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;quot;warnings&amp;quot;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[]}&lt;/span&gt;
+
+PLAY RECAP *********************************************************************
+demo                       : &lt;span class=&#34;nv&#34;&gt;ok&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;changed&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;unreachable&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;failed&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Notice that the operation fails, and this is because we have a chicken-in-egg scenario where our the &lt;code&gt;aws-sts&lt;/code&gt; Ansible role in our playbook is attempting to assume the IAM role defined by the &lt;code&gt;sts_role_arn&lt;/code&gt; setting in our &lt;code&gt;groups_vars/demo-users/vars.yml&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# STS role in the target AWS account to assume
+sts_role_arn: &amp;quot;arn:aws:iam::094411466117:role/admin&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This &lt;strong&gt;admin&lt;/strong&gt; role does not exist yet, as it is the job of the security playbook to create the role, creating a chicken-in-egg scenario.&lt;/p&gt;
+
+&lt;p&gt;To overcome this we can set a flag &lt;code&gt;sts_disable&lt;/code&gt; to &lt;code&gt;true&lt;/code&gt; when we run the playbook, which disables the &lt;code&gt;aws-sts&lt;/code&gt; role:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;$ ansible-playbook site.yml -e &lt;span class=&#34;nv&#34;&gt;env&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;demo-users -e &lt;span class=&#34;nv&#34;&gt;sts_disable&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;
+
+PLAY &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Assume Role&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; *************************************************************
+
+TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : set_fact&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ******************************************************
+ok: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+&lt;span class=&#34;hll&#34;&gt;TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-sts : checking &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; sts functions are sts_disabled&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ********************
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;ok: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;    &lt;span class=&#34;s2&#34;&gt;&amp;quot;msg&amp;quot;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;quot;Skipping STS functions as sts_disabled is defined&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;
+...
+...
+
+&lt;span class=&#34;hll&#34;&gt;TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-cloudformation : configure application stack&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; ************************
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;changed: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;demo-users&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;
+...
+...
+
+PLAY RECAP *********************************************************************
+&lt;span class=&#34;hll&#34;&gt;demo-users                  : &lt;span class=&#34;nv&#34;&gt;ok&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;19&lt;/span&gt;   &lt;span class=&#34;nv&#34;&gt;changed&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;unreachable&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;failed&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This time the playbook succeeds, pausing on the &lt;code&gt;configure application stack&lt;/code&gt; task for a couple of minutes whilst the CloudFormation stack is created (notice this task completes with a &lt;code&gt;changed&lt;/code&gt; status), and then completing successfully once the stack is created.&lt;/p&gt;
+
+&lt;p&gt;If you navigate to the CloudFormation dashboard, notice that a new stack called &lt;strong&gt;security-resources&lt;/strong&gt; has been created:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/security-resources-stack.png&#34; alt=&#34;Security Resources Stack&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the IAM dashboard we can verify that our &lt;strong&gt;admin&lt;/strong&gt; role has been created:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-admin-role.png&#34; alt=&#34;IAM Admin Role&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Because the &lt;strong&gt;admin&lt;/strong&gt; role has now been created, you should be able to re-run the playbook without the &lt;code&gt;sts_disable&lt;/code&gt; flag:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ansible-playbook site.yml -e env=demo-users
+
+PLAY [Assume Role] *************************************************************
+
+TASK [aws-sts : set_fact] ******************************************************
+ok: [demo-users]
+...
+...
+
+TASK [aws-cloudformation : configure application stack] ************************
+ok: [demo-users]
+
+TASK [aws-cloudformation : get stack facts] ************************************
+ok: [demo-users]
+
+TASK [aws-cloudformation : set stack facts] ************************************
+ok: [demo-users]
+
+TASK [aws-cloudformation : debug] **********************************************
+skipping: [demo-users]
+
+TASK [aws-cloudformation : S3 Template URL] ************************************
+skipping: [demo-users]
+
+TASK [aws-cloudformation : enable current stack policy] ************************
+skipping: [demo-users]
+
+TASK [aws-cloudformation : fail] ***********************************************
+skipping: [demo-users]
+
+TASK [aws-cloudformation : delete application stack] ***************************
+skipping: [demo-users]
+
+PLAY RECAP *********************************************************************
+demo                       : ok=20   changed=0    unreachable=0    failed=0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This time the playbook can successfully assume the &lt;strong&gt;admin&lt;/strong&gt; role (because our temporary user has administrative credentials and the role trusts the local AWS account), and notice that the &lt;strong&gt;configure application stack&lt;/strong&gt; completes with no change, as the CloudFormation stack already exists and no configuration changes have been made.&lt;/p&gt;
+
+&lt;p&gt;Back in the IAM console, you should also be able to see that an &lt;strong&gt;Administrators&lt;/strong&gt; group and &lt;strong&gt;Users&lt;/strong&gt; group have been created:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-groups.png&#34; alt=&#34;IAM Groups&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;creating-an-administrator&#34;&gt;Creating an Administrator&lt;/h2&gt;
+
+&lt;p&gt;Now that we have established an &lt;strong&gt;admin&lt;/strong&gt; IAM role and an &lt;strong&gt;Administrators&lt;/strong&gt; and &lt;strong&gt;Users&lt;/strong&gt; group, now let&amp;rsquo;s create a new user  called &amp;lsquo;justin.menga&amp;rsquo; and attach this user to &lt;strong&gt;Users&lt;/strong&gt; group to enforce MFA for this user, and the &lt;strong&gt;Administrators&lt;/strong&gt; group to allow the user to administer the &lt;strong&gt;demo-users&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;These instructions assume that you are starting logged in as root to the &lt;strong&gt;demo-users&lt;/strong&gt; account&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;1. Navigate to the &lt;strong&gt;Users&lt;/strong&gt; section in the IAM dashboard and click the &lt;strong&gt;Add user&lt;/strong&gt; button:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-add-admin-user.png&#34; alt=&#34;Add User&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;2. Configure an appropriate user name and password as shown below and click on the &lt;strong&gt;Next: Permissions&lt;/strong&gt; button:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-set-user-details.png&#34; alt=&#34;Set User Details&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;3. Add the user to the &lt;strong&gt;Administrators&lt;/strong&gt; and &lt;strong&gt;Users&lt;/strong&gt; group and click on the &lt;strong&gt;Next: Review&lt;/strong&gt; button:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-set-admin-permissions.png&#34; alt=&#34;Set User Details&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;4. Click on &lt;strong&gt;Create User&lt;/strong&gt; to confirm the creation of the user:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-create-admin-user.png&#34; alt=&#34;Create User&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;5. Copy the AWS access key ID and secret access key value as you will need these later on when you configure your local AWS environment.  Once done, click on the &lt;strong&gt;Close&lt;/strong&gt; button:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-add-admin-user-success.png&#34; alt=&#34;Create User Success&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;6. At this point, you can remove the temporary administrative user &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/#creating-a-temporary-user&#34;&gt;we created earlier&lt;/a&gt; by selecting the user in the IAM users section, clicking &lt;strong&gt;Delete users&lt;/strong&gt; and confirming the delete operation:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-admin-user-added.png&#34; alt=&#34;Delete User&#34; /&gt;
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-confirm-delete-user.png&#34; alt=&#34;Confirm Delete User&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;7. You should also now clear the previous temporary user credentials from your local shell:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;setting-up-mfa&#34;&gt;Setting up MFA&lt;/h2&gt;
+
+&lt;p&gt;We have created an administrative account that is assigned to the both the &lt;strong&gt;Administrators&lt;/strong&gt; and  &lt;strong&gt;Users&lt;/strong&gt; groups.  The &lt;strong&gt;Users&lt;/strong&gt; groups enforces a requirement for multi-factor authentication (MFA) except for a few specific IAM actions including resetting your password and setting up/resyncing an MFA device, so now let&amp;rsquo;s setup MFA for our new user.&lt;/p&gt;
+
+&lt;p&gt;1. Logout from the console and login into the AWS console using the URL &lt;code&gt;https://&amp;lt;account-id-or-alias&amp;gt;.signin.aws.amazon.com/console&lt;/code&gt;
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-admin-user-signin.png&#34; alt=&#34;Console Login&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;2. Navigate to &lt;strong&gt;IAM &amp;gt; Users&lt;/strong&gt; and select the user account you have just logged in as:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-select-admin-user.png&#34; alt=&#34;Select User&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;3. Select the &lt;strong&gt;Security Credentials&lt;/strong&gt; tab and click on the &lt;strong&gt;Edit&lt;/strong&gt; icon next to &lt;strong&gt;Assigned MFA device&lt;/strong&gt;:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-security-credentials.png&#34; alt=&#34;Security Credentials&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;4. Select the &lt;strong&gt;A virtual MFA device&lt;/strong&gt; option and click &lt;strong&gt;Next Step&lt;/strong&gt;:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-virtual-mfa.png&#34; alt=&#34;Select MFA Device&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;5. Add a new account on your MFA device (e.g. Microsoft or Google Authenticator) and scan the QR code displayed on screen.  Once you have entered two authentication codes, click on the &lt;strong&gt;Activate Virtual MFA&lt;/strong&gt; button:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-sync-mfa.png&#34; alt=&#34;Sync MFA Device&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;6. Copy the ARN value of the MFA device as you will need this later when you configure your local AWS environment to assume the &lt;strong&gt;admin&lt;/strong&gt; role.
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-mfa-activated.png&#34; alt=&#34;MFA Activated&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;7. At this point, MFA is setup for the administrative user, and if you logout and log back in with the user credentials, this time you should be prompted to enter an MFA code:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-admin-user-signin.png&#34; alt=&#34;Console Login&#34; /&gt;
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-enter-mfa.png&#34; alt=&#34;MFA Login&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After successfully logging in with MFA auth, you will now be able to assume the &lt;strong&gt;admin&lt;/strong&gt; role in the AWS console, as the user is a member of the &lt;strong&gt;Administrators&lt;/strong&gt; group and has satisfied the requirement to authenticate using MFA.&lt;/p&gt;
+
+&lt;p&gt;8. Expand the login dropdown and select the &lt;strong&gt;Switch Role&lt;/strong&gt; option:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-switch-role.png&#34; alt=&#34;Switch Role&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;9. Enter the account ID or alias of the &lt;strong&gt;demo-users&lt;/strong&gt; account, specify &lt;strong&gt;admin&lt;/strong&gt; as the role to assume and click &lt;strong&gt;Switch Role&lt;/strong&gt;:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-switch-role-details.png&#34; alt=&#34;Switch Role Details&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;10. Notice that the AWS Console reflects you have successfully assumed the admin role:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-assumed-admin-role.png&#34; alt=&#34;Assumed Admin Role&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;configuring-aws-api-access&#34;&gt;Configuring AWS API Access&lt;/h2&gt;
+
+&lt;p&gt;We have established an initial administrative user and have setup MFA access to the AWS Console.&lt;/p&gt;
+
+&lt;p&gt;We now need to setup our local AWS environment to allow us to:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Authenticate as user using the API key created in Step 5 of &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/#creating-an-administrator&#34;&gt;Creating an Admnistrator&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Automatically assume the &lt;strong&gt;admin&lt;/strong&gt; role and prompt for MFA authentication&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1. Add an entry to the local &lt;code&gt;~/.aws/credentials&lt;/code&gt; file that includes the AWS access key ID and secret access key created in in Step 5 of &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/#creating-an-administrator&#34;&gt;Creating an Admnistrator&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-ini&#34;&gt;[demo-users]
+aws_access_key_id = xxxxxxxxxxxxxx
+aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2. Add a profile to the local &lt;code&gt;~/.aws/config&lt;/code&gt; file that references the credentials profile created in Step 1, and is configured to assume the admin role with MFA authentication:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-ini&#34;&gt;[profile demo-users-admin]
+source_profile=demo-users
+role_arn=arn:aws:iam::094411466117:role/admin
+role_session_name=justin.menga
+mfa_serial=arn:aws:iam::094411466117:mfa/justin.menga
+region=us-west-2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice that we create a profile called &lt;code&gt;demo-users-admin&lt;/code&gt; with the following settings:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;source_profile&lt;/code&gt; - references the credentials profile created in Step 1&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;role_arn&lt;/code&gt; - the ARN of the IAM role to assume, which in this case is the &lt;strong&gt;admin&lt;/strong&gt; role in the &lt;strong&gt;demo-users&lt;/strong&gt; account&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;role_session_name&lt;/code&gt; - the name to assign to each session created when you assume the role.  Setting this to your user name simplifies tracking of user activity in CloudTrail logs&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;mfa_serial&lt;/code&gt; - the ARN of the MFA device used for MFA, which we copied in Step 6 of &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/#setting-up-mfa&#34;&gt;Setting up MFA&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;region&lt;/code&gt; - the default AWS region to assume the role in&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;3. We can now test the profile we have just setup.  We can configure our environment to use the profile by setting the &lt;code&gt;AWS_PROFILE&lt;/code&gt; environment variable and then running a test AWS CLI command as demonstrated below:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ export AWS_PROFILE=demo-users-admin
+$ aws sts get-caller-identity
+Enter MFA Code: ******
+{
+    &amp;quot;Account&amp;quot;: &amp;quot;094411466117&amp;quot;,
+    &amp;quot;UserId&amp;quot;: &amp;quot;AROAJRQTS5HMX77II3TQE:justin.menga&amp;quot;,
+    &amp;quot;Arn&amp;quot;: &amp;quot;arn:aws:sts::094411466117:assumed-role/admin/justin.menga&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice that you are prompted for an MFA code, and after entering a valid code, the test AWS CLI command can be run.&lt;/p&gt;
+
+&lt;p&gt;The AWS CLI caches temporary session credentials obtained during the assume role process by default for one hour, meaning if you re-run the test AWS CLI command, you won&amp;rsquo;t be re-prompted for MFA authentication until after one hour has passed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# We are not re-prompted for MFA authentication
+$ aws sts get-caller-identity
+{
+    &amp;quot;Account&amp;quot;: &amp;quot;094411466117&amp;quot;,
+    &amp;quot;UserId&amp;quot;: &amp;quot;AROAJRQTS5HMX77II3TQE:justin.menga&amp;quot;,
+    &amp;quot;Arn&amp;quot;: &amp;quot;arn:aws:sts::094411466117:assumed-role/admin/justin.menga&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;configure-the-resources-account&#34;&gt;Configure the Resources Account&lt;/h2&gt;
+
+&lt;p&gt;We have created security resources in our &lt;strong&gt;demo-users&lt;/strong&gt; account by creating an environment called &lt;strong&gt;demo-users&lt;/strong&gt; in our security resources playbook.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s now create security resources in the &lt;strong&gt;demo-resources&lt;/strong&gt; account by creating a new environment called &lt;strong&gt;demo-resources&lt;/strong&gt; in our security resources playbook.&lt;/p&gt;
+
+&lt;p&gt;1. Ensuring you are logged into the &lt;strong&gt;demo-resources&lt;/strong&gt; account, repeat the instructions &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/#creating-a-temporary-user&#34;&gt;Creating a Temporary User&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;2. Create a new environment called &lt;code&gt;demo-resources&lt;/code&gt; in the &lt;code&gt;inventory&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;[demo-users]&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;demo-users ansible_connection&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;local&lt;/span&gt;
+
+&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;k&#34;&gt;[demo-resources]&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;demo-resources ansible_connection&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;local&lt;/span&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;3. Create a file called &lt;code&gt;group_vars/demo-resources/vars.yml&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ mkdir -p group_vars/demo-resources
+$ touch group_vars/demo-resources/vars.yml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;4. Configure the &lt;code&gt;group_vars/demo-resources/vars.yml&lt;/code&gt; environment settings as follows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# STS role in the target AWS account to assume
+sts_role_arn: &amp;quot;arn:aws:iam::160775127577:role/admin&amp;quot;
+
+# Trusted entities for the IAM admin role
+# Here we trust the demo-users account
+config_iam_admin_accounts:
+  - 094411466117
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice that we change the &lt;code&gt;sts_role_arn&lt;/code&gt; variable to reference the account ID (160775127577) of the &lt;strong&gt;demo-resources&lt;/strong&gt; account.  Again, this is very important that you target the correct account for each environment that you define.&lt;/p&gt;
+
+&lt;p&gt;We also configure a setting called &lt;code&gt;config_iam_admin_accounts&lt;/code&gt;, which is an optional variable defined in the security template that adds a list of accounts as trusted entities to the IAM admin role that is created by the template.&lt;/p&gt;
+
+&lt;p&gt;Because all of our user accounts will be defined in the &lt;strong&gt;demo-users&lt;/strong&gt; account, we need to delegate access to the admin role to the &lt;strong&gt;demo-users&lt;/strong&gt;, hence we configure the &lt;strong&gt;demo-users&lt;/strong&gt; account (account ID 094411466117) as a trusted entity.&lt;/p&gt;
+
+&lt;div class=&#34;admonition note&#34;&gt;
+&lt;p class=&#34;admonition-title&#34;&gt;Note&lt;/p&gt;
+&lt;p&gt;Adding a remote account as a trusted entity does not automatically allow all users from the remote account to assume the role.&lt;/p&gt;
+
+&lt;p&gt;Users in the remote account must be granted permissions to assume the role - hence we are delegating control of which users can assume the admin role to the trusted account.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;p&gt;5. Run the playbook, targetting the new &lt;code&gt;demo-resources&lt;/code&gt; environment and setting &lt;code&gt;sts_disable&lt;/code&gt; to true so that we can seed the initial IAM admin role:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ansible-playbook site.yml -e env=demo-resources -e sts_disable=true
+
+PLAY [Assume Role] *************************************************************
+
+TASK [aws-sts : set_fact] ******************************************************
+ok: [demo-resources]
+
+TASK [aws-sts : checking if sts functions are sts_disabled] ********************
+ok: [demo-resources] =&amp;gt; {
+    &amp;quot;msg&amp;quot;: &amp;quot;Skipping STS functions as sts_disabled is defined&amp;quot;
+}
+
+...
+...
+
+TASK [aws-cloudformation : configure application stack] ************************
+changed: [demo-resources]
+
+...
+...
+
+PLAY RECAP *********************************************************************
+demo-resources              : ok=19   changed=1    unreachable=0    failed=0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you navigate to the CloudFormation dashboard, notice that a new stack called &lt;strong&gt;security-resources&lt;/strong&gt; has been created:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/security-resources-stack.png&#34; alt=&#34;Security Resources Stack&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the IAM dashboard we can verify that our &lt;strong&gt;admin&lt;/strong&gt; role has been created:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-admin-role.png&#34; alt=&#34;IAM Admin Role&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you click on the &lt;strong&gt;admin&lt;/strong&gt; role and select the &lt;strong&gt;Trust Relationships&lt;/strong&gt; tab, notice that both the local account ID for &lt;strong&gt;demo-resources&lt;/strong&gt; (160775127577) and the account ID for &lt;strong&gt;demo-users&lt;/strong&gt; (094411466117) are trusted:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-admin-role-trusts.png&#34; alt=&#34;IAM Admin Role Trusts&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;create-a-resources-admins-group&#34;&gt;Create a Resources Admins Group&lt;/h2&gt;
+
+&lt;p&gt;In the previous section we created security resources for the &lt;strong&gt;demo-resources&lt;/strong&gt; account and added our &lt;strong&gt;demo-users&lt;/strong&gt; account as a trusted entity that is allowed to assume the &lt;strong&gt;admin&lt;/strong&gt; role.&lt;/p&gt;
+
+&lt;p&gt;Before users in the &lt;strong&gt;&amp;ldquo;users&amp;rdquo;&lt;/strong&gt; account can assume the role, users within that account must be explicitly granted permission to assume the &lt;strong&gt;admin&lt;/strong&gt; role.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s now create a new group called &lt;strong&gt;DemoResourcesAdmins&lt;/strong&gt; in the &lt;strong&gt;demo-users&lt;/strong&gt; account and grant this group the ability to assume the &lt;strong&gt;admin&lt;/strong&gt; role in the &lt;strong&gt;demo-resources&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;security resources&lt;/strong&gt; template in our playbook includes support for defining IAM groups, so we will define the new group in the &lt;strong&gt;demo-users&lt;/strong&gt; environment.&lt;/p&gt;
+
+&lt;p&gt;1. Open the &lt;code&gt;group_vars/demo-users/vars.yml&lt;/code&gt; file and add the following settings:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# STS role in the target AWS account to assume&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;sts_role_arn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;arn:aws:iam::094411466117:role/admin&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# IAM Groups&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;n&#34;&gt;config_iam_groups&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;  &lt;span class=&#34;n&#34;&gt;DemoResourcesAdmins&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;    &lt;span class=&#34;n&#34;&gt;Policies&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PolicyName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;AssumeDemoResourcesAdminRole&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;        &lt;span class=&#34;n&#34;&gt;PolicyDocument&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;          &lt;span class=&#34;n&#34;&gt;Version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;2012-10-17&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;          &lt;span class=&#34;n&#34;&gt;Statement&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;            &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Effect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Allow&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;              &lt;span class=&#34;n&#34;&gt;Action&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;              &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;sts:AssumeRole&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;              &lt;span class=&#34;n&#34;&gt;Resource&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;arn:aws:iam::160775127577:role/admin&amp;quot;&lt;/span&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Notice that you can add custom IAM groups using the &lt;code&gt;config_iam_groups&lt;/code&gt; dictionary, where each group is represented by a named key.  In the example above the security template will create a new IAM group called &lt;strong&gt;DemoResourceAdmins&lt;/strong&gt; and attach an IAM policy that allows members of the group to assume the &lt;strong&gt;admin&lt;/strong&gt; role in the &lt;strong&gt;demo-resources&lt;/strong&gt; account.&lt;/p&gt;
+
+&lt;p&gt;2. To apply the new changes, run the security playbook, targeting the &lt;strong&gt;demo-users&lt;/strong&gt; environment.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ export AWS_PROFILE=demo-users-admin
+$ ansible-playbook site.yml -e env=demo-users
+
+PLAY [Assume Role] *************************************************************
+
+TASK [aws-sts : set_fact] ******************************************************
+ok: [demo-users]
+
+TASK [aws-sts : checking if sts functions are sts_disabled] ********************
+skipping: [demo-users]
+
+TASK [aws-sts : setting empty sts_session_output result] ***********************
+skipping: [demo-users]
+
+TASK [aws-sts : setting sts_creds if legacy AWS credentials are present (e.g. for Ansible Tower)] ***
+skipping: [demo-users]
+
+TASK [aws-sts : assume sts role] ***********************************************
+Enter MFA code: ******
+ok: [demo-users]
+...
+...
+TASK [aws-cloudformation : configure application stack] ************************
+changed: [demo-users]
+...
+...
+PLAY RECAP *********************************************************************
+demo-users                 : ok=20   changed=1    unreachable=0    failed=0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3. Whilst the playbook is running,  login to the &lt;strong&gt;demo-users&lt;/strong&gt; account, assume the &lt;strong&gt;admin&lt;/strong&gt; role and you should be able to see the &lt;strong&gt;security-resources&lt;/strong&gt; stack is being updated on the CloudFormation dashboard:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-cf-stack-update.png&#34; alt=&#34;Security Resources Stack Update&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;4. Once the CloudFormation stack update is complete, navigate to &lt;strong&gt;IAM &amp;gt; Groups&lt;/strong&gt; and notice on the &lt;strong&gt;Permissions&lt;/strong&gt; tab of the new &lt;strong&gt;DemoResourcesAdmins&lt;/strong&gt; group that an inline policy has been attached:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-group-policy-attached.png&#34; alt=&#34;DemoResourcesAdmins Group&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;5. Click on the &lt;strong&gt;Users&lt;/strong&gt; tab and click on the &lt;strong&gt;Add Users&lt;/strong&gt; to Group button to add a user to the new group:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-add-users-group.png&#34; alt=&#34;Add User to Group&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;6. Select the administrative user we &lt;a href=&#34;https://casecommons.github.io/aws-docs/security-resources/#creating-an-administrator&#34;&gt;created earlier&lt;/a&gt; and click &lt;strong&gt;Add Users&lt;/strong&gt; to add the user to the group:
+&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-select-users.png&#34; alt=&#34;Confirm Group&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://casecommons.github.io/aws-docs/images/iam-users-added.png&#34; alt=&#34;Confirm Group&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;administer-the-resource-account&#34;&gt;Administer the Resource Account&lt;/h2&gt;
+
+&lt;p&gt;To wrap up we can now verify that the user account we just added to the &lt;strong&gt;DemoResourcesAdmins&lt;/strong&gt; group in the &lt;strong&gt;demo-users&lt;/strong&gt; account can assume the &lt;strong&gt;demo-resources&lt;/strong&gt; account &lt;strong&gt;admin&lt;/strong&gt; role.&lt;/p&gt;
+
+&lt;p&gt;1. Add a new profile to the local &lt;code&gt;~/.aws/config&lt;/code&gt; file that is configured to assume the &lt;strong&gt;demo-resources&lt;/strong&gt; admin role with MFA authentication:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;[profile demo-users-admin]&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;source_profile&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;demo-users&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;role_arn&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;arn:aws:iam::094411466117:role/admin&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;role_session_name&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;justin.menga&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;mfa_serial&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;arn:aws:iam::094411466117:mfa/justin.menga&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;region&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;us-west-2&lt;/span&gt;
+
+&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;k&#34;&gt;[profile demo-resources-admin]&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;source_profile&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;demo-users&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;role_arn&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;arn:aws:iam::160775127577:role/admin&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;role_session_name&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;justin.menga&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;mfa_serial&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;arn:aws:iam::094411466117:mfa/justin.menga&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;region&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;us-west-2&lt;/span&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here we create a new profile called &lt;code&gt;demo-resources-admin&lt;/code&gt; and notice that the only difference compared to the &lt;code&gt;demo-users-admin&lt;/code&gt; profile is the &lt;code&gt;role_arn&lt;/code&gt; value, where the ARN of the &lt;strong&gt;admin&lt;/strong&gt; role in the &lt;strong&gt;demo-resources&lt;/strong&gt; account is referenced in the &lt;code&gt;demo-resources-admin&lt;/code&gt; profile.&lt;/p&gt;
+
+&lt;p&gt;2. With this profile in place, you can now configure the &lt;code&gt;AWS_PROFILE&lt;/code&gt; environment variable and verify role assumption.  As before, you are able to assume the role and the playbook completes successfully with no change, as there has been no change to the security playbook configuration settings:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ export AWS_PROFILE=demo-resources-admin
+$ aws sts get-caller-identity
+Enter MFA code: ******
+{
+    &amp;quot;Account&amp;quot;: &amp;quot;160775127577&amp;quot;,
+    &amp;quot;UserId&amp;quot;: &amp;quot;AROAIQBVQLVCESGBNTIK2:justin.menga&amp;quot;,
+    &amp;quot;Arn&amp;quot;: &amp;quot;arn:aws:sts::160775127577:assumed-role/admin/justin.menga&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap Up&lt;/h2&gt;
+
+&lt;p&gt;We created security resources in both our &lt;strong&gt;demo-users&lt;/strong&gt; and &lt;strong&gt;demo-resources&lt;/strong&gt; accounts, which provide the foundational IAM resources required to further administer each AWS account.&lt;/p&gt;
+
+&lt;p&gt;We learned how to create a security resources playbook and represent each of our accounts as environments within the playbook, and learned how to configure the &lt;strong&gt;demo-resources&lt;/strong&gt; account to trust the &lt;strong&gt;demo-users&lt;/strong&gt; account for delegated user access control.&lt;/p&gt;
+
+&lt;p&gt;We set up a single administrative user that is able to administer both accounts, and is required to use multi-factor authentication when using both the AWS console and AWS APIs.&lt;/p&gt;
+
+&lt;div class=&#34;admonition note&#34;&gt;
+&lt;p class=&#34;admonition-title&#34;&gt;Note&lt;/p&gt;
+&lt;p&gt;At this point you should commit your changes to the security resources playbook before continuing.&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
