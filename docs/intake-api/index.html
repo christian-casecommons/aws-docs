@@ -390,19 +390,7 @@
 
 <p>At this point, we have established all of the shared resource stacks in our <strong>demo-users</strong> and <strong>demo-resources</strong> accounts, and it is now time to focus on defining a playbook and CloudFormation stack for an application.</p>
 
-<p>We will now deploy the Intake API application to our <strong>demo-resources</strong> account, creating two environments:</p>
-
-<ul>
-<li><code>dev</code> - development environment intended for continuous deployment</li>
-<li><code>prod</code> - production environment with controlled releases</li>
-</ul>
-
-<p>In this tutorial, the Intake API application will be published at the following HTTPS endpoints:</p>
-
-<ul>
-<li><code>https://dev-intake-api.demo.cloudhotspot.co</code> - development environment endpoint</li>
-<li><code>https://intake-api.demo.cloudhotspot.co</code> - production environment endpoint</li>
-</ul>
+<p>We will now deploy the Intake API application to our <strong>demo-resources</strong> account, creating a <strong>demo</strong> environment, with the Intake API application published at <code>https://demo-intake-api.demo.cloudhotspot.co</code>.</p>
 
 <h2 id="configuring-dns-delegation">Configuring DNS Delegation</h2>
 
@@ -513,211 +501,815 @@ TASK <span class="o">[</span>aws-cloudformation : configure application stack<sp
 <p><img src="https://casecommons.github.io/aws-docs/images/acm-approval.png" alt="Certificate Validation Approval" />
 <img src="https://casecommons.github.io/aws-docs/images/acm-approval-success.png" alt="Certificate Validation Success" /></p>
 
-<p>6.  Note that because we are validating two domain names (<code>demo.cloudhotspot.co</code> and <code>*.demo.cloudhotspot.co</code>), you must approve separate validation requests for each domain.</p>
+<p>6.  Note that because we are validating two domain names (the primary <code>*.demo.cloudhotspot.co</code> subject name and the <code>demo.cloudhotspot.co</code> subject alternative name), you must approve separate validation requests for each domain.</p>
 
-<h2 id="creating-the-playbook">Creating the Playbook</h2>
+<h2 id="creating-an-nginx-image">Creating an Nginx Image</h2>
 
-<p>We can now get started establishing a proxy playbook that defines a proxy stack for the <strong>Demo Resources</strong> account.</p>
+<p>The Intake API stack uses a custom Nginx Docker image, which can be built by cloning the <a href="https://github.com/casecommons/docker-nginx.git">https://github.com/casecommons/docker-nginx.git</a> repository locally.</p>
 
-<p>1. Clone the <a href="https://github.com/casecommons/aws-starter">AWS Starter</a> to a local folder called <code>demo-proxy</code> and the re-initialise the Git repository.</p>
+<p>Before we can create the Intake API stack, we need to publish this image to the <strong>casecommons/nginx</strong> ECR repository that was established when we created <a href="https://casecommons.github.io/aws-docs/ecr-resources/">ECR resources</a></p>
 
-<pre><code class="language-bash">$ git clone git@github.com:casecommons/aws-starter.git demo-proxy
-  Cloning into 'demo-proxy'...
-  remote: Counting objects: 22, done.
-  remote: Compressing objects: 100% (14/14), done.
-  remote: Total 22 (delta 4), reused 22 (delta 4), pack-reused 0
-  Receiving objects: 100% (22/22), done.
-  Resolving deltas: 100% (4/4), done
-$ cd demo-proxy
-$ rm -rf .git
-$ git init
-Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-proxy/.git/
+<p>1. Clone the Casecommons Docker Nginx repository to your local environment:</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/casecommons/docker-nginx
+Cloning into 'docker-nginx'...
+remote: Counting objects: 48, done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 48 (delta 0), reused 0 (delta 0), pack-reused 45
+Receiving objects: 100% (48/48), 13.61 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (10/10), done.
+$ cd docker-squid
+$ tree -L 1
+.
+├── Makefile
+├── Makefile.settings
+├── README.md
+├── docker
+└── src
 </code></pre>
 
-<p>2.  Update the <code>roles/requirements.yml</code> file to the desired versions for each role:</p>
+<p>2. Open the <code>Makefile</code> at the root of the <strong>docker-nginx</strong> repository and modify the highlighted settings:</p>
 
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># You can specify git tag, commit or branch for the version property</span>
-<span class="o">-</span> <span class="n">src</span><span class="p">:</span> <span class="n">git</span><span class="nd">@github.com</span><span class="p">:</span><span class="n">casecommons</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">.</span><span class="n">git</span>
-  <span class="n">scm</span><span class="p">:</span> <span class="n">git</span>
-<span class="hll">  <span class="n">version</span><span class="p">:</span> <span class="mf">0.7</span><span class="o">.</span><span class="mi">0</span>
-</span>  <span class="n">name</span><span class="p">:</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
-<span class="o">-</span> <span class="n">src</span><span class="p">:</span> <span class="n">git</span><span class="nd">@github.com</span><span class="p">:</span><span class="n">casecommons</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">sts</span><span class="o">.</span><span class="n">git</span>
-  <span class="n">scm</span><span class="p">:</span> <span class="n">git</span>
-<span class="hll">  <span class="n">version</span><span class="p">:</span> <span class="mf">0.1</span><span class="o">.</span><span class="mi">2</span>
-</span>  <span class="n">name</span><span class="p">:</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span>
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="c"># Project variables</span>
+<span class="k">export </span><span class="nv">PROJECT_NAME</span> <span class="o">?=</span> nginx
+<span class="hll"><span class="nv">ORG_NAME</span> <span class="o">?=</span> casecommons
+</span><span class="hll"><span class="nv">REPO_NAME</span> <span class="o">?=</span> nginx
+</span><span class="hll"><span class="nv">DOCKER_REGISTRY</span> <span class="o">?=</span> <span class="m">160775127577</span>.dkr.ecr.us-west-2.amazonaws.com
+</span><span class="hll"><span class="nv">AWS_ACCOUNT_ID</span> <span class="o">?=</span> <span class="m">160775127577</span>
+</span><span class="nv">DOCKER_LOGIN_EXPRESSION</span> <span class="o">?=</span> <span class="nb">eval</span> <span class="nv">$$</span><span class="o">(</span>aws ecr get-login --registry-ids <span class="k">$(</span>AWS_ACCOUNT_ID<span class="k">)</span><span class="o">)</span>
+<span class="err">...</span>
+<span class="err">...</span>
 </code></pre></div>
 
 
-<p>4.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
+<p>Here we ensure the <code>Makefile</code> settings are configured with the correct Docker registry name (<code>DOCKER_REGISTRY</code>), organization name (<code>ORG_NAME</code>), repository name (<code>REPO_NAME</code>) and AWS account ID (<code>AWS_ACCOUNT_ID</code>).</p>
+
+<p>3. Run the <code>make login</code> command to login to the ECR repository for the <strong>demo-resources</strong> account:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+$ make login
+=&gt; Logging in to Docker registry ...
+Enter MFA code: *****
+Login Succeeded
+=&gt; Logged in to Docker registry
+</code></pre>
+
+<p>4. Run the <code>make release</code> command, which will build the squid image, and then <code>curl</code> the output endpoint to verify Nginx is working as expected:</p>
+
+<pre><code class="language-bash">$ make release
+=&gt; Building images...
+Building nginx
+Step 1/10 : FROM nginx:alpine
+...
+...
+=&gt; Build complete
+=&gt; Starting app service...
+Creating network &quot;nginx_default&quot; with the default driver
+Creating volume &quot;nginx_webroot&quot; with local driver
+Creating nginx_app_1
+=&gt; Starting nginx service...
+Creating nginx_nginx_1
+=&gt; Release environment created
+=&gt; Nginx is running at http://172.16.154.128:32796
+$ curl -s http://172.16.154.128:32796
+Hello World!
+</code></pre>
+
+<p>5. Run the <code>make tag latest</code> command, which will tag the image with the <code>latest</code> tag:</p>
+
+<pre><code class="language-bash">$ make tag latest
+=&gt; Tagging release image with tags latest...
+=&gt; Tagging complete
+</code></pre>
+
+<p>5. Run the <code>make publish</code> command, which will publish the image to your ECR repository:</p>
+
+<pre><code class="language-bash">$ make publish
+=&gt; Publishing release image to 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/nginx...
+The push refers to a repository [160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/nginx]
+bacade763708: Pushed
+2030c63749a0: Pushed
+b0ef948bd579: Pushed
+32418e8b3e29: Pushed
+f6fb5b0f08d3: Pushed
+cec0d431e110: Pushed
+7cbcbac42c44: Pushed
+latest: digest: sha256:98792f09c0199156ce31236705021e1d81de2ac969e06862d0dea6bce03a79d1 size: 1780
+=&gt; Publish complete
+</code></pre>
+
+<p>6. Run the <code>make clean</code> command to clean up the local Docker environment.</p>
+
+<pre><code class="language-bash">$ make clean
+=&gt; Destroying release environment...
+Stopping nginx_nginx_1 ... done
+Stopping nginx_app_1 ... done
+Removing nginx_nginx_1 ... done
+Removing nginx_app_1 ... done
+Removing network nginx_default
+Removing volume nginx_webroot
+=&gt; Removing dangling images...
+=&gt; Clean complete
+</code></pre>
+
+<p>7. In the AWS console under <strong>ECS &gt; Repositories</strong>, you should now be able to see your newly published image in the <strong>casecommons/nginx</strong> repository:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/nginx-image.png" alt="Nginx Image" /></p>
+
+<h2 id="creating-an-elasticsearch-image">Creating an Elasticsearch Image</h2>
+
+<p>The Intake API stack requires Elasticsearch and creates an ECS cluster with that runs a single Elasticsearch container.</p>
+
+<p>Although we will be using the official Elasticsearch image as published on Docker Cloud (aka Docker Hub), we need to publish this image to the <strong>casecommons/elasticsearch</strong> ECR repository that was established when we created <a href="https://casecommons.github.io/aws-docs/ecr-resources/">ECR resources</a>, as our ECS container instances can only reach the Internet via the <a href="https://casecommons.github.io/aws-docs/web-proxy/">Web Proxy</a>, and the default whitelist on the proxy only allows access to AWS API and service endpoints include the EC2 container registry, but does not permit access to Docker Cloud.</p>
+
+<p>1. Pull the Elasticsearch from Docker Cloud to your local environment.</p>
+
+<pre><code class="language-bash">$ docker pull elasticsearch:2.4-alpine
+Using tag: 2.4-alpine
+latest: Pulling from elasticsearch
+Digest: sha256:7b0d0c8b63db2f02b3c58e451f0a5c4ced9bb5deac66bdc6010d2e07b9e85860
+Status: Image is up to date for elasticsearch:2.4-alpine
+</code></pre>
+
+<p>2. Login to the <strong>demo-resources</strong> ECR service, tag and push the Elasticsearch image with the full ECR repository name.</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+$ eval $(aws ecr get-login)
+Enter MFA code: ******
+Flag --email has been deprecated, will be removed in 1.14.
+Login Succeeded
+$ docker tag elasticsearch:2.4-alpine 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/elasticsearch
+$ docker push 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/elasticsearch
+The push refers to a repository [160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/elasticsearch]
+442c7116f27b: Pushed
+b12e0801104f: Pushed
+d97676491a0b: Pushed
+0227e2521da2: Pushed
+b5179e9e72cd: Pushed
+494d9dab3fce: Pushed
+6f7515f19096: Pushed
+da07d9b32b00: Pushed
+7cbcbac42c44: Pushed
+latest: digest: sha256:7b0d0c8b63db2f02b3c58e451f0a5c4ced9bb5deac66bdc6010d2e07b9e85860 size: 2199
+</code></pre>
+
+<p>3. In the AWS console under <strong>ECS &gt; Repositories</strong>, you should now be able to see your newly published image in the <strong>casecommons/elasticsearch</strong> repository:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/ecr-elastic-image.png" alt="Elasticsearch Image" /></p>
+
+<h2 id="creating-the-intake-base-image">Creating the Intake Base Image</h2>
+
+<p>The Intake API Docker image requires an Intake base image to be available when building the Intake API Docker image, which means we must publish this image to our new ECR repositories.</p>
+
+<p>1. Clone the Casecommons Intake Base repository to your local environment:</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/Casecommons/base_docker_image_for_ca_intake.git
+Cloning into 'base_docker_image_for_ca_intake'...
+remote: Counting objects: 38, done.
+remote: Total 38 (delta 0), reused 0 (delta 0), pack-reused 38
+Receiving objects: 100% (38/38), 4.41 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (16/16), done.
+</code></pre>
+
+<p>2. Run the <code>docker build</code> command, referencing <code>Dockerfile.base</code> and specifying a fully qualified image name of the <strong>intake-base</strong> repository we created in <a href="https://casecommons.github.io/aws-docs/ecr-resources/">ECR Resources</a>:</p>
+
+<pre><code class="language-bash">$ docker build -t 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-base -f Dockerfile.base .
+Sending build context to Docker daemon 9.728 kB
+Step 1/5 : FROM ruby:2.4.0-slim
+ ---&gt; 6c02426a7abf
+Step 2/5 : RUN apt-get update -y &amp;&amp;   apt-get upgrade -y &amp;&amp;   apt-get install -y     jq     curl     python-dev     python-setuptools &amp;&amp;   easy_install pip &amp;&amp;   pip install awscli &amp;&amp;   curl -L -o /usr/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.12.0-alpha3/confd-0.12.0-alpha3-linux-amd64 &amp;&amp;   chmod +x /usr/bin/confd &amp;&amp;   mkdir -p /etc/confd
+ ---&gt; Using cache
+ ---&gt; 78eb65e1eecd
+Step 3/5 : COPY entrypoint.sh /usr/bin/entrypoint
+ ---&gt; Using cache
+ ---&gt; 8f9518ae9718
+Step 4/5 : ENTRYPOINT /usr/bin/entrypoint
+ ---&gt; Using cache
+ ---&gt; a23943a21477
+Step 5/5 : LABEL application intake_accelerator
+ ---&gt; Using cache
+ ---&gt; 1c42aa461964
+Successfully built 1c42aa461964
+</code></pre>
+
+<p>3. Run the <code>docker push</code> command, referencing the fully qualified image name of the <strong>intake-base</strong> repository:</p>
+
+<pre><code class="language-bash">$ docker push 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-base
+The push refers to a repository [160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-base]
+cc269cc723a3: Pushed
+985910e761d0: Pushed
+e302f1438372: Pushed
+7cebbf491a73: Pushed
+ba3d5a81c1e6: Pushed
+5d53f93940f5: Pushed
+38dcb92de9f2: Pushed
+a2ae92ffcd29: Pushed
+latest: digest: sha256:e870f9900f5af857c101e39d8683aca8f7dee96e37339a90579f3c857203fa64 size: 1996
+</code></pre>
+
+<p>4. In the AWS console under <strong>ECS &gt; Repositories</strong>, you should now be able to see your newly published image in the <strong>casecommons/intake-base</strong> repository:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/intake-base-image.png" alt="Intake Base Image" /></p>
+
+<h2 id="creating-the-intake-api-image">Creating the Intake API Image</h2>
+
+<p>Now that we have built the Intake base Docker image, we can build and publish the Intake API Docker image to the <strong>casecommons/intake-api</strong> repository, so that it is available to ECS instances when we deploy the CloudFormation stack for running the Intake API application.</p>
+
+<p>1. Clone the Intake API application to your local environment and ensure you checkout the <strong>workflow_enhancements</strong> branch:</p>
+
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="nf">$ git clone https</span><span class="o">:</span>//<span class="n">github</span>.<span class="n">com</span>/<span class="n">ca</span>-<span class="n">cwds</span>/<span class="n">intake_api_prototype</span>.<span class="n">git</span>
+<span class="err">Cloning</span> <span class="err">into</span> <span class="s1">&#39;intake_api_prototype&#39;</span><span class="err">...</span>
+<span class="nf">remote</span><span class="o">:</span> <span class="n">Counting</span> <span class="n">objects</span>: 2140<span class="p">,</span> <span class="n">done</span>.
+<span class="nf">remote</span><span class="o">:</span> <span class="n">Compressing</span> <span class="n">objects</span>: 100% (188/188)<span class="p">,</span> <span class="n">done</span>.
+<span class="nf">remote</span><span class="o">:</span> <span class="n">Total</span> 2140 (<span class="n">delta</span> 98)<span class="p">,</span> <span class="n">reused</span> 2 (<span class="n">delta</span> 2)<span class="p">,</span> <span class="n">pack</span>-<span class="n">reused</span> 1931
+<span class="nf">Receiving objects</span><span class="o">:</span> 100% (2140/2140)<span class="p">,</span> 273.79 <span class="n">KiB</span> <span class="p">|</span> 237.00 <span class="n">KiB</span>/<span class="n">s</span><span class="p">,</span> <span class="n">done</span>.
+<span class="nf">Resolving deltas</span><span class="o">:</span> 100% (1169/1169)<span class="p">,</span> <span class="n">done</span>.
+<span class="err">$</span> <span class="err">cd</span> <span class="err">intake_api_prototype</span>
+<span class="hll"><span class="err">$</span> <span class="err">git</span> <span class="err">checkout</span> <span class="err">workflow_enhancements</span>
+</span><span class="err">Branch</span> <span class="err">workflow_enhancements</span> <span class="err">set</span> <span class="err">up</span> <span class="err">to</span> <span class="err">track</span> <span class="err">remote</span> <span class="err">branch</span> <span class="err">workflow_enhancements</span> <span class="err">from</span> <span class="err">origin.</span>
+<span class="err">Switched</span> <span class="err">to</span> <span class="err">a</span> <span class="err">new</span> <span class="err">branch</span> <span class="s1">&#39;workflow_enhancements&#39;</span>
+</code></pre></div>
+
+
+<p>2. Open the <code>Makefile</code> at the root of the <strong>intake_api_prototype</strong> repository and modify the highlighted settings:</p>
+
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="c"># Variables</span>
+<span class="nv">PROJECT_NAME</span> <span class="o">?=</span> intake_api_prototype
+<span class="hll"><span class="nv">ORG_NAME</span> <span class="o">?=</span> casecommons
+</span><span class="hll"><span class="nv">REPO_NAME</span> <span class="o">?=</span> intake-api
+</span><span class="hll"><span class="nv">DOCKER_REGISTRY</span> <span class="o">?=</span> <span class="m">160775127577</span>.dkr.ecr.us-west-2.amazonaws.com
+</span><span class="hll"><span class="nv">AWS_ACCOUNT_ID</span> <span class="o">?=</span> <span class="m">160775127577</span>
+</span><span class="nv">DOCKER_LOGIN_EXPRESSION</span> <span class="o">:=</span> <span class="nb">eval</span> <span class="nv">$$</span><span class="o">(</span>aws ecr get-login --registry-ids <span class="k">$(</span>AWS_ACCOUNT_ID<span class="k">)</span><span class="o">)</span>
+<span class="err">...</span>
+<span class="err">...</span>
+</code></pre></div>
+
+
+<p>Here we ensure the <code>Makefile</code> settings are configured with the correct Docker registry name (<code>DOCKER_REGISTRY</code>), organization name (<code>ORG_NAME</code>), repository name (<code>REPO_NAME</code>) and AWS account ID (<code>AWS_ACCOUNT_ID</code>).</p>
+
+<p>3. Open the <code>docker/release/Dockerfile</code> file and modify the <code>FROM</code> directive to reference the <strong>intake-base</strong> image you published earlier:</p>
+
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="hll"><span class="err">FROM</span> <span class="err">160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-base</span>
+</span>
+<span class="err">ENV</span> <span class="err">APP_HOME</span> <span class="err">/intake_api_prototype</span>
+<span class="err">RUN</span> <span class="err">mkdir</span> <span class="err">$APP_HOME</span>
+<span class="err">WORKDIR</span> <span class="err">$APP_HOME</span>
+<span class="err">...</span>
+<span class="err">...</span>
+</code></pre></div>
+
+
+<p>4. Open the <code>docker/release/docker-compose.yml</code> file and modify the <code>image</code> variable for the <code>nginx</code> service to reference the <strong>Nginx</strong> image you published earlier:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="n">version</span><span class="p">:</span> <span class="s1">&#39;2&#39;</span>
+<span class="o">...</span>
+<span class="o">...</span>
+<span class="n">services</span><span class="p">:</span>
+<span class="o">...</span>
+<span class="o">...</span>
+  <span class="n">nginx</span><span class="p">:</span>
+<span class="hll">    <span class="n">image</span><span class="p">:</span> <span class="mf">160775127577.</span><span class="n">dkr</span><span class="o">.</span><span class="n">ecr</span><span class="o">.</span><span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mf">2.</span><span class="n">amazonaws</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">nginx</span>
+</span>    <span class="n">ports</span><span class="p">:</span>
+      <span class="o">-</span> <span class="s2">&quot;${HTTP_PORT}&quot;</span>
+    <span class="n">environment</span><span class="p">:</span>
+      <span class="n">HTTP_PORT</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">HTTP_PORT</span><span class="p">}</span>
+      <span class="n">WEB_ROOT</span><span class="p">:</span> <span class="o">/</span><span class="n">intake_api_prototype</span><span class="o">/</span><span class="n">public</span>
+      <span class="n">UPSTREAM_URL</span><span class="p">:</span> <span class="n">unix</span><span class="p">:</span><span class="o">///</span><span class="n">tmp</span><span class="o">/</span><span class="n">app</span><span class="o">.</span><span class="n">sock</span>
+      <span class="n">HEALTHCHECK</span><span class="p">:</span> <span class="n">curl</span> <span class="o">-</span><span class="n">fs</span> <span class="n">localhost</span><span class="p">:</span><span class="err">$</span><span class="p">{</span><span class="n">HTTP_PORT</span><span class="p">}</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">screenings</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">webroot</span><span class="p">:</span><span class="o">/</span><span class="n">intake_api_prototype</span><span class="o">/</span><span class="n">public</span>
+      <span class="o">-</span> <span class="n">tmp</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span>
+</code></pre></div>
+
+
+<p>4. Run the <code>make login</code> command to login to the ECR repository for the <strong>demo-resources</strong> account:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+$ make login
+=&gt; Logging in to Docker registry ...
+Enter MFA code: *****
+Login Succeeded
+=&gt; Logged in to Docker registry
+</code></pre>
+
+<p>5. Run the <code>make test</code> command, which will run unit tests in a Docker build container:</p>
+
+<pre><code class="language-bash">$ make test
+=&gt; Pulling latest images...
+=&gt; Building images...
+Building rspec_test
+...
+...
+rspec_test_1     | Finished in 4.75 seconds (files took 2.63 seconds to load)
+rspec_test_1     | 34 examples, 0 failures
+rspec_test_1     |
+intakeapiprototypetest_rspec_test_1 exited with code 0
+=&gt; Testing complete
+</code></pre>
+
+<p>6. Run the <code>make build</code> command, which will build a Debian package from the application source and copy it to the local <code>target</code> folder:</p>
+
+<pre><code class="language-bash">$ make build
+=&gt; Building images...
+Building builder
+Step 1/14 : FROM ruby:2.4
+...
+...
+=&gt; Removing existing artifacts...
+=&gt; Building application artifacts...
+Creating intakeapiprototypetest_builder_1
+Attaching to intakeapiprototypetest_builder_1
+builder_1        | {:timestamp=&gt;&quot;2017-02-28T07:32:34.402593+0000&quot;, :message=&gt;&quot;Created package&quot;, :path=&gt;&quot;/build_artefacts/intake-api_20170227225021.acefd33_amd64.deb&quot;}
+intakeapiprototypetest_builder_1 exited with code 0
+=&gt; Copying application artifacts...
+=&gt; Build complete
+</code></pre>
+
+<p>7. Run the <code>make release</code> command, which will build the release image for the Intake API application, start a minimal production-like environment and run acceptance tests.</p>
+
+<pre><code class="language-bash">$ make release
+=&gt; Pulling latest images...
+Pulling nginx (160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/nginx:latest)...
+latest: Pulling from casecommons/nginx
+Digest: sha256:98792f09c0199156ce31236705021e1d81de2ac969e06862d0dea6bce03a79d1
+Status: Image is up to date for 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/nginx:latest
+=&gt; Building images...
+Building app
+...
+...
+=&gt; Starting application...
+Creating intakeapiprototype_app_1
+=&gt; Starting nginx...
+Creating intakeapiprototype_nginx_1
+=&gt; Application is running at http://172.16.154.128:32799/api/v1/screenings
+</code></pre>
+
+<p>8. Run the <code>make tag latest</code> command, which will tag the image with the <code>latest</code> tag:</p>
+
+<pre><code class="language-bash">$ make tag latest
+=&gt; Tagging release image with tags latest...
+=&gt; Tagging complete
+</code></pre>
+
+<p>9. Run the <code>make publish</code> command, which will publish the image to your ECR repository:</p>
+
+<pre><code class="language-bash">$ make publish
+=&gt; Publishing release image to 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-api...
+The push refers to a repository [160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-api]
+65326a832931: Pushed
+d634cd8ca5bc: Pushed
+708e96026525: Pushed
+cc269cc723a3: Pushed
+985910e761d0: Pushed
+e302f1438372: Pushed
+7cebbf491a73: Pushed
+ba3d5a81c1e6: Pushed
+5d53f93940f5: Pushed
+38dcb92de9f2: Pushed
+a2ae92ffcd29: Pushed
+latest: digest: sha256:04cfa51f3d684b0a20132b7d515322816c5d49efccef4eabb9b98e6e03f1e211 size: 2627
+=&gt; Publish complete
+</code></pre>
+
+<p>10. Run the <code>make clean</code> command to clean up the local Docker environment.</p>
+
+<pre><code class="language-bash">$ make clean
+=&gt; Destroying development environment...
+...
+...
+=&gt; Removing dangling images...
+Deleted: sha256:cf622bbefa4c89420df5d68f8bb47709374ca149f3b26c7faffe225e9ab32bbf
+Deleted: sha256:f4bf2522682e8d5e525bf1de15912b6e53fef2e1a9b82878653cf294455a32c5
+=&gt; Clean complete
+</code></pre>
+
+<p>11. In the AWS console under <strong>ECS &gt; Repositories</strong>, you should now be able to see your newly published image in the <strong>casecommons/intake-api</strong> repository:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/intake-api-image.png" alt="Intake API Image" /></p>
+
+<h2 id="publishing-lambda-functions">Publishing Lambda Functions</h2>
+
+<p>Both the Intake API and Intake Accelerator CloudFormation stacks rely on CloudFormation custom resources to perform the following tasks:</p>
+
+<ul>
+<li>Secrets Management custom resources - used to decrypt KMS encrypted input parameters provided to the stack to resources that do not support native KMS decryption.</li>
+<li>ECS Task custom resources - used to run deployment actions in the form of ECS tasks.  In the case of Intake API, a number of deployment tasks including running database migrations and reindexing Elasticsearch need to be executed as part of each deployment.</li>
+</ul>
+
+<p>CloudFormation custom resources are backed by AWS Lambda functions that are defined in the CloudFormation stack, and each function needs to specify an S3 bucket URL for downloading the source code of the function in a ZIP format.  The <a href="https://casecommons.github.io/aws-docs/cloudformation-resources/">CloudFormation Resources</a> stack we created earlier includes an S3 bucket specifically designed for storing Lambda functions that support CloudFormation custom resources.</p>
+
+<p>In this section we will publish each of the custom resource Lambda functions listed above to the CloudFormation Lambda S3 bucket, which is named according to the convention <code>&lt;account-id&gt;-cfn-lambda</code> or <code>160775127577-cfn-lambda</code> in the case of our <strong>demo-resources</strong> account.</p>
+
+<p>1. Clone the KMS Decryption Lambda function repository to your local environment:</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/Casecommons/lambda-cfn-kms.git
+Cloning into 'lambda-cfn-kms'...
+remote: Counting objects: 13, done.
+remote: Total 13 (delta 0), reused 0 (delta 0), pack-reused 13
+Receiving objects: 100% (13/13), 4.82 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (2/2), done.
+</code></pre>
+
+<p>2. Open the <code>Makefile</code> at the root of the <strong>lambda-cfn-repository</strong> repository and modify the highlighted settings:</p>
+
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="c"># Parameters</span>
+<span class="nv">FUNCTION_NAME</span> <span class="o">?=</span> cfnKmsDecrypt
+<span class="hll"><span class="nv">S3_BUCKET</span> <span class="o">?=</span> <span class="m">160775127577</span>-cfn-lambda
+</span><span class="nv">AWS_DEFAULT_REGION</span> <span class="o">?=</span> us-west-2
+<span class="err">...</span>
+<span class="err">...</span>
+</code></pre></div>
+
+
+<p>Here we ensure the S3 bucket the Lambda function will be published to is the correct bucket for the <strong>demo-resources</strong> account (<code>S3_BUCKET</code>).</p>
+
+<p>3. Run the <code>make publish</code> command, which will build a ZIP archive of your Lambda function and upload it to the S3 bucket:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ <span class="nb">export</span> <span class="nv">AWS_PROFILE</span><span class="o">=</span>demo-resources-admin
+$ make <span class="nv">publish</span>
+<span class="o">=</span>&gt; Removed all <span class="nv">distributions</span>
+<span class="o">=</span>&gt; Building cfnKmsDecrypt.zip...
+Collecting cfn-lambda-handler <span class="o">(</span>from -r requirements.txt <span class="o">(</span>line <span class="m">1</span><span class="o">))</span>
+  Using cached cfn_lambda_handler-1.0.2-py2.py3-none-any.whl
+Installing collected packages: cfn-lambda-handler
+Successfully installed cfn-lambda-handler-1.0.2
+  adding: cfn_kms_decrypt.py <span class="o">(</span>deflated <span class="m">54</span>%<span class="o">)</span>
+  adding: requirements.txt <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: setup.cfg <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: vendor/ <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler/ <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler/__init__.py <span class="o">(</span>deflated <span class="m">28</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler/cfn_lambda_handler.py <span class="o">(</span>deflated <span class="m">67</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/ <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/DESCRIPTION.rst <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/INSTALLER <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/METADATA <span class="o">(</span>deflated <span class="m">56</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/metadata.json <span class="o">(</span>deflated <span class="m">52</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/RECORD <span class="o">(</span>deflated <span class="m">49</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/top_level.txt <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+  adding: vendor/cfn_lambda_handler-1.0.2.dist-info/WHEEL <span class="o">(</span>deflated <span class="m">14</span>%<span class="o">)</span>
+<span class="o">=</span>&gt; Built build/cfnKmsDecrypt.zip
+<span class="o">=</span>&gt; Publishing cfnKmsDecrypt.zip to s3://160775127577-cfn-lambda...
+Enter MFA token: ******
+
+<span class="o">=</span>&gt; Published to S3 URL: https://s3-us-west-2.amazonaws.com/160775127577-cfn-lambda/cfnKmsDecrypt.zip
+<span class="hll"><span class="o">=</span>&gt; S3 Object Version: BIUpXhvw6w3f1LTctGVZxOpFD38lCHH1
+</span></code></pre></div>
+
+
+<p>Take note of the S3 object version, as we need to provide this as an input to any CloudFormation stacks that will use this function.</p>
+
+<p>4. Next we will clone the ECS Task Runner Lambda function repository to your local environment:</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/Casecommons/lambda-ecs-tasks.git
+Cloning into 'lambda-ecs-tasks'...
+remote: Counting objects: 20, done.
+remote: Total 20 (delta 0), reused 0 (delta 0), pack-reused 20
+Receiving objects: 100% (20/20), 513.86 KiB | 423.00 KiB/s, done.
+</code></pre>
+
+<p>5. Open the <code>Makefile</code> at the root of the <strong>lambda-ecs-tasks</strong> repository and modify the highlighted settings:</p>
+
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="c"># Project variables</span>
+<span class="k">export </span><span class="nv">PROJECT_NAME</span> <span class="o">?=</span> lambda-ecs-tasks
+
+<span class="c"># Parameters</span>
+<span class="k">export </span><span class="nv">FUNCTION_NAME</span> <span class="o">?=</span> cfnEcsTasks
+<span class="hll"><span class="nv">S3_BUCKET</span> <span class="o">?=</span> <span class="m">160775127577</span>-cfn-lambda
+</span><span class="nv">AWS_DEFAULT_REGION</span> <span class="o">?=</span> us-west-2
+<span class="err">...</span>
+<span class="err">...</span>
+</code></pre></div>
+
+
+<p>Here we ensure the S3 bucket the Lambda function will be published to is the correct bucket for the <strong>demo-resources</strong> account (<code>S3_BUCKET</code>).</p>
+
+<p>6. Run the <code>make build</code> and <code>make publish</code> commands, which will build a ZIP archive of your Lambda function and upload it to the S3 bucket:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ <span class="nb">export</span> <span class="nv">AWS_PROFILE</span><span class="o">=</span>demo-resources-admin
+$ make <span class="nv">build</span>
+<span class="o">=</span>&gt; Building cfnEcsTasks.zip...
+Collecting voluptuous <span class="o">(</span>from -r requirements.txt <span class="o">(</span>line <span class="m">1</span><span class="o">))</span>
+Collecting cfn-lambda-handler <span class="o">(</span>from -r requirements.txt <span class="o">(</span>line <span class="m">2</span><span class="o">))</span>
+  Using cached cfn_lambda_handler-1.0.2-py2.py3-none-any.whl
+...
+...
+  adding: vendor/setuptools-34.3.0.dist-info/WHEEL <span class="o">(</span>deflated <span class="m">14</span>%<span class="o">)</span>
+  adding: vendor/setuptools-34.3.0.dist-info/zip-safe <span class="o">(</span>stored <span class="m">0</span>%<span class="o">)</span>
+<span class="o">=</span>&gt; Built build/cfnEcsTasks.zip
+$ make <span class="nv">publish</span>
+<span class="o">=</span>&gt; Publishing cfnEcsTasks.zip to s3://160775127577-cfn-lambda...
+<span class="o">=</span>&gt; Published to S3 URL: https://s3.amazonaws.com/160775127577-cfn-lambda/cfnEcsTasks.zip
+<span class="hll"><span class="o">=</span>&gt; S3 Object Version: MiOiZi.9.AHyYQcFibBAvWYFD4xFJJ1c
+</span></code></pre></div>
+
+
+<p>Take note of the S3 object version, as we need to provide this as an input to any CloudFormation stacks that will use this function.</p>
+
+<p>7. In the AWS console, navigate to the S3 dashboard and open the S3 bucket <strong>&lt;account-id&gt;-cfn-lambda</strong>.  Notice that each Lambda function has been uploaded as a ZIP file:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/s3-dashboard.png" alt="S3 Dashboard" />
+<img src="https://casecommons.github.io/aws-docs/images/lambda-bucket.png" alt="Lambda Bucket" /></p>
+
+<h2 id="installing-the-playbook">Installing the Playbook</h2>
+
+<p>We now have all the supporting pieces in place to deploy the Intake API application stack to the <strong>demo resources</strong> account.  Instead of creating a new playbook as we have done previously in this tutorial, we will instead clone an existing playbook and add a new environment called <strong>demo-resources</strong> to the playbook.</p>
+
+<p>1. Clone the <a href="https://github.com/casecommons/intake-api-aws">Intake API AWS project</a> to your local environment.</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/Casecommons/intake-api-aws.git
+  Cloning into 'intake-api-aws'...
+  remote: Counting objects: 58, done.
+  remote: Compressing objects: 100% (6/6), done.
+  remote: Total 58 (delta 0), reused 0 (delta 0), pack-reused 49
+  Receiving objects: 100% (58/58), 23.82 KiB | 0 bytes/s, done.
+  Resolving deltas: 100% (18/18), done.
+$ cd intake-api-aws
+</code></pre>
+
+<p>3.  Install the required Ansible roles for the playbook using the <code>ansible-galaxy</code> command as demonstrated below:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="err">$</span> <span class="n">ansible</span><span class="o">-</span><span class="n">galaxy</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">roles</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">force</span>
-<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">demo</span><span class="o">-</span><span class="n">proxy</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
+<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">intake</span><span class="o">-</span><span class="n">api</span><span class="o">-</span><span class="n">aws</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
 <span class="o">-</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">was</span> <span class="n">installed</span> <span class="n">successfully</span>
-<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">demo</span><span class="o">-</span><span class="n">proxy</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">sts</span>
+<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">intake</span><span class="o">-</span><span class="n">api</span><span class="o">-</span><span class="n">aws</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">sts</span>
 <span class="o">-</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span> <span class="n">was</span> <span class="n">installed</span> <span class="n">successfully</span>
 </code></pre></div>
 
 
-<p>5.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
+<p>5.  Review the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
 
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># Stack Settings</span>
-<span class="n">cf_stack_name</span><span class="p">:</span> <span class="n">web</span><span class="o">-</span><span class="n">proxy</span>
-<span class="hll"><span class="n">cf_stack_template</span><span class="p">:</span> <span class="s2">&quot;templates/proxy.yml.j2&quot;</span>
-</span><span class="n">cf_stack_tags</span><span class="p">:</span>
-  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">owner</span><span class="p">:</span> <span class="n">Casecommons</span>
-  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">product</span><span class="p">:</span> <span class="n">Web</span> <span class="n">Proxy</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="n">cf_stack_name</span><span class="p">:</span> <span class="s2">&quot;{{ &#39;intake-api-&#39; + env }}&quot;</span>
+<span class="n">cf_stack_tags</span><span class="p">:</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">owner</span><span class="p">:</span> <span class="n">CA</span> <span class="n">Intake</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">product</span><span class="p">:</span> <span class="n">Intake</span> <span class="n">API</span>
   <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">severity</span><span class="p">:</span> <span class="n">High</span>
   <span class="n">org</span><span class="p">:</span><span class="n">tech</span><span class="p">:</span><span class="n">environment</span><span class="p">:</span> <span class="s2">&quot;{{ env }}&quot;</span>
   <span class="n">org</span><span class="p">:</span><span class="n">tech</span><span class="p">:</span><span class="n">contact</span><span class="p">:</span> <span class="n">pema</span><span class="nd">@casecommons.org</span>
 
-<span class="c1"># Stack inputs</span>
 <span class="n">cf_stack_inputs</span><span class="p">:</span>
-  <span class="n">ApplicationImageId</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_ami }}&quot;</span>
+  <span class="n">ApplicationAutoscalingDesiredCount</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_desired_count }}&quot;</span>
+  <span class="n">ApplicationAMI</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_ami }}&quot;</span>
   <span class="n">ApplicationInstanceType</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_instance_type }}&quot;</span>
-  <span class="n">ApplicationAutoscalingDesiredCount</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_desired_count | default(config_az_count) | default(2) | int }}&quot;</span>
-  <span class="n">KeyName</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_keyname }}&quot;</span>
+  <span class="n">ApplicationLoadBalancerPort</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_frontend_port }}&quot;</span>
+  <span class="n">ApplicationPort</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_port }}&quot;</span>
+  <span class="n">ApplicationKeyName</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_keyname }}&quot;</span>
+  <span class="n">ApplicationDockerImage</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_image }}&quot;</span>
+  <span class="n">ApplicationDockerImageTag</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_tag }}&quot;</span>
+  <span class="n">ApplicationDomain</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_domain }}&quot;</span>
+  <span class="n">ElasticsearchAutoscalingDesiredCount</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_desired_count }}&quot;</span>
+  <span class="n">ElasticsearchAMI</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_ami }}&quot;</span>
+  <span class="n">ElasticsearchInstanceType</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_instance_type }}&quot;</span>
+  <span class="n">ElasticsearchLoadBalancerPort</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_frontend_port }}&quot;</span>
+  <span class="n">ElasticsearchPort</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_port }}&quot;</span>
+  <span class="n">ElasticsearchKeyName</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_keyname }}&quot;</span>
+  <span class="n">ElasticsearchDockerImage</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_image }}&quot;</span>
+  <span class="n">ElasticsearchDockerImageTag</span><span class="p">:</span> <span class="s2">&quot;{{ config_es_tag }}&quot;</span>
   <span class="n">Environment</span><span class="p">:</span> <span class="s2">&quot;{{ env }}&quot;</span>
-  <span class="n">ProxyImage</span><span class="p">:</span> <span class="s2">&quot;{{ config_proxy_image }}&quot;</span>
-  <span class="n">ProxyImageTag</span><span class="p">:</span> <span class="s2">&quot;{{ config_proxy_tag }}&quot;</span>
-  <span class="n">ProxyDisableWhitelist</span><span class="p">:</span> <span class="s2">&quot;{{ config_proxy_disable_whitelist | default(false) | string | lower }}&quot;</span>
-  <span class="n">ProxyWhitelist</span><span class="p">:</span> <span class="s2">&quot;{{ config_proxy_whitelist | default(&#39;&#39;) }}&quot;</span>
+  <span class="n">LogRetention</span><span class="p">:</span> <span class="s2">&quot;{{ config_log_retention }}&quot;</span>
+  <span class="n">NginxDockerImage</span><span class="p">:</span> <span class="s2">&quot;{{ config_nginx_image }}&quot;</span>
+  <span class="n">NginxDockerImageTag</span><span class="p">:</span> <span class="s2">&quot;{{ config_nginx_tag }}&quot;</span>
+  <span class="n">DbStorage</span><span class="p">:</span> <span class="s2">&quot;{{ config_db_storage }}&quot;</span>
+  <span class="n">DbInstanceType</span><span class="p">:</span> <span class="s2">&quot;{{ config_db_instance_type }}&quot;</span>
+  <span class="n">DbName</span><span class="p">:</span> <span class="s2">&quot;{{ config_db_name }}&quot;</span>
+  <span class="n">DbUsername</span><span class="p">:</span> <span class="s2">&quot;{{ config_db_username }}&quot;</span>
+  <span class="n">DbPassword</span><span class="p">:</span> <span class="s2">&quot;{{ config_db_password }}&quot;</span>
+  <span class="n">SecretKeyBaseCipher</span><span class="p">:</span> <span class="s2">&quot;{{ config_application_secret_key_base }}&quot;</span>
+  <span class="n">LambdaCfnKmsDecryptVersion</span><span class="p">:</span> <span class="s2">&quot;{{ config_cfn_lambda_kms_decrypt_version }}&quot;</span>
+  <span class="n">LambdaCfnEcsTasksVersion</span><span class="p">:</span> <span class="s2">&quot;{{ config_cfn_lambda_ecs_tasks_version }}&quot;</span>
 </code></pre></div>
 
 
-<p>Notice that we reference the <a href="https://github.com/casecommons/aws-cloudformation/blob/master/templates/proxy.yml.j2">templates/proxy.yml.y2 template</a> that is embedded within the <a href="https://github.com/casecommons/aws-cloudformation">aws-cloudformation role</a>.</p>
+<p>You can see this stack has many different stack inputs, which revolve around application settings, elasticsearch settings and database settings.</p>
 
-<p>We also add a dictionary called <code>cf_stack_inputs</code>, which provides values for input parameters defined in the proxy CloudFormation template.</p>
-
-<p>Notice that these settings reference environment specific settings prefixed with <code>config_</code>, which will we need to define in our environment settings.</p>
-
-<p>7. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
-
-<pre><code class="language-bash">$ rm -rf templates
-</code></pre>
+<p>One thing to note is that the <code>cf_stack_template</code> variable is not defined - this variable defaults to the path <code>templates/stack.yml.j2</code> in the local playbook, and you will find this playbook includes a large CloudFormation template in this location.</p>
 
 <h2 id="defining-a-new-environment">Defining a New Environment</h2>
 
-<p>We will now add a new environment called <strong>demo-resources</strong> to the playbook, which will be used to create CloudFormation resources in the <strong>demo-resources</strong> account.</p>
+<p>We will now add a new environment called <strong>demo</strong> to the playbook, which will be used to create the Intake API application stack in the <strong>demo-resources</strong> account.</p>
 
-<p>1. Modify the <code>inventory</code> file so that it defines a single environment called <strong>demo-resources</strong>, ensuring you specify <code>ansible_connection=local</code>:</p>
+<p>1. Modify the <code>inventory</code> file so that it defines a new environment called <strong>demo</strong>, ensuring you specify <code>ansible_connection=local</code>:</p>
 
-<pre><code class="language-toml">[demo-resources]
-demo-resources ansible_connection=local
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span></span><span class="k">[dev]</span>
+<span class="na">dev ansible_connection</span><span class="o">=</span><span class="s">local</span>
+
+<span class="hll"><span class="k">[demo]</span>
+</span><span class="hll"><span class="na">demo ansible_connection</span><span class="o">=</span><span class="s">local</span>
+</span><span class="na">```</span>
+</code></pre></div>
+
+
+<p>2. Create a file called <code>group_vars/demo/vars.yml</code>, which will hold all environment specific configuration for the <strong>demo</strong> environment:</p>
+
+<pre><code class="language-bash">$ mkdir -p group_vars/demo
+$ touch group_vars/demo/vars.yml
 </code></pre>
 
-<p>2. Remove the <code>group_vars/non-prod</code> environment folder that is included in the starter template:</p>
+<p>4. Copy the existing settings from <code>group_vars/dev/vars.yml</code> to <code>group_vars/demo/vars.yml</code> and modify as shown below:</p>
 
-<pre><code class="language-bash">$ rm -rf group_vars/non-prod
-</code></pre>
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span></span><span class="c1"># STS settings</span>
+<span class="hll"><span class="na">sts_role_arn: arn:aws:iam::160775127577:role/admin</span>
+</span>
+<span class="c1"># Application settings</span>
+<span class="hll"><span class="na">config_application_keyname: admin</span>
+</span><span class="na">config_application_instance_type: t2.micro</span>
+<span class="na">config_application_desired_count: 2</span>
+<span class="hll"><span class="na">config_application_ami: ami-4662e126</span>
+</span><span class="hll"><span class="na">config_application_image: 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-api</span>
+</span><span class="na">config_application_tag: latest</span>
+<span class="na">config_application_frontend_port: 443</span>
+<span class="na">config_application_port: 3000</span>
+<span class="hll"><span class="na">config_application_secret_key_base: xxxxx</span>
+</span><span class="hll"><span class="na">config_application_domain: demo.cloudhotspot.co</span>
+</span>
+<span class="c1"># Nginx settings</span>
+<span class="hll"><span class="na">config_nginx_image: 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/nginx</span>
+</span><span class="na">config_nginx_tag: latest</span>
 
-<p>3. Create a file called <code>group_vars/demo-resources/vars.yml</code>, which will hold all environment specific configuration for the <strong>demo-resources</strong> environment:</p>
+<span class="c1"># Load balancer settings</span>
+<span class="hll"><span class="na">config_lb_certificate_arn:</span>
+</span><span class="hll">  <span class="na">Fn::ImportValue: DemoCloudhotspotCoCertificateArn</span>
+</span>
+<span class="c1"># Elasticsearch settings</span>
+<span class="hll"><span class="na">config_es_keyname: admin</span>
+</span><span class="na">config_es_instance_type: t2.micro</span>
+<span class="na">config_es_desired_count: 1</span>
+<span class="hll"><span class="na">config_es_ami: ami-4662e126</span>
+</span><span class="hll"><span class="na">config_es_image: 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/elasticsearch</span>
+</span><span class="na">config_es_tag: latest</span>
+<span class="na">config_es_frontend_port: 9200</span>
+<span class="na">config_es_port: 9200</span>
 
-<pre><code class="language-bash">$ mkdir -p group_vars/demo-resources
-$ touch group_vars/demo-resources/vars.yml
-</code></pre>
+<span class="c1"># Database settings</span>
+<span class="na">config_db_multi_az: false</span>
+<span class="na">config_db_deletion_policy: Delete</span>
+<span class="na">config_db_storage: 10</span>
+<span class="na">config_db_instance_type: db.t2.micro</span>
+<span class="na">config_db_name: casebook_api_production</span>
+<span class="na">config_db_username: casebook</span>
+<span class="hll"><span class="na">config_db_password: xxxxx</span>
+</span>
+<span class="c1"># Log settings</span>
+<span class="na">config_log_retention: 30</span>
+<span class="na">config_log_deletion_policy: Delete</span>
 
-<p>4. Add the following settings to <code>group_vars/demo-resources/vars.yml</code>:</p>
+<span class="c1"># CloudFormation custom resource settings </span>
+<span class="hll"><span class="na">config_cfn_lambda_kms_decrypt_version: &quot;BIUpXhvw6w3f1LTctGVZxOpFD38lCHH1&quot;</span>
+</span><span class="hll"><span class="na">config_cfn_lambda_ecs_tasks_version: &quot;MiOiZi.9.AHyYQcFibBAvWYFD4xFJJ1c&quot;</span>
+</span></code></pre></div>
 
-<pre><code class="language-python"># STS role in the target AWS account to assume
-sts_role_arn: &quot;arn:aws:iam::160775127577:role/admin&quot;
 
-# Application settings
-config_application_keyname: admin
-config_application_instance_type: t2.micro
-config_application_ami: ami-4662e126
-config_az_count: 3
-config_log_deletion_policy: Delete
-
-# Proxy settings
-config_proxy_image: 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/squid
-config_proxy_tag: latest
-config_proxy_disable_whitelist: false
-config_proxy_whitelist: .demo.cloudhotspot.co
-config_proxy_network_mode: host
-</code></pre>
-
-<p>Here we target the <strong>demo-resources</strong> account by specifying the <strong>demo-resources</strong> IAM <strong>admin</strong> role in the <code>sts_role_arn</code> variable, whilst the remaining settings configure the proxy template:</p>
+<p>Here we target the <strong>demo-resources</strong> account by specifying the <strong>demo-resources</strong> IAM <strong>admin</strong> role in the <code>sts_role_arn</code> variable, whilst the remaining settings configure the Intake APi application stack specify to the <strong>demo-resources</strong> template account:</p>
 
 <ul>
 <li><code>config_application_keyname</code> - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the <a href="https://casecommons.github.io/aws-docs/web-proxy/#creating-an-ec2-key-pair">EC2 key pair created earlier</a>.</li>
-<li><code>config_application_instance_type</code> - specifies the EC2 instance type for the ECS container instances that will be created.</li>
 <li><code>config_application_ami</code> - specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the <a href="https://casecommons.github.io/aws-docs/web-proxy/#creating-an-ecs-ami">AMI created earlier</a></li>
-<li><code>config_az_count</code> - specifies the number of availability zones to place ECS conatiner instances into.</li>
-<li><code>config_log_deletion_policy</code> - specifies whether to &ldquo;Delete&rdquo; or &ldquo;Retain&rdquo; CloudWatch log groups when the stack is destroyed.</li>
-<li><code>config_proxy_image</code> - specifies the Docker image used to run the squid proxy containers.  Notice this matches the image created in <a href="https://casecommons.github.io/aws-docs/ecr-resources/#publishing-docker-images">EC2 Container Registry Resources</a></li>
-<li><code>config_proxy_tag</code> - specifies the Docker image tag used to run the squid proxy containers.</li>
-<li><code>config_proxy_disable_whitelist</code> - disables the web proxy whitelist when set to <code>true</code>.  The default setting is <code>false</code>.</li>
-<li><code>config_proxy_whitelist</code> - defines domains that will be added to the web proxy whitelist.  Here we add <code>.demo.cloudhotspot.co</code>, which means any host in <code>*.demo.cloudhotspot.co</code> will be whitelisted.</li>
-<li><code>config_proxy_network_mode</code> - configures the Docker networking mode - in this example it is set to <code>host</code>, meaning the squid container will share the ECS container instance operating system network stack.</li>
+<li><code>config_application_image</code> - specifies the Docker image used to run the Intake API application containers.  Notice this matches the <a href="https://casecommons.github.io/aws-docs/intake-api/#creating-the-intake-api-image">image we created earlier</a></li>
+<li><code>config_application_secret_key_base</code> - an encrypted application setting that provides cryptographic material for an application secret key.  We will securely generate an encrypted value for this setting shortly.</li>
+<li><code>config_application_domain</code> - specifies the base domain that our application will be served from.</li>
+<li><code>config_nginx_image</code> - specifies the Docker image used to run the Intake API Nginx containers.  Notice this matches the <a href="https://casecommons.github.io/aws-docs/intake-api/#creating-an-nginx-image">image we created earlier</a></li>
+<li><code>config_lb_certificate_arn</code> - specifies the ARN of the AWS certificate manager (ACM) certificate to serve from the application load balancer for HTTPS connections.  Notice that we can specify this setting as a CloudFormation instrinsic function, as the template is configured to cast the configured value to a JSON object.  The intrinsic function imports the CloudFormation export <code>DemoCloudhotspotCoCertificateArn</code>, which was created earlier when we <a href="https://casecommons.github.io/aws-docs/intake-api/#creating-a-certificate">created the certificate</a> in the security resources playbook.</li>
+<li><code>config_es_keyname</code> - specifies the name of the EC2 key pair that ECS container instances will be created with.</li>
+<li><code>config_es_ami</code> - specifies the AMI ID of the image used to create the ECS container instances.<br /></li>
+<li><code>config_es_image</code> - specifies the Docker image used to run the Intake API Elasticsearch containers.  Notice this matches the <a href="https://casecommons.github.io/aws-docs/intake-api/#creating-an-elasticsearch-image">image we created earlier</a></li>
+<li><code>config_db_password</code> - the encrypted password for the Intake API database.  We will securely generate an encrypted value for this setting shortly.</li>
+<li><code>config_cfn_lambda_kms_decrypt_version</code> - the S3 object version of the KMS decrypt Lambda function used for KMS decrypt custom resources.  Notice the object version matches <a href="https://casecommons.github.io/aws-docs/intake-api/#creating-lambda-functions">the version we published earlier</a>.</li>
+<li><code>config_cfn_lambda_ecs_tasks_version</code> - the S3 object version of the ECS tasks Lambda function used for ECS task custom resources.  Notice the object version matches <a href="https://casecommons.github.io/aws-docs/intake-api/#creating-lambda-functions">the version we published earlier</a>.</li>
 </ul>
 
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The squid Docker image created in <a href="https://casecommons.github.io/aws-docs/ecr-resources/#publishing-docker-images">EC2 Container Registry Resources</a> includes a whitelist that only permits access to AWS service API endpoints. See <a href="https://github.com/Casecommons/docker-squid#squid-whitelist">https://github.com/Casecommons/docker-squid#squid-whitelist</a> for details on the default whitelist.</p>
-</div>
+<h2 id="creating-secrets-using-kms">Creating Secrets using KMS</h2>
+
+<p>Our <strong>demo</strong> environment settings include two settings that we need to generate encrypted values for.</p>
+
+<p>The approach here is to simply use the AWS Key Management Service (KMS) to encrypt the plaintext value of each secret.  We will use the KMS key that was created as part of the <a href="https://casecommons.github.io/aws-docs/cloudformation-resources/">CloudFormation resources</a> stack.</p>
+
+<p>1. In the AWS console, open the <strong>CloudFormation &gt; Exports</strong> from the CloudFormation dashboard.  Copy the <strong>CfnMasterKey</strong> export value, which defines the key ID of the KMS key we will use for encryption.</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/cfn-master-key.png" alt="KMS Master Key" /></p>
+
+<p>2. In a local shell configured with an admin profile targetting the <strong>demo resources</strong> account, run the following command to generate ciphertext for the <code>config_application_secret_key_base</code> variable:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+$ aws kms encrypt --key-id 11710b57-c424-4df7-ab3d-20358820edd9 --plaintext $(openssl rand -base64 32)
+Enter MFA code: ******
+'{
+    &quot;KeyId&quot;: &quot;arn:aws:kms:us-west-2:160775127577:key/11710b57-c424-4df7-ab3d-20358820edd9&quot;,
+    &quot;CiphertextBlob&quot;: &quot;AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAIswgYgGCSqGSIb3DQEHBqB7MHkCAQAwdAYJKoZIhvcNAQcBMB4GCWCGSAFlAwQBLjARBAylerEZFMHMqvVgDiICARCAR36t/jpVODBIevAAeKEbHH+Tibj2/buhzmeoSiN+fm6T6CL1AE+yjRZ7B7FXp5S2RhYEwBrWLGD26r3NudZ9aj0IvLI8BwPS&quot;
+}
+</code></pre>
+
+<p>3. Copy the <code>CiphertextBlob</code> value from the <code>aws kms encrypt</code> command output and set the <code>config_application_secret_key_base</code> variable in <code>group_vars/demo/vars.yml</code> to this value:</p>
+
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span></span><span class="c1"># STS settings</span>
+<span class="na">sts_role_arn: arn:aws:iam::160775127577:role/admin</span>
+
+<span class="c1"># Application settings</span>
+<span class="na">config_application_keyname: admin</span>
+<span class="na">config_application_instance_type: t2.micro</span>
+<span class="na">config_application_desired_count: 2</span>
+<span class="na">config_application_ami: ami-4662e126</span>
+<span class="na">config_application_image: 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/intake-api</span>
+<span class="na">config_application_tag: latest</span>
+<span class="na">config_application_frontend_port: 443</span>
+<span class="na">config_application_port: 3000</span>
+<span class="hll"><span class="na">config_application_secret_key_base: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAIswgYgGCSqGSIb3DQEHBqB7MHkCAQAwdAYJKoZIhvcNAQcBMB4GCWCGSAFlAwQBLjARBAylerEZFMHMqvVgDiICARCAR36t/jpVODBIevAAeKEbHH+Tibj2/buhzmeoSiN+fm6T6CL1AE+yjRZ7B7FXp5S2RhYEwBrWLGD26r3NudZ9aj0IvLI8BwPS</span>
+</span><span class="na">config_application_domain: demo.cloudhotspot.co</span>
+<span class="na">...</span>
+<span class="na">...</span>
+</code></pre></div>
+
+
+<p>5. Repeat the <code>aws kms encryt</code> command to generate ciphertext for the <code>config_db_password</code> variable:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+$ aws kms encrypt --key-id 11710b57-c424-4df7-ab3d-20358820edd9 --plaintext &quot;supersecretpassword&quot;
+Enter MFA code: ******
+'{
+    &quot;KeyId&quot;: &quot;arn:aws:kms:us-west-2:160775127577:key/11710b57-c424-4df7-ab3d-20358820edd9&quot;,
+    &quot;CiphertextBlob&quot;: &quot;AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw==&quot;
+}
+</code></pre>
+
+<p>6. Copy the <code>CiphertextBlob</code> value from the <code>aws kms encrypt</code> command output and set the <code>config_application_secret_key_base</code> variable in <code>group_vars/demo/vars.yml</code> to this value:</p>
+
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span></span><span class="c1"># STS settings</span>
+<span class="na">sts_role_arn: arn:aws:iam::160775127577:role/admin</span>
+<span class="na">...</span>
+<span class="na">...</span>
+<span class="c1"># Database settings</span>
+<span class="na">config_db_multi_az: false</span>
+<span class="na">config_db_deletion_policy: Delete</span>
+<span class="na">config_db_storage: 10</span>
+<span class="na">config_db_instance_type: db.t2.micro</span>
+<span class="na">config_db_name: casebook_api_production</span>
+<span class="hll"><span class="na">config_db_username: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw</span><span class="o">=</span><span class="s">=</span>
+</span><span class="na">...</span>
+<span class="na">...</span>
+</code></pre></div>
+
 
 <h2 id="running-the-playbook">Running the Playbook</h2>
 
-<p>Now that we&rsquo;ve defined environment settings for the <strong>demo-resources</strong> environment, let&rsquo;s run the playbook to create ECR repository resources for the environment.</p>
+<p>Now that we&rsquo;ve defined environment settings for the <strong>demo</strong> environment targeting our <strong>demo-resources</strong> account, let&rsquo;s run the playbook.</p>
 
 <p>1. Ensure your local AWS environment is configured to target the <strong>demo-resources</strong> account:</p>
 
 <pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
 </code></pre>
 
-<p>2. Run the Ansible playbook targeting the <code>demo-resources</code> environment as demonstrated below:</p>
+<p>2. Run the Ansible playbook targeting the <code>demo</code> environment as demonstrated below:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ ansible-playbook site.yml -e <span class="nv">env</span><span class="o">=</span>demo-resources
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ ansible-playbook site.yml -e <span class="nv">env</span><span class="o">=</span>demo
 
 PLAY <span class="o">[</span>Assume Role<span class="o">]</span> *************************************************************
 
 TASK <span class="o">[</span>aws-sts : set_fact<span class="o">]</span> ******************************************************
-ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+ok: <span class="o">[</span>demo<span class="o">]</span>
 
 TASK <span class="o">[</span>aws-sts : checking <span class="k">if</span> sts functions are sts_disabled<span class="o">]</span> ********************
-skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+skipping: <span class="o">[</span>demo<span class="o">]</span>
 
 TASK <span class="o">[</span>aws-sts : setting empty sts_session_output result<span class="o">]</span> ***********************
-skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+skipping: <span class="o">[</span>demo<span class="o">]</span>
 
 TASK <span class="o">[</span>aws-sts : setting sts_creds <span class="k">if</span> legacy AWS credentials are present <span class="o">(</span>e.g. <span class="k">for</span> Ansible Tower<span class="o">)]</span> ***
-skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+skipping: <span class="o">[</span>demo<span class="o">]</span>
 
 TASK <span class="o">[</span>aws-sts : assume sts role<span class="o">]</span> ***********************************************
 Enter MFA code: ******
-ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+ok: <span class="o">[</span>demo<span class="o">]</span>
 ...
 ...
 TASK <span class="o">[</span>aws-cloudformation : <span class="nb">set</span> <span class="nb">local</span> path fact <span class="k">if</span> s3 upload disabled<span class="o">]</span> **********
-ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+ok: <span class="o">[</span>demo<span class="o">]</span>
 
 TASK <span class="o">[</span>aws-cloudformation : configure application stack<span class="o">]</span> ************************
 ...
 ...
 PLAY RECAP *********************************************************************
-demo-resources             : <span class="nv">ok</span><span class="o">=</span><span class="m">20</span>   <span class="nv">changed</span><span class="o">=</span><span class="m">1</span>    <span class="nv">unreachable</span><span class="o">=</span><span class="m">0</span>    <span class="nv">failed</span><span class="o">=</span><span class="m">0</span>
+demo                       : <span class="nv">ok</span><span class="o">=</span><span class="m">18</span>   <span class="nv">changed</span><span class="o">=</span><span class="m">1</span>    <span class="nv">unreachable</span><span class="o">=</span><span class="m">0</span>    <span class="nv">failed</span><span class="o">=</span><span class="m">0</span>
 </code></pre></div>
 
 
-<p>3.  The playbook will take approxiately 10 minutes to create the CloudFormation stack and associated resources.  Whilst the CloudFormation stack is being created, you can review the CloudFormation stack that was generated in the <code>build/&lt;timestamp&gt;</code> folder:</p>
+<p>3.  The playbook will take approxiately 15 minutes to create the CloudFormation stack and associated resources.  Whilst the CloudFormation stack is being created, you can review the CloudFormation stack that was generated in the <code>build/&lt;timestamp&gt;</code> folder:</p>
 
 <pre><code class="language-bash">$ tree build
 build
-└── 20170227015822
-    ├── web-proxy-config.json
-    ├── web-proxy-policy.json
-    ├── web-proxy-stack.json
-    └── web-proxy-stack.yml
+└── 20170301192616
+    ├── intake-api-demo-config.json
+    ├── intake-api-demo-policy.json
+    ├── intake-api-demo-stack.json
+    └── intake-api-demo-stack.yml
 </code></pre>
 
-<p>The following shows the <code>web-proxy-stack.yml</code> file that was generated and uploaded to CloudFormation:</p>
+<p>The following shows the <code>intake-api-demo-stack.yml</code> file that was generated and uploaded to CloudFormation:</p>
 
 <pre><code class="language-python">AWSTemplateFormatVersion: &quot;2010-09-09&quot;
 
-Description: Squid Forward Proxy
+Description: Intake API - demo
 
 Parameters:
-  ApplicationImageId:
+  ApplicationAMI:
     Type: String
     Description: Application Amazon Machine Image ID
   ApplicationInstanceType:
@@ -726,96 +1318,168 @@ Parameters:
   ApplicationAutoscalingDesiredCount:
     Type: Number
     Description: Application AutoScaling Group Desired Count
-    Default: 3      
-  ProxyImage:
+  ApplicationDockerImage:
     Type: String
-    Description: Docker Image for Proxy
-    Default: 429614120872.dkr.ecr.us-west-2.amazonaws.com/cwds/squid
-  ProxyImageTag:
+    Description: Docker Image for Application
+  ApplicationDockerImageTag:
     Type: String
-    Description: Docker Image Tag for Proxy
+    Description: Docker Image Tag for Application
     Default: latest
-  ProxyDisableWhitelist:
+  ApplicationKeyName:
     Type: String
-    Description: Disables whitelist when set to true.  Proxy will operate as an open proxy.
-    Default: &quot;false&quot;
-    AllowedValues:
-    - &quot;true&quot;
-    - &quot;false&quot;
-  ProxyWhitelist:
+    Description: EC2 Key Pair for Application SSH Access
+  ApplicationLoadBalancerPort:
+    Type: Number
+    Description: Application Front End HTTP Port
+  ApplicationPort:
+    Type: Number
+    Description: Application HTTP Port
+  ApplicationDomain:
     Type: String
-    Description: Comma separated list of domains to whitelist
-    Default: &quot;&quot;
-  KeyName:
+    Description: Base public domain of the application URL
+  ElasticsearchAMI:
     Type: String
-    Description: EC2 Key Pair for SSH Access
+    Description: Elasticsearch Amazon Machine Image ID
+  ElasticsearchInstanceType:
+    Type: String
+    Description: Elasticsearch EC2 Instance Type
+  ElasticsearchAutoscalingDesiredCount:
+    Type: Number
+    Description: Elasticsearch AutoScaling Group Desired Count
+  ElasticsearchDockerImage:
+    Type: String
+    Description: Docker Image for Elasticsearch
+  ElasticsearchDockerImageTag:
+    Type: String
+    Description: Docker Image Tag for Elasticsearch
+    Default: latest
+  ElasticsearchKeyName:
+    Type: String
+    Description: EC2 Key Pair for Elasticsearch SSH Access
+  ElasticsearchLoadBalancerPort:
+    Type: Number
+    Description: Elasticsearch Front End HTTP Port
+  ElasticsearchPort:
+    Type: Number
+    Description: Elasticsearch Port
   Environment:
     Type: String
     Description: Stack Environment
+  LogRetention:
+    Type: Number
+    Description: Log retention in days
+  NginxDockerImage:
+    Type: String
+    Description: Docker Image for Nginx
+  NginxDockerImageTag:
+    Type: String
+    Description: Docker Image Tag for Nginx
+    Default: latest
+  DbStorage:
+    Type: Number
+    Description: Database Allocated Storage
+  DbInstanceType:
+    Type: String
+    Description: Database Instance Type
+  DbName:
+    Type: String
+    Description: Database Name
+  DbUsername:
+    Type: String
+    Description: Database Username
+  DbPassword:
+    Type: String
+    NoEcho: &quot;True&quot;
+    Description: Encrypted Database Password
+  SecretKeyBaseCipher:
+    Type: String
+    Description: KMS Encrypted Secret Key Base
+  LambdaCfnKmsDecryptVersion:
+    Type: String
+    Description: S3 Object Version of CloudFormation KMS Decrypt function
+  LambdaCfnEcsTasksVersion:
+    Type: String
+    Description: S3 Object Version of CloudFormation ECS Tasks function
+
 Resources:
-  ProxyDnsRecord:
+  ApplicationDnsRecord:
     Type: &quot;AWS::Route53::RecordSet&quot;
     Properties:
-      Name:
-        Fn::Join: [&quot;&quot;, [ &quot;proxy.&quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot; ] ]
+      Name: 
+        Fn::Sub: &quot;${Environment}-intake-api.${ApplicationDomain}&quot;
       TTL: &quot;300&quot;
-      HostedZoneName:
-        Fn::Join: [&quot;&quot;, [ &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot;, &quot;.&quot; ] ]
+      HostedZoneName: 
+        Fn::Sub: &quot;${ApplicationDomain}.&quot;
       Type: &quot;CNAME&quot;
       Comment: 
-        Fn::Sub: &quot;Forward Proxy - ${Environment}&quot;
-      ResourceRecords:
+        Fn::Sub: &quot;Intake API Application - ${Environment}&quot;
+      ResourceRecords: 
         - Fn::Sub: &quot;${ApplicationLoadBalancer.DNSName}&quot;
   ApplicationLoadBalancer:
-    Type : &quot;AWS::ElasticLoadBalancing::LoadBalancer&quot;
+    Type: &quot;AWS::ElasticLoadBalancingV2::LoadBalancer&quot;
     Properties:
-      Scheme: &quot;internal&quot;
+      Scheme: &quot;internet-facing&quot;
       SecurityGroups:
-        - Ref: &quot;ApplicationLoadBalancerSecurityGroup&quot;
+       - Ref: &quot;ApplicationLoadBalancerSecurityGroup&quot;
       Subnets:
-        - Fn::ImportValue: &quot;DefaultPublicSubnetA&quot;
-        - Fn::ImportValue: &quot;DefaultPublicSubnetB&quot;
-        - Fn::ImportValue: &quot;DefaultPublicSubnetC&quot;
-      CrossZone: &quot;true&quot;
-      ConnectionSettings:
-        IdleTimeout: 120
-      ConnectionDrainingPolicy:
-        Enabled: &quot;true&quot;
-        Timeout: 120
-      Listeners:
-        - LoadBalancerPort: &quot;3128&quot;
-          InstancePort: &quot;3128&quot;
-          Protocol: &quot;tcp&quot;
+        - Fn::ImportValue: DefaultPublicSubnetA
+        - Fn::ImportValue: DefaultPublicSubnetB
+      LoadBalancerAttributes: 
+        - Key: &quot;deletion_protection.enabled&quot;
+          Value: false
+        - Key: &quot;idle_timeout.timeout_seconds&quot;
+          Value: 30
       Tags:
-        - Key: Name
+        - Key: &quot;Name&quot;
           Value:
-            Fn::Sub: ${AWS::StackName}-${Environment}-elb
+            Fn::Sub: ${AWS::StackName}-${Environment}-lb
+  ApplicationLoadBalancerApplicationListener:
+    Type: &quot;AWS::ElasticLoadBalancingV2::Listener&quot;
+    Properties:
+      Certificates:
+        - CertificateArn: {&quot;Fn::ImportValue&quot;: &quot;DemoCloudhotspotCoCertificateArn&quot;}
+      DefaultActions:
+        - TargetGroupArn: { &quot;Ref&quot;: &quot;IntakeApiServiceTargetGroup&quot; }
+          Type: forward
+      LoadBalancerArn: { &quot;Ref&quot;: &quot;ApplicationLoadBalancer&quot; }
+      Port: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerPort&quot; }
+      Protocol: &quot;HTTPS&quot;
+  IntakeApiServiceTargetGroup:
+    Type: &quot;AWS::ElasticLoadBalancingV2::TargetGroup&quot;
+    Properties:
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      Protocol: &quot;HTTP&quot;
+      Port: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
+      HealthCheckPath: &quot;/api/v1/screenings&quot;
+      TargetGroupAttributes:
+        - Key: &quot;deregistration_delay.timeout_seconds&quot;
+          Value: 60
   ApplicationLoadBalancerSecurityGroup:
     Type: &quot;AWS::EC2::SecurityGroup&quot;
     Properties:
       VpcId:
         Fn::ImportValue: &quot;DefaultVpcId&quot;
-      GroupDescription: &quot;Proxy Load Balancer Security Group&quot;
+      GroupDescription: &quot;Intake API Load Balancer Security Group&quot;
       SecurityGroupIngress:
         - IpProtocol: &quot;tcp&quot;
-          FromPort: 3128
-          ToPort: 3128
-          CidrIp:
-            Fn::ImportValue: &quot;DefaultVpcCidr&quot;
-  ApplicationLoadBalancerToAutoscalingIngressTCP3128:
+          FromPort: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerPort&quot; }
+          ToPort: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerPort&quot; }
+          CidrIp: &quot;0.0.0.0/0&quot;
+  ApplicationLoadBalancerToApplicationIngress:
     Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
     Properties:
       IpProtocol: &quot;tcp&quot;
-      FromPort: 3128
-      ToPort: 3128
+      FromPort: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
       GroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
       SourceSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }
-  ApplicationLoadBalancerToAutoscalingEgressTCP3128:
+  ApplicationLoadBalancerToApplicationEgress:
     Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
     Properties:
       IpProtocol: &quot;tcp&quot;
-      FromPort: 3128
-      ToPort: 3128
+      FromPort: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
       GroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }
       DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
   ApplicationAutoscaling:
@@ -838,13 +1502,12 @@ Resources:
         PauseTime: &quot;PT15M&quot;
     Properties:
       VPCZoneIdentifier:
-        - Fn::ImportValue: &quot;DefaultPublicSubnetA&quot;
-        - Fn::ImportValue: &quot;DefaultPublicSubnetB&quot;
-        - Fn::ImportValue: &quot;DefaultPublicSubnetC&quot;
+        - Fn::ImportValue: &quot;DefaultMediumSubnetA&quot;
+        - Fn::ImportValue: &quot;DefaultMediumSubnetB&quot;
       LaunchConfigurationName: { &quot;Ref&quot; : &quot;ApplicationAutoscalingLaunchConfiguration&quot; }
       MinSize: &quot;0&quot;
       MaxSize: &quot;4&quot;
-      DesiredCapacity: { &quot;Ref&quot;: &quot;ApplicationAutoscalingDesiredCount&quot; }
+      DesiredCapacity: { &quot;Ref&quot;: &quot;ApplicationAutoscalingDesiredCount&quot;}
       Tags:
         - Key: Name
           Value:
@@ -863,18 +1526,19 @@ Resources:
                 AUTOSCALING_GROUP: &quot;ApplicationAutoscaling&quot;
                 AWS_DEFAULT_REGION: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
                 ECS_CLUSTER: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
-                DOCKER_NETWORK_MODE: &quot;host&quot;
+                DOCKER_NETWORK_MODE: host
+                PROXY_URL:
+                  Fn::ImportValue: DefaultProxyURL
               cwd: &quot;/home/ec2-user/&quot;
           files:
             /etc/ecs/ecs.config:
               content: 
                 Fn::Sub: &quot;ECS_CLUSTER=${ApplicationCluster}\n&quot;
     Properties:
-      ImageId: { &quot;Ref&quot;: &quot;ApplicationImageId&quot; }
+      ImageId: { &quot;Ref&quot;: &quot;ApplicationAMI&quot; }
       InstanceType: { &quot;Ref&quot;: &quot;ApplicationInstanceType&quot; }
-      AssociatePublicIpAddress: &quot;true&quot;
       IamInstanceProfile: { &quot;Ref&quot;: &quot;ApplicationAutoscalingInstanceProfile&quot; }
-      KeyName: { &quot;Ref&quot;: &quot;KeyName&quot; }
+      KeyName: { &quot;Ref&quot;: &quot;ApplicationKeyName&quot; }
       SecurityGroups:
         - Ref: &quot;ApplicationAutoscalingSecurityGroup&quot;
       UserData: 
@@ -882,15 +1546,23 @@ Resources:
           Fn::Join: [&quot;\n&quot;, [
             &quot;#!/bin/bash&quot;,
             &quot;set -e&quot;,
-            &quot;Fn::Sub&quot;: &quot;/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ApplicationAutoscalingLaunchConfiguration --region ${AWS::Region}&quot;,
-            &quot;Fn::Sub&quot;: &quot;/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ApplicationAutoscaling --region ${AWS::Region}&quot;
+            &quot;Fn::Join&quot;: [&quot;&quot;, [
+              &quot;Fn::Sub&quot;: &quot;/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ApplicationAutoscalingLaunchConfiguration --region ${AWS::Region}&quot;,
+              &quot;    --http-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;, 
+              &quot;    --https-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;
+            ] ],
+            &quot;Fn::Join&quot;: [&quot;&quot;, [
+              &quot;Fn::Sub&quot;: &quot;/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ApplicationAutoscaling --region ${AWS::Region}&quot;,
+              &quot;    --http-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;, 
+              &quot;    --https-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;
+            ] ]
           ] ]
   ApplicationAutoscalingSecurityGroup:
     Type: &quot;AWS::EC2::SecurityGroup&quot;
     Properties:
       VpcId:
         Fn::ImportValue: &quot;DefaultVpcId&quot;
-      GroupDescription: &quot;Proxy Security Group&quot;
+      GroupDescription: &quot;Intake API Security Group&quot;
       SecurityGroupIngress:
         - IpProtocol: &quot;tcp&quot;
           FromPort: 22
@@ -904,13 +1576,10 @@ Resources:
             Fn::ImportValue: &quot;DefaultManagementSubnetBCidr&quot;
       SecurityGroupEgress:
         - IpProtocol: &quot;tcp&quot;
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: &quot;tcp&quot;
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
+          FromPort: 3128
+          ToPort: 3128
+          DestinationSecurityGroupId:
+            Fn::ImportValue: DefaultProxySecurityGroup
         - IpProtocol: &quot;udp&quot;
           FromPort: 53
           ToPort: 53
@@ -922,6 +1591,22 @@ Resources:
           FromPort: 123
           ToPort: 123
           CidrIp: 0.0.0.0/0
+  ApplicationToElasticsearchLoadBalancerIngress:
+    Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerPort&quot;}
+      ToPort: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerPort&quot;}
+      GroupId: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerSecurityGroup&quot; }
+      SourceSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+  ApplicationToElasticsearchLoadBalancerEgress:
+    Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerPort&quot;}
+      ToPort: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerPort&quot;}
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+      DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerSecurityGroup&quot; }
   ApplicationAutoscalingRole:
     Type: &quot;AWS::IAM::Role&quot;
     Properties:
@@ -935,7 +1620,7 @@ Resources:
       Path: &quot;/&quot;
       ManagedPolicyArns: []
       Policies:
-        - {&quot;PolicyName&quot;: &quot;CloudWatchLogs&quot;, &quot;PolicyDocument&quot;: {&quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [{&quot;Action&quot;: [&quot;logs:CreateLogGroup&quot;, &quot;logs:CreateLogStream&quot;, &quot;logs:PutLogEvents&quot;, &quot;logs:DescribeLogStreams&quot;], &quot;Resource&quot;: {&quot;Fn::Sub&quot;: &quot;arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AWS::StackName}*&quot;}, &quot;Effect&quot;: &quot;Allow&quot;}]}}
+        - {&quot;PolicyName&quot;: &quot;CloudWatchLogs&quot;, &quot;PolicyDocument&quot;: {&quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [{&quot;Action&quot;: [&quot;logs:CreateLogGroup&quot;, &quot;logs:CreateLogStream&quot;, &quot;logs:PutLogEvents&quot;, &quot;logs:DescribeLogStreams&quot;], &quot;Resource&quot;: {&quot;Fn::Join&quot;: [&quot;:&quot;, [&quot;arn:aws:logs&quot;, {&quot;Ref&quot;: &quot;AWS::Region&quot;}, {&quot;Ref&quot;: &quot;AWS::AccountId&quot;}, &quot;log-group&quot;, &quot;intake-api-demo*&quot;]]}, &quot;Effect&quot;: &quot;Allow&quot;}]}}
         - PolicyName: &quot;EC2ContainerInstancePolicy&quot;
           PolicyDocument:
             Statement:
@@ -959,41 +1644,474 @@ Resources:
                   - &quot;ecr:GetDownloadUrlForLayer&quot;
                   - &quot;ecr:GetAuthorizationToken&quot;
                 Resource: &quot;*&quot;
+              - Effect: &quot;Allow&quot;
+                Action:
+                - &quot;kms:Decrypt&quot;
+                - &quot;kms:DescribeKey&quot;
+                Resource:
+                  Fn::ImportValue: &quot;CfnMasterKeyArn&quot;
   ApplicationAutoscalingInstanceProfile:
     Type: &quot;AWS::IAM::InstanceProfile&quot;
     Properties:
       Path: &quot;/&quot;
       Roles: [ { &quot;Ref&quot;: &quot;ApplicationAutoscalingRole&quot; } ]
+  ElasticsearchDnsRecord:
+    Type: &quot;AWS::Route53::RecordSet&quot;
+    Properties:
+      Name:
+        Fn::Join: [&quot;&quot;, [
+          &quot;Fn::Sub&quot;: &quot;${Environment}-intake-api-es.&quot;,
+          &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot;
+        ] ]
+      TTL: &quot;300&quot;
+      HostedZoneName:
+        Fn::ImportValue: DefaultVpcZone
+      Type: &quot;CNAME&quot;
+      Comment: 
+        Fn::Sub: &quot;Intake API Elasticsearch - ${Environment}&quot;
+      ResourceRecords: 
+        - Fn::Sub: &quot;${ElasticsearchLoadBalancer.DNSName}&quot;
+  ElasticsearchLoadBalancer:
+    Type: &quot;AWS::ElasticLoadBalancingV2::LoadBalancer&quot;
+    Properties:
+      Scheme: &quot;internal&quot;
+      SecurityGroups:
+       - Ref: &quot;ElasticsearchLoadBalancerSecurityGroup&quot;
+      Subnets:
+        - Fn::ImportValue: DefaultHighSubnetA
+        - Fn::ImportValue: DefaultHighSubnetB
+      LoadBalancerAttributes: 
+        - Key: &quot;deletion_protection.enabled&quot;
+          Value: false
+        - Key: &quot;idle_timeout.timeout_seconds&quot;
+          Value: 30
+      Tags:
+        - Key: &quot;Name&quot;
+          Value:
+            Fn::Sub: ${AWS::StackName}-${Environment}-elasticsearch-lb
+  ElasticsearchLoadBalancerListener:
+    Type: &quot;AWS::ElasticLoadBalancingV2::Listener&quot;
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: { &quot;Ref&quot;: &quot;ElasticsearchServiceTargetGroup&quot; }
+          Type: forward
+      LoadBalancerArn: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancer&quot; }
+      Port: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerPort&quot; }
+      Protocol: &quot;HTTP&quot;
+  ElasticsearchServiceTargetGroup:
+    Type: &quot;AWS::ElasticLoadBalancingV2::TargetGroup&quot;
+    Properties:
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      Protocol: &quot;HTTP&quot;
+      Port: { &quot;Ref&quot;: &quot;ElasticsearchPort&quot; }
+      TargetGroupAttributes:
+        - Key: &quot;deregistration_delay.timeout_seconds&quot;
+          Value: 60
+  ElasticsearchLoadBalancerSecurityGroup:
+    Type: &quot;AWS::EC2::SecurityGroup&quot;
+    Properties:
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      GroupDescription: &quot;Intake API Elasticsearch Load Balancer Security Group&quot;
+  ElasticsearchLoadBalancerToElasticsearchIngress:
+    Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;ElasticsearchPort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;ElasticsearchPort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingSecurityGroup&quot; }
+      SourceSecurityGroupId: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerSecurityGroup&quot; }
+  ElasticsearchLoadBalancerToElasticsearchEgress:
+    Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;ElasticsearchPort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;ElasticsearchPort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;ElasticsearchLoadBalancerSecurityGroup&quot; }
+      DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingSecurityGroup&quot; }
+  ElasticsearchAutoscaling:
+    Type: &quot;AWS::AutoScaling::AutoScalingGroup&quot;
+    DependsOn:
+      - ElasticsearchDmesgLogGroup
+      - ElasticsearchDockerLogGroup
+      - ElasticsearchEcsAgentLogGroup
+      - ElasticsearchEcsInitLogGroup
+      - ElasticsearchMessagesLogGroup
+    CreationPolicy:
+      ResourceSignal:
+        Count: { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingDesiredCount&quot;}
+        Timeout: &quot;PT15M&quot;
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingDesiredCount&quot;}
+        MinSuccessfulInstancesPercent: &quot;100&quot;
+        WaitOnResourceSignals: &quot;true&quot;
+        PauseTime: &quot;PT15M&quot;
+    Properties:
+      VPCZoneIdentifier:
+        - Fn::ImportValue: &quot;DefaultHighSubnetA&quot;
+        - Fn::ImportValue: &quot;DefaultHighSubnetB&quot;
+      LaunchConfigurationName: { &quot;Ref&quot; : &quot;ElasticsearchAutoscalingLaunchConfiguration&quot; }
+      MinSize: &quot;0&quot;
+      MaxSize: &quot;4&quot;
+      DesiredCapacity: { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingDesiredCount&quot;}
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: ${AWS::StackName}-ElasticsearchAutoscaling-instance
+          PropagateAtLaunch: &quot;true&quot;
+  ElasticsearchAutoscalingLaunchConfiguration:
+    Type: &quot;AWS::AutoScaling::LaunchConfiguration&quot;
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          commands:
+            10_first_run:
+              command: &quot;sh firstrun.sh&quot;
+              env:
+                STACK_NAME: { &quot;Ref&quot;: &quot;AWS::StackName&quot; }
+                AUTOSCALING_GROUP: &quot;ElasticsearchAutoscaling&quot;
+                AWS_DEFAULT_REGION: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+                ECS_CLUSTER: { &quot;Ref&quot;: &quot;ElasticsearchCluster&quot; }
+                DOCKER_NETWORK_MODE: host
+                PROXY_URL:
+                  Fn::ImportValue: DefaultProxyURL
+              cwd: &quot;/home/ec2-user/&quot;
+          files:
+            /etc/ecs/ecs.config:
+              content: 
+                Fn::Sub: &quot;ECS_CLUSTER=${ElasticsearchCluster}\n&quot;
+    Properties:
+      ImageId: { &quot;Ref&quot;: &quot;ElasticsearchAMI&quot; }
+      InstanceType: { &quot;Ref&quot;: &quot;ElasticsearchInstanceType&quot; }
+      IamInstanceProfile: { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingInstanceProfile&quot; }
+      KeyName: { &quot;Ref&quot;: &quot;ElasticsearchKeyName&quot; }
+      SecurityGroups:
+        - Ref: &quot;ElasticsearchAutoscalingSecurityGroup&quot;
+      UserData: 
+        Fn::Base64:
+          Fn::Join: [&quot;\n&quot;, [
+            &quot;#!/bin/bash&quot;,
+            &quot;set -e&quot;,
+            &quot;Fn::Join&quot;: [&quot;&quot;, [
+              &quot;Fn::Sub&quot;: &quot;/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ElasticsearchAutoscalingLaunchConfiguration --region ${AWS::Region}&quot;,
+              &quot;    --http-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;, 
+              &quot;    --https-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;
+            ] ],
+            &quot;Fn::Join&quot;: [&quot;&quot;, [
+              &quot;Fn::Sub&quot;: &quot;/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ElasticsearchAutoscaling --region ${AWS::Region}&quot;,
+              &quot;    --http-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;, 
+              &quot;    --https-proxy &quot;, &quot;Fn::ImportValue&quot;: &quot;DefaultProxyURL&quot;
+            ] ]
+          ] ]
+  ElasticsearchAutoscalingSecurityGroup:
+    Type: &quot;AWS::EC2::SecurityGroup&quot;
+    Properties:
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      GroupDescription: &quot;Elasticsearch Security Group&quot;
+      SecurityGroupIngress:
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 22
+          ToPort: 22
+          CidrIp:
+            Fn::ImportValue: &quot;DefaultManagementSubnetACidr&quot;
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 22
+          ToPort: 22
+          CidrIp:
+            Fn::ImportValue: &quot;DefaultManagementSubnetBCidr&quot;
+      SecurityGroupEgress:
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 3128
+          ToPort: 3128
+          DestinationSecurityGroupId:
+            Fn::ImportValue: DefaultProxySecurityGroup
+        - IpProtocol: &quot;udp&quot;
+          FromPort: 53
+          ToPort: 53
+          CidrIp:
+            Fn::Join: [&quot;&quot;, [
+              &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDnsServer&quot;, &quot;/32&quot;
+            ] ]
+        - IpProtocol: &quot;udp&quot;
+          FromPort: 123
+          ToPort: 123
+          CidrIp: 0.0.0.0/0
+  ElasticsearchAutoscalingRole:
+    Type: &quot;AWS::IAM::Role&quot;
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: &quot;2012-10-17&quot;
+        Statement:
+          - Effect: &quot;Allow&quot;
+            Principal:
+              Service: [ &quot;ec2.amazonaws.com&quot; ]
+            Action: [ &quot;sts:AssumeRole&quot; ]
+      Path: &quot;/&quot;
+      ManagedPolicyArns: []
+      Policies:
+        - {&quot;PolicyName&quot;: &quot;CloudWatchLogs&quot;, &quot;PolicyDocument&quot;: {&quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [{&quot;Action&quot;: [&quot;logs:CreateLogGroup&quot;, &quot;logs:CreateLogStream&quot;, &quot;logs:PutLogEvents&quot;, &quot;logs:DescribeLogStreams&quot;], &quot;Resource&quot;: {&quot;Fn::Join&quot;: [&quot;:&quot;, [&quot;arn:aws:logs&quot;, {&quot;Ref&quot;: &quot;AWS::Region&quot;}, {&quot;Ref&quot;: &quot;AWS::AccountId&quot;}, &quot;log-group&quot;, &quot;intake-api-demo*&quot;]]}, &quot;Effect&quot;: &quot;Allow&quot;}]}}
+        - PolicyName: &quot;EC2ContainerInstancePolicy&quot;
+          PolicyDocument:
+            Statement:
+              - Effect: &quot;Allow&quot;
+                Action:
+                  - &quot;ecs:RegisterContainerInstance&quot;
+                  - &quot;ecs:DeregisterContainerInstance&quot;
+                Resource: 
+                  Fn::Sub: &quot;arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ElasticsearchCluster}&quot;
+              - Effect: &quot;Allow&quot;
+                Action:
+                  - &quot;ecs:DiscoverPollEndpoint&quot;
+                  - &quot;ecs:Submit*&quot;
+                  - &quot;ecs:Poll&quot;
+                  - &quot;ecs:StartTelemetrySession&quot;
+                Resource: &quot;*&quot;
+              - Effect: &quot;Allow&quot;
+                Action: 
+                  - &quot;ecr:BatchCheckLayerAvailability&quot;
+                  - &quot;ecr:BatchGetImage&quot;
+                  - &quot;ecr:GetDownloadUrlForLayer&quot;
+                  - &quot;ecr:GetAuthorizationToken&quot;
+                Resource: &quot;*&quot;
+  ElasticsearchAutoscalingInstanceProfile:
+    Type: &quot;AWS::IAM::InstanceProfile&quot;
+    Properties:
+      Path: &quot;/&quot;
+      Roles: [ { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingRole&quot; } ]
+  ApplicationDatabase:
+    Type: &quot;AWS::RDS::DBInstance&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      AllocatedStorage: { &quot;Ref&quot;: &quot;DbStorage&quot; }
+      AutoMinorVersionUpgrade: &quot;true&quot;
+      BackupRetentionPeriod: &quot;7&quot;
+      PreferredBackupWindow: &quot;9:00-11:00&quot;
+      PreferredMaintenanceWindow: &quot;sun:11:30-sun:13:00&quot;
+      StorageType: &quot;gp2&quot;
+      DBInstanceClass: { &quot;Ref&quot;: &quot;DbInstanceType&quot; }
+      Engine: &quot;postgres&quot;
+      EngineVersion: &quot;9.5&quot;
+      MasterUsername: { &quot;Ref&quot;: &quot;DbUsername&quot; }
+      MasterUserPassword:
+        Fn::Sub: ${DbPasswordDecrypt.Plaintext}
+      DBSubnetGroupName: { &quot;Ref&quot;: &quot;ApplicationDatabaseSubnetGroup&quot; }
+      VPCSecurityGroups:
+        - { &quot;Ref&quot; : &quot;ApplicationDatabaseSecurityGroup&quot; }
+      MultiAZ: &quot;False&quot;
+      AvailabilityZone:
+        Fn::Sub: &quot;${AWS::Region}a&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;intake-api-demo-ApplicationDatabase&quot;
+  ApplicationDatabaseSubnetGroup:
+    Type: &quot;AWS::RDS::DBSubnetGroup&quot;
+    Properties:
+      DBSubnetGroupDescription: &quot;intake-api-demo-ApplicationDatabase-db-subnet-group&quot;
+      SubnetIds: 
+        - Fn::ImportValue: DefaultHighSubnetA
+        - Fn::ImportValue: DefaultHighSubnetB
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;intake-api-demo-ApplicationDatabase-db-subnet-group&quot;
+  ApplicationDatabaseSecurityGroup:
+    Type: &quot;AWS::EC2::SecurityGroup&quot;
+    Properties:
+      GroupDescription: &quot;intake-api-demo-ApplicationDatabase-sg&quot;
+      VpcId:
+        Fn::ImportValue: DefaultVpcId
+      SecurityGroupEgress:
+        - IpProtocol: &quot;icmp&quot;
+          FromPort: -1
+          ToPort: -1
+          CidrIp: &quot;192.0.2.0/24&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: &quot;intake-api-demo-ApplicationDatabase-sg&quot;
+  ApplicationAutoscalingToApplicationDatabaseIngressTcp5432:
+    Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: &quot;5432&quot;
+      ToPort: &quot;5432&quot;
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationDatabaseSecurityGroup&quot; }
+      SourceSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+  ApplicationAutoscalingToApplicationDatabaseEgressTcp5432:
+    Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: &quot;5432&quot;
+      ToPort: &quot;5432&quot;
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+      DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationDatabaseSecurityGroup&quot; }
   ApplicationCluster:
     Type: &quot;AWS::ECS::Cluster&quot;
   ApplicationTaskDefinition:
     Type: &quot;AWS::ECS::TaskDefinition&quot;
     Properties:
-      NetworkMode: &quot;host&quot;
+      NetworkMode: host
+      Volumes:
+        - Name: webroot
+          Host: {}
       ContainerDefinitions:
-      - Name: squid
+      - Name: intake-api
         Image:
-          Fn::Sub: ${ProxyImage}:${ProxyImageTag}
-        Memory: 995
+          Fn::Sub: ${ApplicationDockerImage}:${ApplicationDockerImageTag}
+        MemoryReservation: 500
         LogConfiguration:
           LogDriver: awslogs
           Options:
             awslogs-group: 
-              Fn::Sub: ${AWS::StackName}/ecs/ProxyService/squid
+              Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/intake-api
+            awslogs-region: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+            awslogs-stream-prefix: docker
+        Environment:
+          - Name: RAILS_ENV
+            Value: production
+          - Name: PG_HOST
+            Value:
+              Fn::Sub: ${ApplicationDatabase.Endpoint.Address}
+          - Name: DATABASE_NAME
+            Value: { &quot;Ref&quot;: &quot;DbName&quot; }
+          - Name: PG_USER
+            Value: { &quot;Ref&quot;: &quot;DbUsername&quot; }
+          - Name: KMS_PG_PASSWORD
+            Value: { &quot;Ref&quot;: &quot;DbPassword&quot; }
+          - Name: KMS_SECRET_KEY_BASE
+            Value: { &quot;Ref&quot;: &quot;SecretKeyBaseCipher&quot; }
+          - Name: ELASTICSEARCH_URL
+            Value:
+              Fn::Join: [&quot;&quot;, [
+                &quot;http://&quot;,
+                &quot;Fn::Sub&quot;: &quot;${Environment}-intake-api-es.&quot;,
+                &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot;, &quot;:&quot;,
+                &quot;Ref&quot;: &quot;ElasticsearchPort&quot;
+              ] ]
+          - Name: AWS_DEFAULT_REGION
+            Value: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+          - Name: http_proxy
+            Value:
+              Fn::ImportValue: &quot;DefaultProxyURL&quot;
+          - Name: https_proxy
+            Value:
+              Fn::ImportValue: &quot;DefaultProxyURL&quot;
+          - Name: no_proxy
+            Value:
+              Fn::Join: [&quot;&quot;, [
+                &quot;169.254.169.254,&quot;,
+                &quot;Fn::Sub&quot;: &quot;${Environment}-intake-api-es.&quot;,
+                &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot;
+              ] ]
+          - Name: CLEAR_PROXY
+            Value: &quot;true&quot;
+        MountPoints:
+          - SourceVolume: webroot
+            ContainerPath: /tmp
+        Command:
+          - bundle
+          - exec
+          - puma
+          - -v
+          - -e
+          - production
+          - -b
+          - unix:///tmp/app.sock
+          - -C
+          - config/puma.rb
+      - Name: nginx
+        Image:
+          Fn::Sub: ${NginxDockerImage}:${NginxDockerImageTag}
+        MemoryReservation: 200
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: 
+              Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/nginx
             awslogs-region: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
         PortMappings:
-          - ContainerPort: 3128
-            Protocol: tcp
+        - ContainerPort: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
+          Protocol: tcp
         Environment:
-        - Name: NO_WHITELIST
-          Value: { &quot;Ref&quot;: &quot;ProxyDisableWhitelist&quot; }
-        - Name: SQUID_WHITELIST
-          Value: { &quot;Ref&quot;: &quot;ProxyWhitelist&quot; }
-  ProxyService:
+          - Name: HTTP_PORT 
+            Value: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
+          - Name: WEB_ROOT
+            Value: /intake_api_prototype/public
+          - Name: UPSTREAM_URL
+            Value: unix:///tmp/app.sock
+          - Name: HEALTHCHECK
+            Value: 
+              Fn::Sub: curl -fs localhost:${ApplicationPort}/api/v1/screenings
+        MountPoints:
+          - SourceVolume: webroot
+            ContainerPath: /tmp
+        VolumesFrom:
+          - SourceContainer: intake-api
+            ReadOnly: &quot;true&quot;
+  AdhocTaskDefinition:
+    Type: &quot;AWS::ECS::TaskDefinition&quot;
+    Properties:
+      NetworkMode: host
+      ContainerDefinitions:
+      - Name: intake-api
+        Image:
+          Fn::Sub: ${ApplicationDockerImage}:${ApplicationDockerImageTag}
+        MemoryReservation: 100
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: 
+              Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/adhoc
+            awslogs-region: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+        Environment:
+          - Name: RAILS_ENV
+            Value: production
+          - Name: PG_HOST
+            Value:
+              Fn::Sub: ${ApplicationDatabase.Endpoint.Address}
+          - Name: DATABASE_NAME
+            Value: { &quot;Ref&quot;: &quot;DbName&quot; }
+          - Name: PG_USER
+            Value: { &quot;Ref&quot;: &quot;DbUsername&quot; }
+          - Name: KMS_PG_PASSWORD
+            Value: { &quot;Ref&quot;: &quot;DbPassword&quot; }
+          - Name: ELASTICSEARCH_URL
+            Value:
+              Fn::Join: [&quot;&quot;, [
+                &quot;http://&quot;,
+                &quot;Fn::Sub&quot;: &quot;${Environment}-intake-api-es.&quot;,
+                &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot;, &quot;:&quot;,
+                &quot;Ref&quot;: &quot;ElasticsearchPort&quot;
+              ] ]
+          - Name: AWS_DEFAULT_REGION
+            Value: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+          - Name: http_proxy
+            Value:
+              Fn::ImportValue: &quot;DefaultProxyURL&quot;
+          - Name: https_proxy
+            Value:
+              Fn::ImportValue: &quot;DefaultProxyURL&quot;
+          - Name: no_proxy
+            Value:
+              Fn::Join: [&quot;&quot;, [
+                &quot;169.254.169.254,&quot;,
+                &quot;Fn::Sub&quot;: &quot;${Environment}-intake-api-es.&quot;,
+                &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot;
+              ] ]
+          - Name: CLEAR_PROXY
+            Value: &quot;true&quot;
+  IntakeApiService:
     Type: &quot;AWS::ECS::Service&quot;
-    DependsOn: 
+    DependsOn:
+      - ApplicationLoadBalancer
       - ApplicationAutoscaling
-      - ProxyServiceLogGroup
+      - IntakeApiServiceLogGroup
+      - IntakeApiNginxLogGroup
+      - DbCreateTask
+      - DbMigrateTask
+      - SearchMigrateTask
+      - SearchReindexTask
     Properties:
       Cluster: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
       TaskDefinition: { &quot;Ref&quot;: &quot;ApplicationTaskDefinition&quot; }
@@ -1002,9 +2120,9 @@ Resources:
           MinimumHealthyPercent: 50
           MaximumPercent: 200
       LoadBalancers:
-        - ContainerName: &quot;squid&quot;
-          ContainerPort: &quot;3128&quot;
-          LoadBalancerName: { &quot;Ref&quot;: &quot;ApplicationLoadBalancer&quot; }
+        - ContainerName: nginx
+          ContainerPort: { &quot;Ref&quot;: &quot;ApplicationPort&quot; }
+          TargetGroupArn: { &quot;Ref&quot;: &quot;IntakeApiServiceTargetGroup&quot; }
       Role: { &quot;Ref&quot;: &quot;EcsServiceRole&quot; }
   EcsServiceRole:
     Type: &quot;AWS::IAM::Role&quot;
@@ -1019,84 +2137,394 @@ Resources:
       Path: &quot;/&quot;
       ManagedPolicyArns:
         - &quot;arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole&quot;
+  ElasticsearchCluster:
+    Type: &quot;AWS::ECS::Cluster&quot;
+  ElasticsearchTaskDefinition:
+    Type: &quot;AWS::ECS::TaskDefinition&quot;
+    Properties:
+      NetworkMode: host
+      Volumes:
+        - Name: esdata
+          Host: 
+            SourcePath: /ecs/esdata
+      ContainerDefinitions:
+      - Name: elasticsearch
+        Image:
+          Fn::Sub: ${ElasticsearchDockerImage}:${ElasticsearchDockerImageTag}
+        MemoryReservation: 500
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: 
+              Fn::Sub: ${AWS::StackName}/ecs/ElasticsearchService/elasticsearch
+            awslogs-region: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+        PortMappings:
+        - ContainerPort: { &quot;Ref&quot;: &quot;ElasticsearchPort&quot; }
+          Protocol: tcp
+        MountPoints:
+          - SourceVolume: esdata
+            ContainerPath: /var/lib/elasticsearch/data
+  ElasticsearchService:
+    Type: &quot;AWS::ECS::Service&quot;
+    DependsOn:
+      - ApplicationLoadBalancer
+      - ElasticsearchAutoscaling
+      - ElasticsearchServiceLogGroup
+    Properties:
+      Cluster: { &quot;Ref&quot;: &quot;ElasticsearchCluster&quot; }
+      TaskDefinition: { &quot;Ref&quot;: &quot;ElasticsearchTaskDefinition&quot; }
+      DesiredCount: { &quot;Ref&quot;: &quot;ElasticsearchAutoscalingDesiredCount&quot;}
+      DeploymentConfiguration:
+          MinimumHealthyPercent: 0
+          MaximumPercent: 200
+      LoadBalancers:
+        - ContainerName: elasticsearch
+          ContainerPort: { &quot;Ref&quot;: &quot;ElasticsearchPort&quot; }
+          TargetGroupArn: { &quot;Ref&quot;: &quot;ElasticsearchServiceTargetGroup&quot; }
+      Role: { &quot;Ref&quot;: &quot;EcsServiceRole&quot; }
+  DbCreateTask:
+    Type: &quot;Custom::ECSTask&quot;
+    DependsOn:
+      - ApplicationAutoscaling
+      - ApplicationDatabase
+    Properties:
+      ServiceToken:
+        Fn::Sub: ${EcsTaskRunner.Arn}
+      Cluster: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
+      TaskDefinition: { &quot;Ref&quot;: &quot;AdhocTaskDefinition&quot; }
+      Count: 1
+      Overrides:
+        containerOverrides:
+          - name: intake-api
+            command:
+              - bundle
+              - exec
+              - rake
+              - db:create
+  DbMigrateTask:
+    Type: &quot;Custom::ECSTask&quot;
+    DependsOn:
+      - DbCreateTask
+    Properties:
+      ServiceToken:
+        Fn::Sub: ${EcsTaskRunner.Arn}
+      Cluster: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
+      TaskDefinition: { &quot;Ref&quot;: &quot;AdhocTaskDefinition&quot; }
+      Count: 1
+      Overrides:
+        containerOverrides:
+          - name: intake-api
+            command:
+              - bundle
+              - exec
+              - rake
+              - db:migrate
+  SearchMigrateTask:
+    Type: &quot;Custom::ECSTask&quot;
+    DependsOn:
+      - DbMigrateTask
+      - ElasticsearchService
+    Properties:
+      ServiceToken:
+        Fn::Sub: ${EcsTaskRunner.Arn}
+      Cluster: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
+      TaskDefinition: { &quot;Ref&quot;: &quot;AdhocTaskDefinition&quot; }
+      Count: 1
+      Overrides:
+        containerOverrides:
+          - name: intake-api
+            command:
+              - bundle
+              - exec
+              - rake
+              - search:migrate
+  SearchReindexTask:
+    Type: &quot;Custom::ECSTask&quot;
+    DependsOn:
+      - SearchMigrateTask
+    Properties:
+      ServiceToken:
+        Fn::Sub: ${EcsTaskRunner.Arn}
+      Cluster: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
+      TaskDefinition: { &quot;Ref&quot;: &quot;AdhocTaskDefinition&quot; }
+      Count: 1
+      Overrides:
+        containerOverrides:
+          - name: intake-api
+            command:
+              - bundle
+              - exec
+              - rake
+              - search:reindex
   DmesgLogGroup:
     Type: &quot;AWS::Logs::LogGroup&quot;
     DeletionPolicy: &quot;Delete&quot;
     Properties:
       LogGroupName: 
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/dmesg
-      RetentionInDays: 30
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
   DockerLogGroup:
     Type: &quot;AWS::Logs::LogGroup&quot;
     DeletionPolicy: &quot;Delete&quot;
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/docker
-      RetentionInDays: 30
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
   EcsAgentLogGroup:
     Type: &quot;AWS::Logs::LogGroup&quot;
     DeletionPolicy: &quot;Delete&quot;
     Properties:
       LogGroupName: 
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-agent
-      RetentionInDays: 30
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
   EcsInitLogGroup:
     Type: &quot;AWS::Logs::LogGroup&quot;
     DeletionPolicy: &quot;Delete&quot;
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-init
-      RetentionInDays: 30
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
   MessagesLogGroup:
     Type: &quot;AWS::Logs::LogGroup&quot;
     DeletionPolicy: &quot;Delete&quot;
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/messages
-      RetentionInDays: 30
-  ProxyServiceLogGroup:
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  IntakeApiServiceLogGroup:
     Type: &quot;AWS::Logs::LogGroup&quot;
     DeletionPolicy: &quot;Delete&quot;
     Properties:
       LogGroupName:
-        Fn::Sub: ${AWS::StackName}/ecs/ProxyService/squid
-      RetentionInDays: 30
-   
-Outputs:
-  ProxyURL:
-    Description: &quot;Squid Proxy URL&quot;
-    Value:
-      Fn::Join: [&quot;&quot;, [
-        &quot;http://proxy.&quot;,
-        &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDomain&quot;,
-        &quot;:3128&quot;
-      ] ]
-    Export:
-      Name: &quot;DefaultProxyURL&quot;
-  ProxySecurityGroup:
-    Description: &quot;Squid Proxy Security Group&quot;
-    Value:
-      Ref: ApplicationLoadBalancerSecurityGroup
-    Export:
-      Name: &quot;DefaultProxySecurityGroup&quot;
+        Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/intake-api
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  IntakeApiNginxLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/nginx
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  IntakeApiAdhocLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/adhoc
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  ElasticsearchDmesgLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/ElasticsearchAutoscaling/var/log/dmesg
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  ElasticsearchDockerLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ec2/ElasticsearchAutoscaling/var/log/docker
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  ElasticsearchEcsAgentLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/ElasticsearchAutoscaling/var/log/ecs/ecs-agent
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  ElasticsearchEcsInitLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ec2/ElasticsearchAutoscaling/var/log/ecs/ecs-init
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  ElasticsearchMessagesLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ec2/ElasticsearchAutoscaling/var/log/messages
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  ElasticsearchServiceLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ecs/ElasticsearchService/elasticsearch
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  DbPasswordDecrypt:
+    Type: &quot;Custom::KMSDecrypt&quot;
+    Properties:
+      ServiceToken: 
+        Fn::Sub: ${KMSDecrypter.Arn}
+      Ciphertext: { &quot;Ref&quot;: &quot;DbPassword&quot; }
+  KMSDecrypterLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${AWS::StackName}-cfnKmsDecrypt
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  KMSDecrypter:
+    Type: &quot;AWS::Lambda::Function&quot;
+    DependsOn:
+      - &quot;KMSDecrypterLogGroup&quot;
+    Properties:
+      Description: 
+        Fn::Sub: &quot;${AWS::StackName} KMS Decrypter&quot;
+      Handler: &quot;cfn_kms_decrypt.handler&quot;
+      MemorySize: 128
+      Runtime: &quot;python2.7&quot;
+      Timeout: 300
+      Role: 
+        Fn::Sub: ${KMSDecrypterRole.Arn}
+      FunctionName: 
+        Fn::Sub: &quot;${AWS::StackName}-cfnKmsDecrypt&quot;
+      Code:
+        S3Bucket: 
+          Fn::Sub: &quot;${AWS::AccountId}-cfn-lambda&quot;
+        S3Key: &quot;cfnKmsDecrypt.zip&quot;
+        S3ObjectVersion: { &quot;Ref&quot;: &quot;LambdaCfnKmsDecryptVersion&quot; }
+  KMSDecrypterRole:
+    Type: &quot;AWS::IAM::Role&quot;
+    Properties:
+      Path: &quot;/&quot;
+      AssumeRolePolicyDocument:
+        Version: &quot;2012-10-17&quot;
+        Statement:
+        - Effect: &quot;Allow&quot;
+          Principal: {&quot;Service&quot;: &quot;lambda.amazonaws.com&quot;}
+          Action: [ &quot;sts:AssumeRole&quot; ]
+      Policies:
+      - PolicyName: &quot;KMSDecrypterPolicy&quot;
+        PolicyDocument:
+          Version: &quot;2012-10-17&quot;
+          Statement:
+          - Sid: &quot;Decrypt&quot;
+            Effect: &quot;Allow&quot;
+            Action:
+            - &quot;kms:Decrypt&quot;
+            - &quot;kms:DescribeKey&quot;
+            Resource:
+              Fn::ImportValue: &quot;CfnMasterKeyArn&quot;
+          - Sid: &quot;ManageLambdaLogs&quot;
+            Effect: &quot;Allow&quot;
+            Action:
+            - &quot;logs:CreateLogGroup&quot;
+            - &quot;logs:CreateLogStream&quot;
+            - &quot;logs:PutLogEvents&quot;
+            - &quot;logs:PutRetentionPolicy&quot;
+            - &quot;logs:PutSubscriptionFilter&quot;
+            - &quot;logs:DescribeLogStreams&quot;
+            - &quot;logs:DeleteLogGroup&quot;
+            - &quot;logs:DeleteRetentionPolicy&quot;
+            - &quot;logs:DeleteSubscriptionFilter&quot;
+            Resource: 
+              Fn::Sub: &quot;arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-cfnKmsDecrypt:*:*&quot;
+  EcsTaskRunnerLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${AWS::StackName}-cfnEcsTasks
+      RetentionInDays: { &quot;Ref&quot;: &quot;LogRetention&quot; }
+  EcsTaskRunner:
+    Type: &quot;AWS::Lambda::Function&quot;
+    DependsOn:
+      - &quot;EcsTaskRunnerLogGroup&quot;
+    Properties:
+      Description: 
+        Fn::Sub: &quot;${AWS::StackName} ECS Task Runner&quot;
+      Handler: &quot;ecs_tasks.handler&quot;
+      MemorySize: 128
+      Runtime: &quot;python2.7&quot;
+      Timeout: 300
+      Role: 
+        Fn::Sub: ${EcsTaskRunnerRole.Arn}
+      FunctionName: 
+        Fn::Sub: &quot;${AWS::StackName}-cfnEcsTasks&quot;
+      Code:
+        S3Bucket: 
+          Fn::Sub: &quot;${AWS::AccountId}-cfn-lambda&quot;
+        S3Key: &quot;cfnEcsTasks.zip&quot;
+        S3ObjectVersion: { &quot;Ref&quot;: &quot;LambdaCfnEcsTasksVersion&quot; }
+  EcsTaskRunnerRole:
+    Type: &quot;AWS::IAM::Role&quot;
+    Properties:
+      Path: &quot;/&quot;
+      AssumeRolePolicyDocument:
+        Version: &quot;2012-10-17&quot;
+        Statement:
+        - Effect: &quot;Allow&quot;
+          Principal: {&quot;Service&quot;: &quot;lambda.amazonaws.com&quot;}
+          Action: [ &quot;sts:AssumeRole&quot; ]
+      Policies:
+      - PolicyName: &quot;ECSPermissions&quot;
+        PolicyDocument:
+          Version: &quot;2012-10-17&quot;
+          Statement:
+          - Sid: &quot;TaskDefinition&quot;
+            Effect: &quot;Allow&quot;
+            Action:
+            - &quot;ecs:DescribeTaskDefinition&quot;
+            Resource: &quot;*&quot;
+          - Sid: &quot;EcsTasks&quot;
+            Effect: &quot;Allow&quot;
+            Action:
+            - &quot;ecs:DescribeTasks&quot;
+            - &quot;ecs:ListTasks&quot;
+            - &quot;ecs:RunTask&quot;
+            - &quot;ecs:StartTask&quot;
+            - &quot;ecs:StopTask&quot;
+            - &quot;ecs:DescribeContainerInstances&quot;
+            - &quot;ecs:ListContainerInstances&quot;
+            Resource: &quot;*&quot;
+            Condition:
+              ArnEquals:
+                ecs:cluster: 
+                  Fn::Sub: &quot;arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ApplicationCluster}&quot;
+          - Sid: &quot;ManageLambdaLogs&quot;
+            Effect: &quot;Allow&quot;
+            Action:
+            - &quot;logs:CreateLogGroup&quot;
+            - &quot;logs:CreateLogStream&quot;
+            - &quot;logs:PutLogEvents&quot;
+            - &quot;logs:PutRetentionPolicy&quot;
+            - &quot;logs:PutSubscriptionFilter&quot;
+            - &quot;logs:DescribeLogStreams&quot;
+            - &quot;logs:DeleteLogGroup&quot;
+            - &quot;logs:DeleteRetentionPolicy&quot;
+            - &quot;logs:DeleteSubscriptionFilter&quot;
+            Resource: 
+              Fn::Sub: &quot;arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-cfnEcsTasks:*:*&quot;
 </code></pre>
 
-<p>4. Once the playbook execution completes successfully, login to the <strong>demo-resources</strong> account.  You should see a new CloudFormation stack called <code>web-proxy</code>:</p>
+<p>4. Once the playbook execution completes successfully, login to the <strong>demo-resources</strong> account.  You should see a new CloudFormation stack called <strong>intake-api-demo</strong>:</p>
 
-<p><img src="https://casecommons.github.io/aws-docs/images/web-proxy.png" alt="Web Proxy Stack" /></p>
+<p><img src="https://casecommons.github.io/aws-docs/images/intake-api-demo-stack.png" alt="Intake API Demo Stack" /></p>
 
-<p>5. If you open the ECS dashboard and select <strong>Clusters</strong>, you can see a single ECS cluster was created:</p>
+<p>5. Select the <strong>intake-api-demo</strong> stack and click on the <strong>Events</strong> tab.  Note that events are shown in chronological order bottom to top.</p>
 
-<p><img src="https://casecommons.github.io/aws-docs/images/web-proxy-ecs-cluster.png" alt="Web Proxy ECS Cluster" /></p>
+<p>Here we see an example of an ECS Task Definition being created, and various CloudWatch Log groups being created:
+<img src="https://casecommons.github.io/aws-docs/images/intake-api-demo-events-1.png" alt="Intake API Demo Stack Events" /></p>
+
+<p>Next we see the KMS Decrypter Lambda function and an associated KMS Decrypt custom resource for decrypting the KMS encrypted database password:
+<img src="https://casecommons.github.io/aws-docs/images/intake-api-demo-events-2.png" alt="Intake API Demo Stack Events" /></p>
+
+<p>Here we can see each autoscaling group instance signalling SUCCESS to create each autoscaling group, after which ECS tasks are executed sequentially to create the database schema, run any database migrations, create/update and reindex the Elasticsearch indexes, and finally the Intake API ECS service is started successfully:
+<img src="https://casecommons.github.io/aws-docs/images/intake-api-demo-events-3.png" alt="Intake API Demo Stack Events" /></p>
+
+<p>6. You can verify the Intake API is functional by querying the URL <code>https://demo-intake-api.demo.cloudhotspot.co/api/v1/screenings</code>, which should return an empty array:</p>
+
+<pre><code class="language-bash">$ curl -s https://demo-intake-api.demo.cloudhotspot.co/api/v1/screenings
+[]
+</code></pre>
 
 <h2 id="wrap-up">Wrap Up</h2>
 
-<p>We created a web proxy in our <strong>demo-resources</strong> account, which provides the ability for hosts located on private subnets to be able to communicate securely with AWS APIs.</p>
-
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>At this point you should commit your changes to the web proxy playbook before continuing.</p>
-</div>
+<p>We established DNS delegation and created a wildcard certificate for the <code>demo.cloudhotspot.co</code> domain, and then published a number of Docker images required for the Intake API stack to the ECR repositories created earlier in this tutotial.  We published Lambda functions required to run CloudFormation custom resources in the Lambda S3 bucket we created earlier in the CloudFormation resources stack.  We then created a new environment in the Intake API playbook, learned how to encrypt secrets using the AWS KMS key created earlier in the CloudFormation resources stack, and finally successully deployed the Intake API stack.</p>
 
 
 			<aside class="copyright" role="note">

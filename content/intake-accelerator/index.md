@@ -334,12 +334,12 @@ Here we target the **demo-resources** account by specifying the **demo-resources
 
 - `config_application_keyname` - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}). 
 - `config_application_ami` - specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the [AMI created earlier]({{< relref "web-proxy/index.md#creating-an-ecs-ami" >}})
-- `config_application_image` - specifies the Docker image used to run the Intake Accelerator application containers.  Notice this matches the [image we created earlier]({{< relref "intake-accelerator-stack/index.md#creating-the-intake-image" >}})
+- `config_application_image` - specifies the Docker image used to run the Intake Accelerator application containers.  Notice this matches the [image we created earlier]({{< relref "intake-accelerator/index.md#creating-the-intake-image" >}})
 - `config_application_secret_key_base` - an encrypted application setting that provides cryptographic material for an application secret key.  We will securely generate an encrypted value for this setting shortly.
 - `config_application_api_url` - specifies the URL of the Intake API endpoint that the Intake Accelerator application should connect to.
 - `config_application_domain` - specifies the base domain that our application will be served from.
-- `config_nginx_image` - specifies the Docker image used to run the Intake API Nginx containers.  Notice this matches the [image we created earlier]({{< relref "intake-api-stack/index.md#creating-an-nginx-image" >}})
-- `config_lb_certificate_arn` - specifies the ARN of the AWS certificate manager (ACM) certificate to serve from the application load balancer for HTTPS connections.  Notice that we can specify this setting as a CloudFormation instrinsic function, as the template is configured to cast the configured value to a JSON object.  The intrinsic function imports the CloudFormation export `DemoCloudhotspotCoCertificateArn`, which was created earlier when we [created the certificate]({{< relref "intake-api-stack/index.md#creating-a-certificate" >}}) in the security resources playbook.
+- `config_nginx_image` - specifies the Docker image used to run the Intake API Nginx containers.  Notice this matches the [image we created earlier]({{< relref "intake-api/index.md#creating-an-nginx-image" >}})
+- `config_lb_certificate_arn` - specifies the ARN of the AWS certificate manager (ACM) certificate to serve from the application load balancer for HTTPS connections.  Notice that we can specify this setting as a CloudFormation instrinsic function, as the template is configured to cast the configured value to a JSON object.  The intrinsic function imports the CloudFormation export `DemoCloudhotspotCoCertificateArn`, which was created earlier when we [created the certificate]({{< relref "intake-api/index.md#creating-a-certificate" >}}) in the security resources playbook.
 
 ## Creating Secrets using KMS
 
