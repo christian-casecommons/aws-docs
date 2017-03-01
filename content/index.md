@@ -38,8 +38,12 @@ This tutorial assumes you are starting from two empty AWS accounts and have acce
 
 You will also need to ensure your [local machine]({{< relref "local-setup/index.md" >}}) is setup correctly.
 
-## Forking the Starter Repository
+## Cloning the Starter Repository
 
 Although each of the playbooks described in the [Introduction]({{< relref "#introduction" >}}) are already defined as existing Git repositories, it is useful to understand how to create a playbook from scratch that implements the AWS deployment framework and methodology described in this tutorial.
 
-A starter repository is published at https://github.com/casecommons/aws-starter.git, which you can use to fork a new repository, and follow the instructions in the [README](https://github.com/casecommons/aws-starter/README.md) to setup your playbook correctly.
+A starter repository is published at https://github.com/casecommons/aws-starter.git, which you can use to clone a new repository, and follow the instructions in the [README](https://github.com/casecommons/aws-starter/README.md) to setup your playbook correctly.
+
+## Demo Playbooks
+
+Examples of the playbooks that are created in this tutorial are located in the [playbooks](https://github.com/casecommons/aws-docs/tree/master/playbooks) folder of the repository that hosts this documentation.

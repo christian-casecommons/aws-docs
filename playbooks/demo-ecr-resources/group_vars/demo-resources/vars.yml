@@ -1,0 +1,11 @@
+# STS role to assume
+sts_role_arn: arn:aws:iam::160775127577:role/admin
+
+# Repositories
+config_ecr_repos:
+  casecommons/intake: {}
+  casecommons/intake-api: {}
+  casecommons/intake-base: {}
+  casecommons/elasticsearch: {}
+  casecommons/nginx: {}
+  casecommons/squid: {}

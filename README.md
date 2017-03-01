@@ -16,6 +16,18 @@ $ git clone --recursive git@github.com:Casecommons/aws-docs.git
 
 ### Running the Docs Locally
 
+The code highlighting features including in the documentation require the Python library `pygments` to be installed locally and the ability to call the command `pygmentize` from a local shell:
+
+Assuming you have the Python package manager `pip` installed, to install `pygments`:
+
+```
+$ pip install pygments
+Requirement already satisfied: pygments in /usr/local/lib/python2.7/site-packages
+$ pygmentize --help
+Usage: /usr/local/bin/pygmentize [-l <lexer> | -g] [-F <filter>[:<options>]] [-f <formatter>]
+          [-O <options>] [-P <option=value>] [-s] [-v] [-x] [-o <outfile>] [<infile>]
+```
+
 To run the docs locally:
 
 ```

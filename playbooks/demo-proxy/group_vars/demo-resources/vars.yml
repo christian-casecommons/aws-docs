@@ -1,0 +1,16 @@
+# STS role in the target AWS account to assume
+sts_role_arn: "arn:aws:iam::160775127577:role/admin"
+
+# Application settings
+config_application_keyname: admin
+config_application_instance_type: t2.micro
+config_application_ami: ami-4662e126
+config_az_count: 3
+config_log_deletion_policy: Delete
+
+# Proxy settings
+config_proxy_image: 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/squid
+config_proxy_tag: latest
+config_proxy_disable_whitelist: false
+config_proxy_whitelist: .demo.cloudhotspot.co
+config_proxy_network_mode: host

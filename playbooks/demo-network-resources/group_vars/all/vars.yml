@@ -1,0 +1,19 @@
+# Stack Settings
+cf_stack_name: network-resources
+cf_stack_template: "templates/network.yml.j2"
+cf_stack_tags:
+  org:business:owner: Casecommons
+  org:business:product: Network Resources
+  org:business:severity: High
+  org:tech:environment: "{{ env }}"
+  org:tech:contact: pema@casecommons.org
+  
+# CloudFormation settings
+# This sets a policy that disables updates to existing resources
+# This requires you to explicitly set the cf_disable_stack_policy flag to true when running the playbook
+cf_stack_policy:
+  Statement:
+  - Effect: "Deny"
+    Action: "Update:*"
+    Principal: "*"
+    Resource: "*"

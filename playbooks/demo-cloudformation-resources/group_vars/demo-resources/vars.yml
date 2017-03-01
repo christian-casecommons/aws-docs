@@ -1,0 +1,2 @@
+# STS role in the target AWS account to assume
+sts_role_arn: "arn:aws:iam::160775127577:role/admin"

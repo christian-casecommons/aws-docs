@@ -1,0 +1,22 @@
+# Stack Settings
+cf_stack_name: web-proxy
+cf_stack_template: "templates/proxy.yml.j2"
+cf_stack_tags:
+  org:business:owner: Casecommons
+  org:business:product: Web Proxy
+  org:business:severity: High
+  org:tech:environment: "{{ env }}"
+  org:tech:contact: pema@casecommons.org
+
+
+# Stack inputs
+cf_stack_inputs:
+  ApplicationImageId: "{{ config_application_ami }}"
+  ApplicationInstanceType: "{{ config_application_instance_type }}"
+  ApplicationAutoscalingDesiredCount: "{{ config_application_desired_count | default(config_az_count) | default(2) | int }}"
+  KeyName: "{{ config_application_keyname }}"
+  Environment: "{{ env }}"
+  ProxyImage: "{{ config_proxy_image }}"
+  ProxyImageTag: "{{ config_proxy_tag }}"
+  ProxyDisableWhitelist: "{{ config_proxy_disable_whitelist | default(false) | string | lower }}"
+  ProxyWhitelist: "{{ config_proxy_whitelist | default('') }}"

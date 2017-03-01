@@ -6231,11 +6231,15 @@ Resources:
 
 &lt;p&gt;You will also need to ensure your &lt;a href=&#34;https://casecommons.github.io/aws-docs/local-setup/&#34;&gt;local machine&lt;/a&gt; is setup correctly.&lt;/p&gt;
 
-&lt;h2 id=&#34;forking-the-starter-repository&#34;&gt;Forking the Starter Repository&lt;/h2&gt;
+&lt;h2 id=&#34;cloning-the-starter-repository&#34;&gt;Cloning the Starter Repository&lt;/h2&gt;
 
 &lt;p&gt;Although each of the playbooks described in the &lt;a href=&#34;#introduction&#34;&gt;Introduction&lt;/a&gt; are already defined as existing Git repositories, it is useful to understand how to create a playbook from scratch that implements the AWS deployment framework and methodology described in this tutorial.&lt;/p&gt;
 
-&lt;p&gt;A starter repository is published at &lt;a href=&#34;https://github.com/casecommons/aws-starter.git&#34;&gt;https://github.com/casecommons/aws-starter.git&lt;/a&gt;, which you can use to fork a new repository, and follow the instructions in the &lt;a href=&#34;https://github.com/casecommons/aws-starter/README.md&#34;&gt;README&lt;/a&gt; to setup your playbook correctly.&lt;/p&gt;
+&lt;p&gt;A starter repository is published at &lt;a href=&#34;https://github.com/casecommons/aws-starter.git&#34;&gt;https://github.com/casecommons/aws-starter.git&lt;/a&gt;, which you can use to clone a new repository, and follow the instructions in the &lt;a href=&#34;https://github.com/casecommons/aws-starter/README.md&#34;&gt;README&lt;/a&gt; to setup your playbook correctly.&lt;/p&gt;
+
+&lt;h2 id=&#34;demo-playbooks&#34;&gt;Demo Playbooks&lt;/h2&gt;
+
+&lt;p&gt;Examples of the playbooks that are created in this tutorial are located in the &lt;a href=&#34;https://github.com/casecommons/aws-docs/tree/master/playbooks&#34;&gt;playbooks&lt;/a&gt; folder of the repository that hosts this documentation.&lt;/p&gt;
 </description>
     </item>
     

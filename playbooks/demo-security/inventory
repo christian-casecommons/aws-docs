@@ -1,0 +1,5 @@
+[demo-users]
+demo-users ansible_connection=local
+
+[demo-resources]
+demo-resources ansible_connection=local

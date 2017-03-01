@@ -1,0 +1,9 @@
+# You can specify git tag, commit or branch for the version property
+- src: git@github.com:casecommons/aws-cloudformation.git
+  scm: git
+  version: 0.7.0
+  name: aws-cloudformation
+- src: git@github.com:casecommons/aws-sts.git
+  scm: git
+  version: 0.1.2
+  name: aws-sts

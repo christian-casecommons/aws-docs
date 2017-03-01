@@ -1,0 +1,16 @@
+# STS role in the target AWS account to assume
+sts_role_arn: "arn:aws:iam::160775127577:role/admin"
+
+# VPC CIDR Block
+config_vpc_cidr: 192.168.16.0/20
+
+# VPC Domain Settings
+# This will configure a private Route53 zone of <vpc-id>.<config_vpc_root_domain>
+config_vpc_root_domain: casecommons.org
+
+# AZ Count
+config_az_count: 3
+
+# Public Route53 Zones
+config_public_domains:
+  - demo.cloudhotspot.co

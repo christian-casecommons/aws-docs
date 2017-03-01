@@ -1,0 +1,2 @@
+[demo-resources]
+demo-resources ansible_connection=local

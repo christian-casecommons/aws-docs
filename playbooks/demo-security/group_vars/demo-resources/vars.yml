@@ -1,0 +1,18 @@
+# STS role in the target AWS account to assume
+sts_role_arn: "arn:aws:iam::160775127577:role/admin"
+
+# Trusted entities for the IAM admin role
+# Here we trust the demo-users account
+config_iam_admin_accounts:
+  - 094411466117
+
+# ACM certificates:
+config_acm_certificates:
+  "*.demo.cloudhotspot.co":
+    SubjectAlternativeNames:
+      - demo.cloudhotspot.co
+    DomainValidationOptions:
+      - DomainName: "*.demo.cloudhotspot.co"
+        ValidationDomain: "cloudhotspot.co"
+      - DomainName: "demo.cloudhotspot.co"
+        ValidationDomain: "cloudhotspot.co"
