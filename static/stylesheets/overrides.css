@@ -1,5 +1,9 @@
+pre {
+  background: #f3f3f3;
+}
+
 .article code {
-  background: #f3f3f3;  
+  background: #f3f3f3;
 }
 
 .article li pre {
