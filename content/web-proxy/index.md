@@ -186,7 +186,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-proxy/
   name: aws-sts
 {{< /highlight >}}
 
-4\.  Install the roles using the `ansible-galaxy` command as demonstrated below:
+3\.  Install the roles using the `ansible-galaxy` command as demonstrated below:
 
 {{< highlight python >}}
 $ ansible-galaxy install -r roles/requirements.yml --force
@@ -196,7 +196,7 @@ $ ansible-galaxy install -r roles/requirements.yml --force
 - aws-sts was installed successfully
 {{< /highlight >}}
 
-5\.  Modify the `group_vars/all/vars.yml` file, which contains global settings for the playbook:
+4\.  Modify the `group_vars/all/vars.yml` file, which contains global settings for the playbook:
 
 {{< highlight python "hl_lines=3" >}}
 # Stack Settings
@@ -228,7 +228,7 @@ We also add a dictionary called `cf_stack_inputs`, which provides values for inp
 
 Notice that these settings reference environment specific settings prefixed with `config_`, which will we need to define in our environment settings.
 
-7\. Remove the local `templates` folder, since we are using a template that is embedded within the `aws-cloudformation` role:
+5\. Remove the local `templates` folder, since we are using a template that is embedded within the `aws-cloudformation` role:
 
 ```bash
 $ rm -rf templates

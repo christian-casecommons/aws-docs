@@ -63,18 +63,20 @@ $ export AWS_DEFAULT_REGION=us-west-2
 
 We will now establish a security resources playbook which will define security resources for both our **Demo Users** account and **Demo Resources** account.
 
-1\. Fork the [AWS Starter](https://github.com/casecommons/aws-starter) to a new repository in your Github account.  In this tutorial, we'll call the repository **demo-security-resources**.
+1\. Clone the [AWS Starter](https://github.com/casecommons/aws-starter) to a local folder called **demo-security-resources** and the re-initialise the Git repository.
 
-2\. Clone the repository locally and change to the new repository folder:
 
 ```bash
-$ git clone git@github.com:jmenga/demo-security-resources.git
+$ git clone https://github.com/casecommons/aws-starter.git demo-security-resources
   Cloning into 'demo-security'...
   remote: Counting objects: 32, done.
   remote: Total 32 (delta 0), reused 0 (delta 0), pack-reused 32
   Receiving objects: 100% (32/32), 4.78 KiB | 0 bytes/s, done.
   Resolving deltas: 100% (7/7), done.
 $ cd demo-security-resources
+$ rm -rf .git
+$ git init
+Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-security-resources/.git/
 $ tree
 .
 ├── README.md
@@ -90,7 +92,7 @@ $ tree
 └── site.yml
 ```
 
-3\.  Review the `roles/requirements.yml` file, which specifies the location and version of Ansible roles that the playbook relies on.  By default the `version` for each role is set to install the latest commit from the `master` branch, however it is a good idea to lock each role to a specific version as demonstrated below:
+2\.  Review the `roles/requirements.yml` file, which specifies the location and version of Ansible roles that the playbook relies on.  By default the `version` for each role is set to install the latest commit from the `master` branch, however it is a good idea to lock each role to a specific version as demonstrated below:
 
 {{< highlight python "hl_lines=4 8" >}}
 # You can specify git tag, commit or branch for the version property
@@ -104,7 +106,7 @@ $ tree
   name: aws-sts
 {{< /highlight >}}
 
-4\.  Install the roles using the `ansible-galaxy` command as demonstrated below:
+3\.  Install the roles using the `ansible-galaxy` command as demonstrated below:
 
 {{< highlight python >}}
 $ ansible-galaxy install -r roles/requirements.yml --force
@@ -114,7 +116,7 @@ $ ansible-galaxy install -r roles/requirements.yml --force
 - aws-sts was installed successfully
 {{< /highlight >}}
 
-5\. Notice that this installs the roles locally into the `roles` folder, as per the `roles_path` setting in the local `ansible.cfg` file:
+4\. Notice that this installs the roles locally into the `roles` folder, as per the `roles_path` setting in the local `ansible.cfg` file:
 
 {{< highlight bash "hl_lines=4" >}}
 $ cat ansible.cfg
@@ -140,7 +142,7 @@ You only need to run the `ansible-galaxy install` command as demonstrated above 
 Using the `--force` flag ensures the role will be overwritten regardless of whether or not the role is currently present locally.
 {{% /note %}}
 
-6\.  Modify the `group_vars/all/vars.yml` file, which contains global settings for the playbook.  
+5\.  Modify the `group_vars/all/vars.yml` file, which contains global settings for the playbook.  
 
 {{< highlight python "hl_lines=3" >}}
 # Stack Settings
@@ -171,7 +173,7 @@ Notice that we set four variables, each prefixed with `cf_`, which by convention
 - `cf_stack_tags` - defines tags that will be attached to all resources created within the CloudFormation stack
 - `cf_stack_policy` - defines a CloudFormation stack policy.  This is a safety mechanism that requires you to temporarily explicity disable the stack policy if you want to make updates to an existing CloudFormation stack.
 
-7\. Remove the local `templates` folder, since we are using a template that is embedded within the `aws-cloudformation` role:
+6\. Remove the local `templates` folder, since we are using a template that is embedded within the `aws-cloudformation` role:
 
 ```bash
 $ rm -rf templates

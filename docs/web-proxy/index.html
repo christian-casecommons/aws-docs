@@ -322,24 +322,6 @@
 </li>
 
 
-
-<li>
-  
-    
-
-
-
-<a  title="License" href="https://casecommons.github.io/aws-docs/license/">
-	
-	License
-</a>
-
-
-
-  
-</li>
-
-
         </ul>
         
 
@@ -570,7 +552,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-proxy/
 </code></pre></div>
 
 
-<p>4.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
+<p>3.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="err">$</span> <span class="n">ansible</span><span class="o">-</span><span class="n">galaxy</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">roles</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">force</span>
 <span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">demo</span><span class="o">-</span><span class="n">proxy</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
@@ -580,7 +562,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-proxy/
 </code></pre></div>
 
 
-<p>5.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
+<p>4.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># Stack Settings</span>
 <span class="n">cf_stack_name</span><span class="p">:</span> <span class="n">web</span><span class="o">-</span><span class="n">proxy</span>
@@ -612,7 +594,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-proxy/
 
 <p>Notice that these settings reference environment specific settings prefixed with <code>config_</code>, which will we need to define in our environment settings.</p>
 
-<p>7. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
+<p>5. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
 
 <pre><code class="language-bash">$ rm -rf templates
 </code></pre>

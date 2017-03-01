@@ -322,24 +322,6 @@
 </li>
 
 
-
-<li>
-  
-    
-
-
-
-<a  title="License" href="https://casecommons.github.io/aws-docs/license/">
-	
-	License
-</a>
-
-
-
-  
-</li>
-
-
         </ul>
         
 
@@ -431,7 +413,7 @@ $ git init
 Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-network-resources/.git/
 </code></pre>
 
-<p>3.  Update the <code>roles/requirements.yml</code> file to the desired versions for each role:</p>
+<p>2.  Update the <code>roles/requirements.yml</code> file to the desired versions for each role:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># You can specify git tag, commit or branch for the version property</span>
 <span class="o">-</span> <span class="n">src</span><span class="p">:</span> <span class="n">git</span><span class="nd">@github.com</span><span class="p">:</span><span class="n">casecommons</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">.</span><span class="n">git</span>
@@ -445,7 +427,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-networ
 </code></pre></div>
 
 
-<p>4.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
+<p>3.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="err">$</span> <span class="n">ansible</span><span class="o">-</span><span class="n">galaxy</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">roles</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">force</span>
 <span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">demo</span><span class="o">-</span><span class="n">network</span><span class="o">-</span><span class="n">resources</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
@@ -455,7 +437,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-networ
 </code></pre></div>
 
 
-<p>5.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
+<p>4.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># Stack Settings</span>
 <span class="n">cf_stack_name</span><span class="p">:</span> <span class="n">network</span><span class="o">-</span><span class="n">resources</span>
@@ -481,7 +463,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-networ
 
 <p>Notice that we reference the <a href="https://github.com/casecommons/aws-cloudformation/blob/master/templates/network.yml.j2">templates/network.yml.y2 template</a> that is embedded within the <a href="https://github.com/casecommons/aws-cloudformation">aws-cloudformation role</a>.</p>
 
-<p>7. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
+<p>5. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
 
 <pre><code class="language-bash">$ rm -rf templates
 </code></pre>

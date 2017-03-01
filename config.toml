@@ -91,11 +91,6 @@ publishDir = "docs"
   url    = "intake-accelerator/"
   weight = 80
 
-[[menu.main]]
-  name   = "License"
-  url    = "license/"
-  weight = 100
-
 
 [blackfriday]
   smartypants = true

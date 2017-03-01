@@ -48,7 +48,7 @@ $ git init
 Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-cloudformation-resources/.git/
 ```
 
-3\.  Update the `roles/requirements.yml` file to the desired versions for each role:
+2\.  Update the `roles/requirements.yml` file to the desired versions for each role:
 
 {{< highlight python "hl_lines=4 8" >}}
 # You can specify git tag, commit or branch for the version property
@@ -62,7 +62,7 @@ Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-cloudf
   name: aws-sts
 {{< /highlight >}}
 
-4\.  Install the roles using the `ansible-galaxy` command as demonstrated below:
+3\.  Install the roles using the `ansible-galaxy` command as demonstrated below:
 
 {{< highlight python >}}
 $ ansible-galaxy install -r roles/requirements.yml --force
@@ -72,7 +72,7 @@ $ ansible-galaxy install -r roles/requirements.yml --force
 - aws-sts was installed successfully
 {{< /highlight >}}
 
-5\.  Modify the `group_vars/all/vars.yml` file, which contains global settings for the playbook:
+4\.  Modify the `group_vars/all/vars.yml` file, which contains global settings for the playbook:
 
 {{< highlight python "hl_lines=3" >}}
 # Stack Settings
@@ -98,7 +98,7 @@ cf_stack_policy:
 
 Notice that we reference the [templates/cfn.yml.y2 template](https://github.com/casecommons/aws-cloudformation/blob/master/templates/cfn.yml.j2) that is embedded within the [aws-cloudformation role](https://github.com/casecommons/aws-cloudformation).
 
-7\. Remove the local `templates` folder, since we are using a template that is embedded within the `aws-cloudformation` role:
+5\. Remove the local `templates` folder, since we are using a template that is embedded within the `aws-cloudformation` role:
 
 ```bash
 $ rm -rf templates

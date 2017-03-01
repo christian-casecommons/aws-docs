@@ -322,24 +322,6 @@
 </li>
 
 
-
-<li>
-  
-    
-
-
-
-<a  title="License" href="https://casecommons.github.io/aws-docs/license/">
-	
-	License
-</a>
-
-
-
-  
-</li>
-
-
         </ul>
         
 
@@ -452,17 +434,18 @@ $ export AWS_DEFAULT_REGION=us-west-2
 
 <p>We will now establish a security resources playbook which will define security resources for both our <strong>Demo Users</strong> account and <strong>Demo Resources</strong> account.</p>
 
-<p>1. Fork the <a href="https://github.com/casecommons/aws-starter">AWS Starter</a> to a new repository in your Github account.  In this tutorial, we&rsquo;ll call the repository <strong>demo-security-resources</strong>.</p>
+<p>1. Clone the <a href="https://github.com/casecommons/aws-starter">AWS Starter</a> to a local folder called <strong>demo-security-resources</strong> and the re-initialise the Git repository.</p>
 
-<p>2. Clone the repository locally and change to the new repository folder:</p>
-
-<pre><code class="language-bash">$ git clone git@github.com:jmenga/demo-security-resources.git
+<pre><code class="language-bash">$ git clone https://github.com/casecommons/aws-starter.git demo-security-resources
   Cloning into 'demo-security'...
   remote: Counting objects: 32, done.
   remote: Total 32 (delta 0), reused 0 (delta 0), pack-reused 32
   Receiving objects: 100% (32/32), 4.78 KiB | 0 bytes/s, done.
   Resolving deltas: 100% (7/7), done.
 $ cd demo-security-resources
+$ rm -rf .git
+$ git init
+Initialized empty Git repository in /Users/jmenga/Source/casecommons/demo-security-resources/.git/
 $ tree
 .
 ├── README.md
@@ -478,7 +461,7 @@ $ tree
 └── site.yml
 </code></pre>
 
-<p>3.  Review the <code>roles/requirements.yml</code> file, which specifies the location and version of Ansible roles that the playbook relies on.  By default the <code>version</code> for each role is set to install the latest commit from the <code>master</code> branch, however it is a good idea to lock each role to a specific version as demonstrated below:</p>
+<p>2.  Review the <code>roles/requirements.yml</code> file, which specifies the location and version of Ansible roles that the playbook relies on.  By default the <code>version</code> for each role is set to install the latest commit from the <code>master</code> branch, however it is a good idea to lock each role to a specific version as demonstrated below:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># You can specify git tag, commit or branch for the version property</span>
 <span class="o">-</span> <span class="n">src</span><span class="p">:</span> <span class="n">git</span><span class="nd">@github.com</span><span class="p">:</span><span class="n">casecommons</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">.</span><span class="n">git</span>
@@ -492,7 +475,7 @@ $ tree
 </code></pre></div>
 
 
-<p>4.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
+<p>3.  Install the roles using the <code>ansible-galaxy</code> command as demonstrated below:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="err">$</span> <span class="n">ansible</span><span class="o">-</span><span class="n">galaxy</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">roles</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">force</span>
 <span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmenga</span><span class="o">/</span><span class="n">Source</span><span class="o">/</span><span class="n">casecommons</span><span class="o">/</span><span class="n">demo</span><span class="o">-</span><span class="n">security</span><span class="o">-</span><span class="n">resources</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
@@ -502,7 +485,7 @@ $ tree
 </code></pre></div>
 
 
-<p>5. Notice that this installs the roles locally into the <code>roles</code> folder, as per the <code>roles_path</code> setting in the local <code>ansible.cfg</code> file:</p>
+<p>4. Notice that this installs the roles locally into the <code>roles</code> folder, as per the <code>roles_path</code> setting in the local <code>ansible.cfg</code> file:</p>
 
 <div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ cat ansible.cfg
 <span class="o">[</span>defaults<span class="o">]</span>
@@ -531,7 +514,7 @@ roles
 <p>Using the <code>--force</code> flag ensures the role will be overwritten regardless of whether or not the role is currently present locally.</p>
 </div>
 
-<p>6.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook.</p>
+<p>5.  Modify the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook.</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># Stack Settings</span>
 <span class="n">cf_stack_name</span><span class="p">:</span> <span class="n">security</span><span class="o">-</span><span class="n">resources</span>
@@ -564,7 +547,7 @@ roles
 <li><code>cf_stack_policy</code> - defines a CloudFormation stack policy.  This is a safety mechanism that requires you to temporarily explicity disable the stack policy if you want to make updates to an existing CloudFormation stack.</li>
 </ul>
 
-<p>7. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
+<p>6. Remove the local <code>templates</code> folder, since we are using a template that is embedded within the <code>aws-cloudformation</code> role:</p>
 
 <pre><code class="language-bash">$ rm -rf templates
 </code></pre>
