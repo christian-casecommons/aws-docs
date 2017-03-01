@@ -63,7 +63,7 @@ $ export AWS_DEFAULT_REGION=us-west-2
 
 We will now establish a security resources playbook which will define security resources for both our **Demo Users** account and **Demo Resources** account.
 
-1\. Clone the [AWS Starter](https://github.com/casecommons/aws-starter) to a local folder called **demo-security-resources** and the re-initialise the Git repository.
+1\. Clone the [AWS Starter](https://github.com/casecommons/aws-starter) to a local folder called **demo-security-resources** and re-initialise the Git repository.
 
 
 ```bash

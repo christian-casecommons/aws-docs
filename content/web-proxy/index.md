@@ -156,7 +156,7 @@ $ chmod 600 ~/.ssh/demo-resources-admin.pem
 
 We can now get started establishing a proxy playbook that defines a proxy stack for the **Demo Resources** account.
 
-1\. Clone the [AWS Starter](https://github.com/casecommons/aws-starter) to a local folder called `demo-proxy` and the re-initialise the Git repository.
+1\. Clone the [AWS Starter](https://github.com/casecommons/aws-starter) to a local folder called `demo-proxy` and re-initialise the Git repository.
 
 ```bash
 $ git clone git@github.com:casecommons/aws-starter.git demo-proxy

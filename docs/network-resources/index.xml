@@ -48,7 +48,7 @@
 
 &lt;p&gt;We will get started by establishing a network resources playbook that defines network resources for &lt;strong&gt;Demo Resources&lt;/strong&gt; account.&lt;/p&gt;
 
-&lt;p&gt;1. Clone the &lt;a href=&#34;https://github.com/casecommons/aws-starter&#34;&gt;AWS Starter&lt;/a&gt; to a local folder called &lt;code&gt;demo-network-resources&lt;/code&gt; and the re-initialise the Git repository.&lt;/p&gt;
+&lt;p&gt;1. Clone the &lt;a href=&#34;https://github.com/casecommons/aws-starter&#34;&gt;AWS Starter&lt;/a&gt; to a local folder called &lt;code&gt;demo-network-resources&lt;/code&gt; and re-initialise the Git repository.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:casecommons/aws-starter.git demo-network-resources
   Cloning into &#39;demo-network-resources&#39;...

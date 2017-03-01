@@ -28,7 +28,7 @@ Before commencing the tasks below, ensure you have successfully completed all ta
 
 We will get started by establishing a network resources playbook that defines network resources for **Demo Resources** account.
 
-1\. Clone the [AWS Starter](https://github.com/casecommons/aws-starter) to a local folder called `demo-network-resources` and the re-initialise the Git repository.
+1\. Clone the [AWS Starter](https://github.com/casecommons/aws-starter) to a local folder called `demo-network-resources` and re-initialise the Git repository.
 
 ```bash
 $ git clone git@github.com:casecommons/aws-starter.git demo-network-resources
