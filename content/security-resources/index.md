@@ -67,7 +67,7 @@ We will now establish a security resources playbook which will define security r
 
 
 ```bash
-$ git clone https://github.com/casecommons/aws-starter.git demo-security-resources
+$ git clone git@github.com:Casecommons/aws-starter.git demo-security-resources
   Cloning into 'demo-security'...
   remote: Counting objects: 32, done.
   remote: Total 32 (delta 0), reused 0 (delta 0), pack-reused 32

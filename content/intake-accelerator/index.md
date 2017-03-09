@@ -26,7 +26,7 @@ The Intake Accelerator Docker image needs to be published to the **casecommons/i
 1\. Clone the Intake application from the following forked repository (https://github.com/mixja/intake) to your local environment and ensure you checkout the **production_workflow** branch:
 
 {{< highlight make "hl_lines=9" >}}
-$ git clone https://github.com/mixja/intake.git
+$ git clone git@github.com:mixja/intake.git
 Cloning into 'intake'...
 remote: Counting objects: 8913, done.
 remote: Compressing objects: 100% (19/19), done.
@@ -217,7 +217,7 @@ We now have all the supporting pieces in place to deploy the Intake Accelerator 
 1\. Clone the [Intake Accelerator AWS project](https://github.com/casecommons/intake-accelerator-aws) to your local environment.
 
 ```bash
-$ git clone https://github.com/Casecommons/intake-accelerator-aws.git
+$ git clone git@github.com:Casecommons/intake-accelerator-aws.git
   Cloning into 'intake-accelerator-aws'...
   remote: Counting objects: 165, done.
   remote: Compressing objects: 100% (9/9), done.

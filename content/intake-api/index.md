@@ -127,14 +127,14 @@ Before we can create the Intake API stack, we need to publish this image to the 
 1\. Clone the Casecommons Docker Nginx repository to your local environment:
 
 ```bash
-$ git clone https://github.com/casecommons/docker-nginx
+$ git clone git@github.com:Casecommons/docker-nginx.git
 Cloning into 'docker-nginx'...
 remote: Counting objects: 48, done.
 remote: Compressing objects: 100% (3/3), done.
 remote: Total 48 (delta 0), reused 0 (delta 0), pack-reused 45
 Receiving objects: 100% (48/48), 13.61 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (10/10), done.
-$ cd docker-squid
+$ cd docker-nginx
 $ tree -L 1
 .
 ├── Makefile
@@ -344,7 +344,7 @@ Now that we have built the Intake base Docker image, we can build and publish th
 1\. Clone the Intake API application to your local environment and ensure you checkout the **workflow_enhancements** branch:
 
 {{< highlight make "hl_lines=9" >}}
-$ git clone https://github.com/ca-cwds/intake_api_prototype.git
+$ git clone git@github.com:ca-cwds/intake_api.git
 Cloning into 'intake_api_prototype'...
 remote: Counting objects: 2140, done.
 remote: Compressing objects: 100% (188/188), done.
@@ -534,7 +534,7 @@ In this section we will publish each of the custom resource Lambda functions lis
 1\. Clone the KMS Decryption Lambda function repository to your local environment:
 
 ```bash
-$ git clone https://github.com/Casecommons/lambda-cfn-kms.git
+$ git clone git@github.com:Casecommons/lambda-cfn-kms.git
 Cloning into 'lambda-cfn-kms'...
 remote: Counting objects: 13, done.
 remote: Total 13 (delta 0), reused 0 (delta 0), pack-reused 13
@@ -594,7 +594,7 @@ Take note of the S3 object version, as we need to provide this as an input to an
 4\. Next we will clone the ECS Task Runner Lambda function repository to your local environment:
 
 ```bash
-$ git clone https://github.com/Casecommons/lambda-ecs-tasks.git
+$ git clone git@github.com:Casecommons/lambda-ecs-tasks.git
 Cloning into 'lambda-ecs-tasks'...
 remote: Counting objects: 20, done.
 remote: Total 20 (delta 0), reused 0 (delta 0), pack-reused 20
@@ -651,7 +651,7 @@ We now have all the supporting pieces in place to deploy the Intake API applicat
 1\. Clone the [Intake API AWS project](https://github.com/casecommons/intake-api-aws) to your local environment.
 
 ```bash
-$ git clone https://github.com/Casecommons/intake-api-aws.git
+$ git clone git@github.com:Casecommons/intake-api-aws.git
   Cloning into 'intake-api-aws'...
   remote: Counting objects: 58, done.
   remote: Compressing objects: 100% (6/6), done.
@@ -865,7 +865,7 @@ Enter MFA code: ******
 }
 ```
 
-6\. Copy the `CiphertextBlob` value from the `aws kms encrypt` command output and set the `config_application_secret_key_base` variable in `group_vars/demo/vars.yml` to this value:
+6\. Copy the `CiphertextBlob` value from the `aws kms encrypt` command output and set the `config_db_password` variable in `group_vars/demo/vars.yml` to this value:
 
 {{< highlight ini "hl_lines=11" >}}
 # STS settings
@@ -878,7 +878,7 @@ config_db_deletion_policy: Delete
 config_db_storage: 10
 config_db_instance_type: db.t2.micro
 config_db_name: casebook_api_production
-config_db_username: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw==
+config_db_password: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw==
 ...
 ...
 {{< /highlight >}}
