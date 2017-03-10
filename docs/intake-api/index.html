@@ -493,14 +493,14 @@ TASK <span class="o">[</span>aws-cloudformation : configure application stack<sp
 
 <p>1. Clone the Casecommons Docker Nginx repository to your local environment:</p>
 
-<pre><code class="language-bash">$ git clone https://github.com/casecommons/docker-nginx
+<pre><code class="language-bash">$ git clone git@github.com:Casecommons/docker-nginx.git
 Cloning into 'docker-nginx'...
 remote: Counting objects: 48, done.
 remote: Compressing objects: 100% (3/3), done.
 remote: Total 48 (delta 0), reused 0 (delta 0), pack-reused 45
 Receiving objects: 100% (48/48), 13.61 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (10/10), done.
-$ cd docker-squid
+$ cd docker-nginx
 $ tree -L 1
 .
 ├── Makefile
@@ -699,7 +699,7 @@ latest: digest: sha256:e870f9900f5af857c101e39d8683aca8f7dee96e37339a90579f3c857
 
 <p>1. Clone the Intake API application to your local environment and ensure you checkout the <strong>workflow_enhancements</strong> branch:</p>
 
-<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="nf">$ git clone https</span><span class="o">:</span>//<span class="n">github</span>.<span class="n">com</span>/<span class="n">ca</span>-<span class="n">cwds</span>/<span class="n">intake_api_prototype</span>.<span class="n">git</span>
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="nf">$ git clone git@github.com</span><span class="o">:</span><span class="n">ca</span>-<span class="n">cwds</span>/<span class="n">intake_api</span>.<span class="n">git</span>
 <span class="err">Cloning</span> <span class="err">into</span> <span class="s1">&#39;intake_api_prototype&#39;</span><span class="err">...</span>
 <span class="nf">remote</span><span class="o">:</span> <span class="n">Counting</span> <span class="n">objects</span>: 2140<span class="p">,</span> <span class="n">done</span>.
 <span class="nf">remote</span><span class="o">:</span> <span class="n">Compressing</span> <span class="n">objects</span>: 100% (188/188)<span class="p">,</span> <span class="n">done</span>.
@@ -884,7 +884,7 @@ Deleted: sha256:f4bf2522682e8d5e525bf1de15912b6e53fef2e1a9b82878653cf294455a32c5
 
 <p>1. Clone the KMS Decryption Lambda function repository to your local environment:</p>
 
-<pre><code class="language-bash">$ git clone https://github.com/Casecommons/lambda-cfn-kms.git
+<pre><code class="language-bash">$ git clone git@github.com:Casecommons/lambda-cfn-kms.git
 Cloning into 'lambda-cfn-kms'...
 remote: Counting objects: 13, done.
 remote: Total 13 (delta 0), reused 0 (delta 0), pack-reused 13
@@ -943,7 +943,7 @@ Enter MFA token: ******
 
 <p>4. Next we will clone the ECS Task Runner Lambda function repository to your local environment:</p>
 
-<pre><code class="language-bash">$ git clone https://github.com/Casecommons/lambda-ecs-tasks.git
+<pre><code class="language-bash">$ git clone git@github.com:Casecommons/lambda-ecs-tasks.git
 Cloning into 'lambda-ecs-tasks'...
 remote: Counting objects: 20, done.
 remote: Total 20 (delta 0), reused 0 (delta 0), pack-reused 20
@@ -999,7 +999,7 @@ $ make <span class="nv">publish</span>
 
 <p>1. Clone the <a href="https://github.com/casecommons/intake-api-aws">Intake API AWS project</a> to your local environment.</p>
 
-<pre><code class="language-bash">$ git clone https://github.com/Casecommons/intake-api-aws.git
+<pre><code class="language-bash">$ git clone git@github.com:Casecommons/intake-api-aws.git
   Cloning into 'intake-api-aws'...
   remote: Counting objects: 58, done.
   remote: Compressing objects: 100% (6/6), done.
@@ -1212,7 +1212,7 @@ Enter MFA code: ******
 }
 </code></pre>
 
-<p>6. Copy the <code>CiphertextBlob</code> value from the <code>aws kms encrypt</code> command output and set the <code>config_application_secret_key_base</code> variable in <code>group_vars/demo/vars.yml</code> to this value:</p>
+<p>6. Copy the <code>CiphertextBlob</code> value from the <code>aws kms encrypt</code> command output and set the <code>config_db_password</code> variable in <code>group_vars/demo/vars.yml</code> to this value:</p>
 
 <div class="highlight"><pre><code class="language-ini" data-lang="ini"><span></span><span class="c1"># STS settings</span>
 <span class="na">sts_role_arn: arn:aws:iam::160775127577:role/admin</span>
@@ -1224,7 +1224,7 @@ Enter MFA code: ******
 <span class="na">config_db_storage: 10</span>
 <span class="na">config_db_instance_type: db.t2.micro</span>
 <span class="na">config_db_name: casebook_api_production</span>
-<span class="hll"><span class="na">config_db_username: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw</span><span class="o">=</span><span class="s">=</span>
+<span class="hll"><span class="na">config_db_password: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw</span><span class="o">=</span><span class="s">=</span>
 </span><span class="na">...</span>
 <span class="na">...</span>
 </code></pre></div>

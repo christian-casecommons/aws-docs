@@ -153,7 +153,7 @@ $ export AWS_DEFAULT_REGION=us-west-2
 
 &lt;p&gt;1. Clone the &lt;a href=&#34;https://github.com/casecommons/aws-starter&#34;&gt;AWS Starter&lt;/a&gt; to a local folder called &lt;strong&gt;demo-security-resources&lt;/strong&gt; and re-initialise the Git repository.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/casecommons/aws-starter.git demo-security-resources
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/aws-starter.git demo-security-resources
   Cloning into &#39;demo-security&#39;...
   remote: Counting objects: 32, done.
   remote: Total 32 (delta 0), reused 0 (delta 0), pack-reused 32
@@ -3157,14 +3157,14 @@ TASK &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;aws-cloudformation : configure 
 
 &lt;p&gt;1. Clone the Casecommons Docker Nginx repository to your local environment:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/casecommons/docker-nginx
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/docker-nginx.git
 Cloning into &#39;docker-nginx&#39;...
 remote: Counting objects: 48, done.
 remote: Compressing objects: 100% (3/3), done.
 remote: Total 48 (delta 0), reused 0 (delta 0), pack-reused 45
 Receiving objects: 100% (48/48), 13.61 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (10/10), done.
-$ cd docker-squid
+$ cd docker-nginx
 $ tree -L 1
 .
 ├── Makefile
@@ -3363,7 +3363,7 @@ latest: digest: sha256:e870f9900f5af857c101e39d8683aca8f7dee96e37339a90579f3c857
 
 &lt;p&gt;1. Clone the Intake API application to your local environment and ensure you checkout the &lt;strong&gt;workflow_enhancements&lt;/strong&gt; branch:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-make&#34; data-lang=&#34;make&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;$ git clone https&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;//&lt;span class=&#34;n&#34;&gt;github&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;com&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;ca&lt;/span&gt;-&lt;span class=&#34;n&#34;&gt;cwds&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;intake_api_prototype&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-make&#34; data-lang=&#34;make&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;$ git clone git@github.com&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ca&lt;/span&gt;-&lt;span class=&#34;n&#34;&gt;cwds&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;intake_api&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
 &lt;span class=&#34;err&#34;&gt;Cloning&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;into&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;intake_api_prototype&amp;#39;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;...&lt;/span&gt;
 &lt;span class=&#34;nf&#34;&gt;remote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Counting&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;objects&lt;/span&gt;: 2140&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;done&lt;/span&gt;.
 &lt;span class=&#34;nf&#34;&gt;remote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Compressing&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;objects&lt;/span&gt;: 100% (188/188)&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;done&lt;/span&gt;.
@@ -3548,7 +3548,7 @@ Deleted: sha256:f4bf2522682e8d5e525bf1de15912b6e53fef2e1a9b82878653cf294455a32c5
 
 &lt;p&gt;1. Clone the KMS Decryption Lambda function repository to your local environment:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/Casecommons/lambda-cfn-kms.git
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/lambda-cfn-kms.git
 Cloning into &#39;lambda-cfn-kms&#39;...
 remote: Counting objects: 13, done.
 remote: Total 13 (delta 0), reused 0 (delta 0), pack-reused 13
@@ -3607,7 +3607,7 @@ Enter MFA token: ******
 
 &lt;p&gt;4. Next we will clone the ECS Task Runner Lambda function repository to your local environment:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/Casecommons/lambda-ecs-tasks.git
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/lambda-ecs-tasks.git
 Cloning into &#39;lambda-ecs-tasks&#39;...
 remote: Counting objects: 20, done.
 remote: Total 20 (delta 0), reused 0 (delta 0), pack-reused 20
@@ -3663,7 +3663,7 @@ $ make &lt;span class=&#34;nv&#34;&gt;publish&lt;/span&gt;
 
 &lt;p&gt;1. Clone the &lt;a href=&#34;https://github.com/casecommons/intake-api-aws&#34;&gt;Intake API AWS project&lt;/a&gt; to your local environment.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/Casecommons/intake-api-aws.git
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/intake-api-aws.git
   Cloning into &#39;intake-api-aws&#39;...
   remote: Counting objects: 58, done.
   remote: Compressing objects: 100% (6/6), done.
@@ -3876,7 +3876,7 @@ Enter MFA code: ******
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;6. Copy the &lt;code&gt;CiphertextBlob&lt;/code&gt; value from the &lt;code&gt;aws kms encrypt&lt;/code&gt; command output and set the &lt;code&gt;config_application_secret_key_base&lt;/code&gt; variable in &lt;code&gt;group_vars/demo/vars.yml&lt;/code&gt; to this value:&lt;/p&gt;
+&lt;p&gt;6. Copy the &lt;code&gt;CiphertextBlob&lt;/code&gt; value from the &lt;code&gt;aws kms encrypt&lt;/code&gt; command output and set the &lt;code&gt;config_db_password&lt;/code&gt; variable in &lt;code&gt;group_vars/demo/vars.yml&lt;/code&gt; to this value:&lt;/p&gt;
 
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# STS settings&lt;/span&gt;
 &lt;span class=&#34;na&#34;&gt;sts_role_arn: arn:aws:iam::160775127577:role/admin&lt;/span&gt;
@@ -3888,7 +3888,7 @@ Enter MFA code: ******
 &lt;span class=&#34;na&#34;&gt;config_db_storage: 10&lt;/span&gt;
 &lt;span class=&#34;na&#34;&gt;config_db_instance_type: db.t2.micro&lt;/span&gt;
 &lt;span class=&#34;na&#34;&gt;config_db_name: casebook_api_production&lt;/span&gt;
-&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;config_db_username: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;=&lt;/span&gt;
+&lt;span class=&#34;hll&#34;&gt;&lt;span class=&#34;na&#34;&gt;config_db_password: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJKoZIhvcNAQcGoGIwYAIBADBbBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDLRuXWaxRLSxR5//zAIBEIAuindRhw7U4ERU7xSWH/5QX8lJ1F2cZmjHCJh6EFTkD/5iU7BGXs/PVo1iy8czgw&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;=&lt;/span&gt;
 &lt;/span&gt;&lt;span class=&#34;na&#34;&gt;...&lt;/span&gt;
 &lt;span class=&#34;na&#34;&gt;...&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
@@ -5207,7 +5207,7 @@ Resources:
 
 &lt;p&gt;1. Clone the Intake application from the following forked repository (&lt;a href=&#34;https://github.com/mixja/intake&#34;&gt;https://github.com/mixja/intake&lt;/a&gt;) to your local environment and ensure you checkout the &lt;strong&gt;production_workflow&lt;/strong&gt; branch:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-make&#34; data-lang=&#34;make&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;$ git clone https&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;//&lt;span class=&#34;n&#34;&gt;github&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;com&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;mixja&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;intake&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-make&#34; data-lang=&#34;make&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;$ git clone git@github.com&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mixja&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;intake&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
 &lt;span class=&#34;err&#34;&gt;Cloning&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;into&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;intake&amp;#39;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;...&lt;/span&gt;
 &lt;span class=&#34;nf&#34;&gt;remote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Counting&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;objects&lt;/span&gt;: 8913&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;done&lt;/span&gt;.
 &lt;span class=&#34;nf&#34;&gt;remote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Compressing&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;objects&lt;/span&gt;: 100% (19/19)&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;done&lt;/span&gt;.
@@ -5391,7 +5391,7 @@ latest: digest: sha256:7c645b33cd0d8d13cd7450b4653aa1f96336dadc76c363f8d4a52dd19
 
 &lt;p&gt;1. Clone the &lt;a href=&#34;https://github.com/casecommons/intake-accelerator-aws&#34;&gt;Intake Accelerator AWS project&lt;/a&gt; to your local environment.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/Casecommons/intake-accelerator-aws.git
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/intake-accelerator-aws.git
   Cloning into &#39;intake-accelerator-aws&#39;...
   remote: Counting objects: 165, done.
   remote: Compressing objects: 100% (9/9), done.

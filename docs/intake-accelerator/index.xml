@@ -43,7 +43,7 @@
 
 &lt;p&gt;1. Clone the Intake application from the following forked repository (&lt;a href=&#34;https://github.com/mixja/intake&#34;&gt;https://github.com/mixja/intake&lt;/a&gt;) to your local environment and ensure you checkout the &lt;strong&gt;production_workflow&lt;/strong&gt; branch:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-make&#34; data-lang=&#34;make&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;$ git clone https&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;//&lt;span class=&#34;n&#34;&gt;github&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;com&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;mixja&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;intake&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-make&#34; data-lang=&#34;make&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;$ git clone git@github.com&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mixja&lt;/span&gt;/&lt;span class=&#34;n&#34;&gt;intake&lt;/span&gt;.&lt;span class=&#34;n&#34;&gt;git&lt;/span&gt;
 &lt;span class=&#34;err&#34;&gt;Cloning&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;into&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;intake&amp;#39;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;...&lt;/span&gt;
 &lt;span class=&#34;nf&#34;&gt;remote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Counting&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;objects&lt;/span&gt;: 8913&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;done&lt;/span&gt;.
 &lt;span class=&#34;nf&#34;&gt;remote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Compressing&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;objects&lt;/span&gt;: 100% (19/19)&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;done&lt;/span&gt;.
@@ -227,7 +227,7 @@ latest: digest: sha256:7c645b33cd0d8d13cd7450b4653aa1f96336dadc76c363f8d4a52dd19
 
 &lt;p&gt;1. Clone the &lt;a href=&#34;https://github.com/casecommons/intake-accelerator-aws&#34;&gt;Intake Accelerator AWS project&lt;/a&gt; to your local environment.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/Casecommons/intake-accelerator-aws.git
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/intake-accelerator-aws.git
   Cloning into &#39;intake-accelerator-aws&#39;...
   remote: Counting objects: 165, done.
   remote: Compressing objects: 100% (9/9), done.
