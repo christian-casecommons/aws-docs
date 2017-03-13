@@ -287,7 +287,7 @@ The Intake API Docker image requires an Intake base image to be available when b
 1\. Clone the Casecommons Intake Base repository to your local environment:
 
 ```bash
-$ git clone https://github.com/Casecommons/base_docker_image_for_ca_intake.git
+$ git clone git@github.com:Casecommons/base_docker_image_for_ca_intake.git
 Cloning into 'base_docker_image_for_ca_intake'...
 remote: Counting objects: 38, done.
 remote: Total 38 (delta 0), reused 0 (delta 0), pack-reused 38
