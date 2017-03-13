@@ -1,14 +1,26 @@
 ---
 date: 2016-03-08T21:07:13+01:00
-title: AWS CloudFormation Tutorial
+title: Infrastructure Accelerator Tutorial
 type: index
 weight: 0
 ---
 
 ## Introduction
 
-This tutorial provides a walkthrough of the AWS CloudFormation deployment framework that has been established for Casecommons.
+This tutorial provides a walkthrough of the Case Commons Infrastructure
+Accelerator.   It provide a reusable, open source AWS CloudFormation deployment
+framework for provisioning cloud infrastructure and deploying application stacks
+to it.
 
+The Infrastructure Accelerator is based on a modern Infrastructure as Code
+design pattern, using Ansible as an automation framework to provision all of the
+AWS resources needed for one or more application stacks.    It assumes that
+application images are packaged using Docker.
+
+This tutorial was initially developed for Case Commons in support of the
+California Child Welfare Digital Services Intake project.   The  Intake
+Accelerator and Intake API stacks can be used as examples of how to set up your
+application stack.
 You will create a completely fresh account topology, implementing two AWS accounts:
 
 - **Users Account** - a central users account where all user accounts and credentials are located.  Users must authenticate to this account and assume a role in a given resource account to manage resources in the target resource account.  In this tutorial the users account is called **demo-users** and has an account ID of **094411466117**.

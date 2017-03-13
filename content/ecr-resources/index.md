@@ -261,7 +261,7 @@ In this section we will demonstrate how to publish a Docker image to one of our 
 1\. Clone the Casecommons squid repository to your local environment:
 
 ```bash
-$ git clone https://github.com/casecommons/docker-squid
+$ git clone git@github.com:Casecommons/docker-squid.git
 Cloning into 'docker-squid'...
 remote: Counting objects: 62, done.
 remote: Total 62 (delta 0), reused 0 (delta 0), pack-reused 62
