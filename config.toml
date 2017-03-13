@@ -13,7 +13,7 @@ publishDir = "docs"
   # General information
   author = "Justin Menga"
   description = "AWS CloudFormation Tutorial"
-  copyright = "Released under the MIT license"
+  copyright = "Released under the AGPL license"
 
   # Repository
   # provider = "GitHub"
