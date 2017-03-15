@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Local-setups on AWS CloudFormation Tutorial</title>
+    <title>Local-setups on Infrastructure Accelerator Tutorial</title>
     <link>https://casecommons.github.io/aws-docs/local-setup/index.xml</link>
-    <description>Recent content in Local-setups on AWS CloudFormation Tutorial</description>
+    <description>Recent content in Local-setups on Infrastructure Accelerator Tutorial</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Released under the MIT license</copyright>
+    <copyright>Released under the AGPL license</copyright>
     <lastBuildDate>Fri, 24 Feb 2017 22:14:44 +1300</lastBuildDate>
     <atom:link href="https://casecommons.github.io/aws-docs/local-setup/index.xml" rel="self" type="application/rss+xml" />
     

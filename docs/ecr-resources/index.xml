@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Ecr-resources on AWS CloudFormation Tutorial</title>
+    <title>Ecr-resources on Infrastructure Accelerator Tutorial</title>
     <link>https://casecommons.github.io/aws-docs/ecr-resources/index.xml</link>
-    <description>Recent content in Ecr-resources on AWS CloudFormation Tutorial</description>
+    <description>Recent content in Ecr-resources on Infrastructure Accelerator Tutorial</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Released under the MIT license</copyright>
+    <copyright>Released under the AGPL license</copyright>
     <lastBuildDate>Mon, 20 Feb 2017 06:39:45 +1300</lastBuildDate>
     <atom:link href="https://casecommons.github.io/aws-docs/ecr-resources/index.xml" rel="self" type="application/rss+xml" />
     
@@ -275,7 +275,7 @@ Resources:
 
 &lt;p&gt;1. Clone the Casecommons squid repository to your local environment:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/casecommons/docker-squid
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/docker-squid.git
 Cloning into &#39;docker-squid&#39;...
 remote: Counting objects: 62, done.
 remote: Total 62 (delta 0), reused 0 (delta 0), pack-reused 62

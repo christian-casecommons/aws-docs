@@ -9,11 +9,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=10" />
-    <title>AWS CloudFormation Tutorial</title>
-    <meta name="generator" content="Hugo 0.18.1" />
+    <title>Infrastructure Accelerator Tutorial</title>
+    <meta name="generator" content="Hugo 0.19" />
 
     
-    <meta name="description" content="AWS CloudFormation Tutorial">
+    <meta name="description" content="Infrastructure Accelerator Tutorial">
     
     <link rel="canonical" href="https://casecommons.github.io/aws-docs/">
     
@@ -21,9 +21,9 @@
     
 
     <meta property="og:url" content="https://casecommons.github.io/aws-docs/">
-    <meta property="og:title" content="AWS CloudFormation Tutorial">
+    <meta property="og:title" content="Infrastructure Accelerator Tutorial">
     <meta property="og:image" content="https://casecommons.github.io/aws-docs/images/logo.png">
-    <meta name="apple-mobile-web-app-title" content="AWS CloudFormation Tutorial">
+    <meta name="apple-mobile-web-app-title" content="Infrastructure Accelerator Tutorial">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -70,8 +70,8 @@
     <script src="https://casecommons.github.io/aws-docs/javascripts/modernizr.js"></script>
 
     
-    <link href="https://casecommons.github.io/aws-docs/index.xml" rel="alternate" type="application/rss+xml" title="AWS CloudFormation Tutorial" />
-    <link href="https://casecommons.github.io/aws-docs/index.xml" rel="feed" type="application/rss+xml" title="AWS CloudFormation Tutorial" />
+    <link href="https://casecommons.github.io/aws-docs/index.xml" rel="alternate" type="application/rss+xml" title="Infrastructure Accelerator Tutorial" />
+    <link href="https://casecommons.github.io/aws-docs/index.xml" rel="feed" type="application/rss+xml" title="Infrastructure Accelerator Tutorial" />
     
 
   </head>
@@ -98,7 +98,7 @@
     </div>
     <div class="stretch">
       <div class="title">
-        AWS CloudFormation Tutorial
+        Infrastructure Accelerator Tutorial
       </div>
     </div>
 
@@ -143,7 +143,7 @@
         </div>
       
       <div class="name">
-        <strong>AWS CloudFormation Tutorial <span class="version">v0.1</span></strong>
+        <strong>Infrastructure Accelerator Tutorial <span class="version">v0.2</span></strong>
         
       </div>
     </div>
@@ -158,24 +158,6 @@
         <ul>
           
 
-
-
-
-<li>
-  
-    
-
-
-
-<a  title="Introduction" href="https://casecommons.github.io/aws-docs/">
-	
-	Introduction
-</a>
-
-
-
-  
-</li>
 
 
 
@@ -322,6 +304,24 @@
 </li>
 
 
+
+<li>
+  
+    
+
+
+
+<a  title="Introduction" href="https://casecommons.github.io/aws-docs/">
+	
+	Introduction
+</a>
+
+
+
+  
+</li>
+
+
         </ul>
         
 
@@ -365,15 +365,27 @@
 	<article class="article">
 		<div class="wrapper">
 			
-				<h1>AWS CloudFormation Tutorial </h1>
+				<h1>Infrastructure Accelerator Tutorial </h1>
 
 				
 
 <h2 id="introduction">Introduction</h2>
 
-<p>This tutorial provides a walkthrough of the AWS CloudFormation deployment framework that has been established for Casecommons.</p>
+<p>This tutorial provides a walkthrough of the Case Commons Infrastructure
+Accelerator.   It provide a reusable, open source AWS CloudFormation deployment
+framework for provisioning cloud infrastructure and deploying application stacks
+to it.</p>
 
-<p>You will create a completely fresh account topology, implementing two AWS accounts:</p>
+<p>The Infrastructure Accelerator is based on a modern Infrastructure as Code
+design pattern, using Ansible as an automation framework to provision all of the
+AWS resources needed for one or more application stacks.    It assumes that
+application images are packaged using Docker.</p>
+
+<p>This tutorial was initially developed for Case Commons in support of the
+California Child Welfare Digital Services Intake project.   The  Intake
+Accelerator and Intake API stacks can be used as examples of how to set up your
+application stack.
+You will create a completely fresh account topology, implementing two AWS accounts:</p>
 
 <ul>
 <li><p><strong>Users Account</strong> - a central users account where all user accounts and credentials are located.  Users must authenticate to this account and assume a role in a given resource account to manage resources in the target resource account.  In this tutorial the users account is called <strong>demo-users</strong> and has an account ID of <strong>094411466117</strong>.</p></li>
@@ -422,7 +434,7 @@
 
 			<aside class="copyright" role="note">
 				
-				&copy; 2017 Released under the MIT license &ndash;
+				&copy; 2017 Released under the AGPL license &ndash;
 				
 				Documentation built with
 				<a href="https://www.gohugo.io" target="_blank">Hugo</a>

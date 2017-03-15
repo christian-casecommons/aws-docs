@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Intake-apis on AWS CloudFormation Tutorial</title>
+    <title>Intake-apis on Infrastructure Accelerator Tutorial</title>
     <link>https://casecommons.github.io/aws-docs/intake-api/index.xml</link>
-    <description>Recent content in Intake-apis on AWS CloudFormation Tutorial</description>
+    <description>Recent content in Intake-apis on Infrastructure Accelerator Tutorial</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Released under the MIT license</copyright>
+    <copyright>Released under the AGPL license</copyright>
     <lastBuildDate>Mon, 27 Feb 2017 02:59:22 +1300</lastBuildDate>
     <atom:link href="https://casecommons.github.io/aws-docs/intake-api/index.xml" rel="self" type="application/rss+xml" />
     
@@ -295,7 +295,7 @@ latest: digest: sha256:7b0d0c8b63db2f02b3c58e451f0a5c4ced9bb5deac66bdc6010d2e07b
 
 &lt;p&gt;1. Clone the Casecommons Intake Base repository to your local environment:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/Casecommons/base_docker_image_for_ca_intake.git
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/base_docker_image_for_ca_intake.git
 Cloning into &#39;base_docker_image_for_ca_intake&#39;...
 remote: Counting objects: 38, done.
 remote: Total 38 (delta 0), reused 0 (delta 0), pack-reused 38

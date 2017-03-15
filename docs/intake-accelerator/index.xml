@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Intake-accelerators on AWS CloudFormation Tutorial</title>
+    <title>Intake-accelerators on Infrastructure Accelerator Tutorial</title>
     <link>https://casecommons.github.io/aws-docs/intake-accelerator/index.xml</link>
-    <description>Recent content in Intake-accelerators on AWS CloudFormation Tutorial</description>
+    <description>Recent content in Intake-accelerators on Infrastructure Accelerator Tutorial</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Released under the MIT license</copyright>
+    <copyright>Released under the AGPL license</copyright>
     <lastBuildDate>Mon, 27 Feb 2017 02:59:17 +1300</lastBuildDate>
     <atom:link href="https://casecommons.github.io/aws-docs/intake-accelerator/index.xml" rel="self" type="application/rss+xml" />
     

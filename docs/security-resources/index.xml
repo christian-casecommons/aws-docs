@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Security-resources on AWS CloudFormation Tutorial</title>
+    <title>Security-resources on Infrastructure Accelerator Tutorial</title>
     <link>https://casecommons.github.io/aws-docs/security-resources/index.xml</link>
-    <description>Recent content in Security-resources on AWS CloudFormation Tutorial</description>
+    <description>Recent content in Security-resources on Infrastructure Accelerator Tutorial</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Released under the MIT license</copyright>
+    <copyright>Released under the AGPL license</copyright>
     <lastBuildDate>Sat, 18 Feb 2017 23:54:48 +1300</lastBuildDate>
     <atom:link href="https://casecommons.github.io/aws-docs/security-resources/index.xml" rel="self" type="application/rss+xml" />
     

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>AWS CloudFormation Tutorial</title>
+    <title>Infrastructure Accelerator Tutorial</title>
     <link>https://casecommons.github.io/aws-docs/index.xml</link>
-    <description>Recent content on AWS CloudFormation Tutorial</description>
+    <description>Recent content on Infrastructure Accelerator Tutorial</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Released under the MIT license</copyright>
+    <copyright>Released under the AGPL license</copyright>
     <lastBuildDate>Fri, 24 Feb 2017 22:14:44 +1300</lastBuildDate>
     <atom:link href="https://casecommons.github.io/aws-docs/index.xml" rel="self" type="application/rss+xml" />
     
@@ -2176,7 +2176,7 @@ Resources:
 
 &lt;p&gt;1. Clone the Casecommons squid repository to your local environment:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/casecommons/docker-squid
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/docker-squid.git
 Cloning into &#39;docker-squid&#39;...
 remote: Counting objects: 62, done.
 remote: Total 62 (delta 0), reused 0 (delta 0), pack-reused 62
@@ -3309,7 +3309,7 @@ latest: digest: sha256:7b0d0c8b63db2f02b3c58e451f0a5c4ced9bb5deac66bdc6010d2e07b
 
 &lt;p&gt;1. Clone the Casecommons Intake Base repository to your local environment:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone https://github.com/Casecommons/base_docker_image_for_ca_intake.git
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ git clone git@github.com:Casecommons/base_docker_image_for_ca_intake.git
 Cloning into &#39;base_docker_image_for_ca_intake&#39;...
 remote: Counting objects: 38, done.
 remote: Total 38 (delta 0), reused 0 (delta 0), pack-reused 38
@@ -6186,7 +6186,7 @@ Resources:
     </item>
     
     <item>
-      <title>AWS CloudFormation Tutorial</title>
+      <title>Infrastructure Accelerator Tutorial</title>
       <link>https://casecommons.github.io/aws-docs/</link>
       <pubDate>Tue, 08 Mar 2016 21:07:13 +0100</pubDate>
       
@@ -6195,9 +6195,21 @@ Resources:
 
 &lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
 
-&lt;p&gt;This tutorial provides a walkthrough of the AWS CloudFormation deployment framework that has been established for Casecommons.&lt;/p&gt;
+&lt;p&gt;This tutorial provides a walkthrough of the Case Commons Infrastructure
+Accelerator.   It provide a reusable, open source AWS CloudFormation deployment
+framework for provisioning cloud infrastructure and deploying application stacks
+to it.&lt;/p&gt;
 
-&lt;p&gt;You will create a completely fresh account topology, implementing two AWS accounts:&lt;/p&gt;
+&lt;p&gt;The Infrastructure Accelerator is based on a modern Infrastructure as Code
+design pattern, using Ansible as an automation framework to provision all of the
+AWS resources needed for one or more application stacks.    It assumes that
+application images are packaged using Docker.&lt;/p&gt;
+
+&lt;p&gt;This tutorial was initially developed for Case Commons in support of the
+California Child Welfare Digital Services Intake project.   The  Intake
+Accelerator and Intake API stacks can be used as examples of how to set up your
+application stack.
+You will create a completely fresh account topology, implementing two AWS accounts:&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;&lt;strong&gt;Users Account&lt;/strong&gt; - a central users account where all user accounts and credentials are located.  Users must authenticate to this account and assume a role in a given resource account to manage resources in the target resource account.  In this tutorial the users account is called &lt;strong&gt;demo-users&lt;/strong&gt; and has an account ID of &lt;strong&gt;094411466117&lt;/strong&gt;.&lt;/p&gt;&lt;/li&gt;
