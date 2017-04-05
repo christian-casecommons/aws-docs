@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+  
+  
+  
+  
+   <html class="no-js"> 
+
+  <head lang="en-us">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=10" />
+    <title>Jenkins Stack - Infrastructure Accelerator Tutorial</title>
+    <meta name="generator" content="Hugo 0.19" />
+
+    
+    <meta name="description" content="Infrastructure Accelerator Tutorial">
+    
+    <link rel="canonical" href="https://casecommons.github.io/aws-docs/jenkins/">
+    
+    <meta name="author" content="Justin Menga">
+    
+
+    <meta property="og:url" content="https://casecommons.github.io/aws-docs/jenkins/">
+    <meta property="og:title" content="Infrastructure Accelerator Tutorial">
+    <meta property="og:image" content="https://casecommons.github.io/aws-docs/images/logo.png">
+    <meta name="apple-mobile-web-app-title" content="Infrastructure Accelerator Tutorial">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="shortcut icon" type="image/x-icon" href="https://casecommons.github.io/aws-docs/images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://casecommons.github.io/aws-docs/images/favicon.ico">
+
+    <style>
+      @font-face {
+        font-family: 'Icon';
+        src: url('https://casecommons.github.io/aws-docs/fonts/icon.eot');
+        src: url('https://casecommons.github.io/aws-docs/fonts/icon.eot')
+               format('embedded-opentype'),
+             url('https://casecommons.github.io/aws-docs/fonts/icon.woff')
+               format('woff'),
+             url('https://casecommons.github.io/aws-docs/fonts/icon.ttf')
+               format('truetype'),
+             url('https://casecommons.github.io/aws-docs/fonts/icon.svg')
+               format('svg');
+        font-weight: normal;
+        font-style: normal;
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/application.css">
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/temporary.css">
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/palettes.css">
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/highlight/highlight.css">
+    <link rel="stylesheet" href="https://casecommons.github.io/aws-docs/stylesheets/overrides.css">
+
+    
+    
+    
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu&#43;Mono">
+    <style>
+      body, input {
+        font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+      }
+      pre, code {
+        font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+      }
+    </style>
+
+    
+    <script src="https://casecommons.github.io/aws-docs/javascripts/modernizr.js"></script>
+
+    
+
+  </head>
+  <body class="palette-primary-red palette-accent-teal">
+
+
+
+
+<div class="backdrop">
+	<div class="backdrop-paper"></div>
+</div>
+
+<input class="toggle" type="checkbox" id="toggle-drawer">
+<input class="toggle" type="checkbox" id="toggle-search">
+<label class="toggle-button overlay" for="toggle-drawer"></label>
+
+<header class="header">
+	<nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        Jenkins Stack
+      </div>
+    </div>
+
+    
+    <div class="button button-twitter" role="button" aria-label="Twitter">
+       <a href="https://twitter.com/jmenga" title="@jmenga on Twitter" target="_blank" class="toggle-button icon icon-twitter"></a>
+    </div>
+    
+
+    
+    <div class="button button-github" role="button" aria-label="GitHub">
+      <a href="https://github.com/mixja" title="@mixja on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
+    </div>
+    
+    
+        
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+</header>
+
+<main class="main">
+	<div class="drawer">
+		<nav aria-label="Navigation">
+  <a href="https://casecommons.github.io/aws-docs/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="https://casecommons.github.io/aws-docs/images/logo.png">
+        </div>
+      
+      <div class="name">
+        <strong>Infrastructure Accelerator Tutorial <span class="version">v0.2</span></strong>
+        
+      </div>
+    </div>
+  </a>
+
+  <div class="scrollable">
+    <div class="wrapper">
+      
+
+      <div class="toc">
+        
+        <ul>
+          
+
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Introduction" href="https://casecommons.github.io/aws-docs/">
+	
+	Introduction
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Local Setup" href="https://casecommons.github.io/aws-docs/local-setup/">
+	
+	Local Setup
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Security Resources" href="https://casecommons.github.io/aws-docs/security-resources/">
+	
+	Security Resources
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="CloudFormation Resources" href="https://casecommons.github.io/aws-docs/cloudformation-resources/">
+	
+	CloudFormation Resources
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Network Resources" href="https://casecommons.github.io/aws-docs/network-resources/">
+	
+	Network Resources
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="EC2 Container Registry Resources" href="https://casecommons.github.io/aws-docs/ecr-resources/">
+	
+	EC2 Container Registry Resources
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Web Proxy Stack" href="https://casecommons.github.io/aws-docs/web-proxy/">
+	
+	Web Proxy Stack
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Intake API Stack" href="https://casecommons.github.io/aws-docs/intake-api/">
+	
+	Intake API Stack
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a  title="Intake Accelerator Stack" href="https://casecommons.github.io/aws-docs/intake-accelerator/">
+	
+	Intake Accelerator Stack
+</a>
+
+
+
+  
+</li>
+
+
+
+<li>
+  
+    
+
+
+
+<a class="current" title="Jenkins Stack" href="https://casecommons.github.io/aws-docs/jenkins/">
+	
+	Jenkins Stack
+</a>
+
+
+<ul id="scrollspy">
+</ul>
+
+
+  
+</li>
+
+
+        </ul>
+        
+
+        
+        <hr>
+        <span class="section">The author</span>
+        
+        <ul>
+          
+          <li>
+            <a href="https://twitter.com/jmenga" target="_blank" title="@jmenga on Twitter">
+              @jmenga on Twitter
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://github.com/mixja" target="_blank" title="@mixja on GitHub">
+              @mixja on GitHub
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="mailto:justin.menga@gmail.com" title="Email of justin.menga@gmail.com">
+              Contact via email
+            </a>
+          </li>
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+
+	</div>
+
+	<article class="article">
+		<div class="wrapper">
+			<h1>Jenkins Stack </h1>
+
+			
+
+<h2 id="introduction">Introduction</h2>
+
+<p>We have established all of the shared resource stacks in our <strong>demo-users</strong> and <strong>demo-resources</strong> accounts, created the Intake API application stack and Intake Accelerator application.</p>
+
+<p>We will now deploy Jenkins application to our <strong>demo-resources</strong> account, creating a <strong>demo</strong> environment, with the Jenkins application published at <code>https://jenkins.demo.cloudhotspot.co</code>.</p>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Jenkins stack relies on a number of supporting services and resources that we created in the <a href="https://casecommons.github.io/aws-docs/intake-api/">Intake API Stack section</a> including:</p>
+
+<ul>
+<li><a href="https://casecommons.github.io/aws-docs/intake-api/#configuring-dns-delegation">Configuring DNS Delegation</a></li>
+<li><a href="https://casecommons.github.io/aws-docs/cloudformation-resources/">Cloudformation Resources</a></li>
+<li><a href="https://casecommons.github.io/aws-docs/intake-api/#creating-a-certificate">Creating a Certificate</a></li>
+<li><a href="https://casecommons.github.io/aws-docs/ecr-resources/#defining-a-new-environment">Creating a ECR Repositories</a></li>
+</ul>
+</p>
+</div>
+
+<h2 id="creating-the-jenkins-and-jenkins-slave-ecr-repositories">Creating the jenkins and jenkins-slave ECR Repositories</h2>
+
+<p>1.  Add  nginx and nginx-slave as additional ecr repositories in demo-resources environment</p>
+
+<p>Following demo for <a href="https://casecommons.github.io/aws-docs/ecr-resources/#introduction">EC2 Container Registry Resources</a>, we should now add two more repositories in our <a href="https://casecommons.github.io/aws-docs/ecr-resources/#defining-a-new-environment">demo-resources environment</a> as follows.</p>
+
+<pre><code class="language-bash">$ cd demo-ecr-resources
+$ tree -L 2
+.
+├── README.md
+├── ansible.cfg
+├── build
+│   ├── 20170307112735
+│   └── 20170322160313
+├── group_vars
+│   ├── all
+│   ├── demo-resources
+│   └── non-prod
+├── inventory
+├── roles
+│   ├── aws-cloudformation
+│   ├── aws-sts
+│   └── requirements.yml
+└── site.yml
+
+10 directories, 5 files
+</code></pre>
+
+<p>2.  Add jenkins and jenkins-slave as additional ecr repositories to <code>group_vars/demo-resources/vars.yml</code>:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># STS role to assume</span>
+<span class="n">sts_role_arn</span><span class="p">:</span> <span class="n">arn</span><span class="p">:</span><span class="n">aws</span><span class="p">:</span><span class="n">iam</span><span class="p">::</span><span class="mi">160775127577</span><span class="p">:</span><span class="n">role</span><span class="o">/</span><span class="n">admin</span>
+
+<span class="c1"># Repositories</span>
+<span class="n">config_ecr_repos</span><span class="p">:</span>
+  <span class="n">casecommons</span><span class="o">/</span><span class="n">intake</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="n">casecommons</span><span class="o">/</span><span class="n">intake</span><span class="o">-</span><span class="n">api</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="n">casecommons</span><span class="o">/</span><span class="n">intake</span><span class="o">-</span><span class="n">base</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="n">casecommons</span><span class="o">/</span><span class="n">elasticsearch</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="n">casecommons</span><span class="o">/</span><span class="n">nginx</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="n">casecommons</span><span class="o">/</span><span class="n">squid</span><span class="p">:</span> <span class="p">{}</span>
+<span class="hll">  <span class="n">casecommons</span><span class="o">/</span><span class="n">jenkins</span><span class="p">:</span> <span class="p">{}</span>
+</span><span class="hll">  <span class="n">casecommons</span><span class="o">/</span><span class="n">jenkins</span><span class="o">-</span><span class="n">slave</span><span class="p">:</span> <span class="p">{}</span>
+</span></code></pre></div>
+
+
+<p>3.  Running the Playbook</p>
+
+<p>Now that we&rsquo;ve updated environment settings for the <strong>demo-resources</strong> environment, let&rsquo;s run the playbook to create jenkins and jenkins-slave ECR repository resources for the environment.</p>
+
+<p>1. Ensure your local AWS environment is configured to target the <strong>demo-resources</strong> account:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+</code></pre>
+
+<p>2. Run the Ansible playbook targeting the <code>demo-resources</code> environment as demonstrated below:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ ansible-playbook site.yml -e <span class="nv">env</span><span class="o">=</span>demo-resources
+
+PLAY <span class="o">[</span>Assume Role<span class="o">]</span> *************************************************************
+
+TASK <span class="o">[</span>aws-sts : set_fact<span class="o">]</span> ******************************************************
+ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : checking <span class="k">if</span> sts functions are sts_disabled<span class="o">]</span> ********************
+skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : setting empty sts_session_output result<span class="o">]</span> ***********************
+skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : setting sts_creds <span class="k">if</span> legacy AWS credentials are present <span class="o">(</span>e.g. <span class="k">for</span> Ansible Tower<span class="o">)]</span> ***
+skipping: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : assume sts role<span class="o">]</span> ***********************************************
+Enter MFA code: ******
+ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+...
+...
+TASK <span class="o">[</span>aws-cloudformation : <span class="nb">set</span> <span class="nb">local</span> path fact <span class="k">if</span> s3 upload disabled<span class="o">]</span> **********
+ok: <span class="o">[</span>demo-resources<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-cloudformation : configure application stack<span class="o">]</span> ************************
+...
+...
+PLAY RECAP *********************************************************************
+demo-resources             : <span class="nv">ok</span><span class="o">=</span><span class="m">20</span>   <span class="nv">changed</span><span class="o">=</span><span class="m">1</span>    <span class="nv">unreachable</span><span class="o">=</span><span class="m">0</span>    <span class="nv">failed</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+
+
+<p>3.  The playbook will take a few minutes to create the CloudFormation stack and associated resources.  Whilst the CloudFormation stack is being created, you can review the CloudFormation stack that was generated in the <code>build/&lt;timestamp&gt;</code> folder:</p>
+
+<p>4. In the AWS console under <strong>ECS &gt; Repositories</strong>, you should now be able to see your newly created repository in the <strong>casecommons/jenkins</strong> and <strong>casecommons/jenkins-slave</strong> repository:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/ecr-repositories-with-jenkins.png" alt="ECR Repositories" /></p>
+
+<h2 id="publish-jenkins-master-slave-images">Publish Jenkins Master/Slave images</h2>
+
+<p>The Jenkins Docker image needs to be published to the <strong>casecommons/jenkins</strong> and <strong>casecommons/jenkins-slave</strong> ECR repository, so that it is available to ECS instances when we deploy the CloudFormation stack for running the Jenkins application.</p>
+
+<p>1. Clone the Jenkins application from the following forked repository (<a href="https://github.com/Casecommons/docker-jenkins">https://github.com/Casecommons/docker-jenkins</a>) to your local environment</p>
+
+<pre><code class="language-bash">$ git clone git@github.com:Casecommons/docker-jenkins.git
+Cloning into 'docker-jenkins'...
+remote: Counting objects: 140, done.
+remote: Compressing objects: 100% (56/56), done.
+remote: Total 140 (delta 81), reused 134 (delta 75), pack-reused 0
+Receiving objects: 100% (140/140), 25.46 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (81/81), done.
+Checking connectivity... done.
+$ cd docker-jenkins 
+</code></pre>
+
+<p>2. Open the <code>Makefile</code> at the root of the <strong>docker-jenkins</strong> repository and modify the highlighted settings:</p>
+
+<div class="highlight"><pre><code class="language-make" data-lang="make"><span></span><span class="c"># Project variables</span>
+
+<span class="hll"><span class="nv">DOCKER_REGISTRY</span> <span class="o">?=</span> <span class="m">429614120872</span>.dkr.ecr.us-west-2.amazonaws.com
+</span><span class="hll"><span class="nv">ORG_NAME</span> <span class="o">?=</span> cwds
+</span><span class="hll"><span class="nv">REPO_NAME</span> <span class="o">?=</span> jenkins
+</span><span class="hll"><span class="nv">SLAVE_REPO_NAME</span> <span class="o">?=</span> jenkins-slave
+</span>
+<span class="c"># AWS settings</span>
+<span class="hll"><span class="nv">AWS_ROLE</span> <span class="o">?=</span> remoteAdmin
+</span><span class="hll"><span class="nv">KMS_KEY_ID</span> <span class="o">?=</span> 3ea941bf-ee54-4941-8f77-f1dd417667cd
+</span>
+<span class="c"># Jenkins settings</span>
+<span class="hll"><span class="k">export </span><span class="nv">DOCKER_GID</span> <span class="o">?=</span> <span class="m">100</span>
+</span><span class="hll"><span class="k">export </span><span class="nv">JENKINS_USERNAME</span> <span class="o">?=</span> admin
+</span><span class="hll"><span class="k">export </span><span class="nv">JENKINS_PASSWORD</span> <span class="o">?=</span> password
+</span><span class="hll"><span class="k">export </span><span class="nv">KMS_JENKINS_PASSWORD</span> <span class="o">?=</span>
+</span><span class="err">AQECAHgohc0dbuzR1L3lEdEkDC96PMYUEV9nITogJU2vbocgQAAAAGowaAYJKoZIhvcNAQcGoFswWQIBADBUBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDEDRPvtPNmH1mcmplwIBEIAn4V2lcp2J8/4SYtKrE2deH15dkNCKiIun0biaev+Dwv3K1KOnRTyU</span>
+<span class="k">export </span><span class="nv">JENKINS_SLAVE_VERSION</span> <span class="o">?=</span> <span class="m">2</span>.2
+<span class="k">export </span><span class="nv">JENKINS_SLAVE_LABELS</span> <span class="o">?=</span> DOCKER
+<span class="err">...</span>
+<span class="err">...</span>
+</code></pre></div>
+
+
+<p>Here we ensure the <code>Makefile</code> settings are configured with the correct Docker registry name (<code>DOCKER_REGISTRY</code>), organization name (<code>ORG_NAME</code>), repository name (<code>REPO_NAME</code>), AWS assume role (<code>AWS_ROLE</code>), KMS Master Key (<code>KMS_KEY_ID</code>), Docker group id (<code>DOCKER_GID</code>), Jenkins user name (<code>JENKINS_USERNAME</code>), Jenkins user password (<code>JENKINS_PASSWORD</code>), KMS ciphertext Jenkins password (<code>KMS_JENKINS_PASSWORD</code>).</p>
+
+<p>3. Run <code>make secret my-secret-password</code> command to generate KMS_JENKINS_PASSWORD</p>
+
+<pre><code class="language-bash">$ make secret my-secret-password
+=&gt; Encrypted ciphertext:
+AQECAHipA5t7CpNKiZ5vP0gUjbCZImphz7KQJsH+JQoh9RzzxAAAAHAwbgYJKoZIhvcNAQcGoGEwXwIBADBaBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDKTX2LYxLRDbooQxdQIBEIAtuu4ooTAnMnEGLDACCSw3clzMZD3SDLtWTNBbp4Jsp8pp842goCPCNxJC0Dsc
+</code></pre>
+
+<p>4. Run the <code>make login</code> command to login to the ECR repository for the <strong>demo-resources</strong> account:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+$ make login
+=&gt; Logging in to Docker registry ...
+Enter MFA code: *****
+Login Succeeded
+=&gt; Logged in to Docker registry
+</code></pre>
+
+<p>5. Run the <code>make build</code> command, which creates docker jenkins images:</p>
+
+<pre><code class="language-bash">$ make build 
+make build
+=&gt; Building image...
+Step 1/15 : FROM jenkins:2.32.3-alpine
+2.32.3-alpine: Pulling from library/jenkins
+627beaf3eaaf: Pull complete
+1de20f2d8b83: Pull complete
+3e00029ebfe3: Pull complete
+1839d7896efa: Pull complete
+750cfd608edc: Pull complete
+235d8aedfa97: Pull complete
+90a93da4c692: Pull complete
+be93cb336ed7: Pull complete
+2627b3478cf4: Pull complete
+68e0a918969e: Pull complete
+f5f0989d3476: Pull complete
+9ebff3be068f: Pull complete
+79d80188d4e1: Pull complete
+e2e367ea4282: Pull complete
+Digest: sha256:905b236c83bef3bfddf4ab5fbe32f49bdd1362f96d3aad5a5ba1e32b431d08f4
+Status: Downloaded newer image for jenkins:2.32.3-alpine
+....
+....
+Removing intermediate container b6a60b5da7d2
+Successfully built fa22b4dc60f9
+=&gt; Build complete
+</code></pre>
+
+<p>6. Run the <code>make publish</code> command, which will tag images and publish images to docker repository:</p>
+
+<pre><code class="language-bash">$ make publish
+=&gt; Tagging Jenkins images with tags latest 20170323101229.08e79eb 08e79eb
+=&gt; Publishing Jenkins images...
+...
+...
+latest: digest:
+sha256:92a6977e1eadbf00962f93fc32aec4a9e35cfcc63b1354a587e5fb2305091795 size:
+2202
+=&gt; Publish complete
+</code></pre>
+
+<p>7. Run the <code>make clean</code> command to clean up the local Docker environment.</p>
+
+<pre><code class="language-bash">$ make clean
+=&gt; Stopping services...
+...
+Removing dockerjenkins_jenkins-slave_1 ... done
+Removing dockerjenkins_jenkins_1 ... done
+Removing network dockerjenkins_default
+WARNING: Network dockerjenkins_default not found.
+Volume jenkins_home is external, skipping
+=&gt; Removing dangling images...
+=&gt; Cleanup complete
+</code></pre>
+
+<p>8. In the AWS console under <strong>ECS &gt; Repositories</strong>, you should now be able to see your newly published image in the <strong>casecommons/jenkins</strong> and <strong>casecommons/jenkins-slave</strong> repository:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/ecr-repisitory-for-jenkins.png" alt="Jenkins docker image" /></p>
+
+<h2 id="installing-the-playbook">Installing the Playbook</h2>
+
+<p>We now have all the supporting pieces in place to deploy the Jenkins stack to the <strong>demo resources</strong> account.  Instead of creating a new playbook as we have done previously in this tutorial, we will instead clone an existing playbook and add a new environment called <strong>demo-resources</strong> to the playbook.</p>
+
+<p>1. Clone the <a href="https://github.com/Casecommons/jenkins-aws">Jenkins AWS project</a> to your local environment.</p>
+
+<pre><code class="language-bash">$ git clone git@github.com:Casecommons/jenkins-aws.git
+Cloning into 'jenkins-aws'...
+remote: Counting objects: 46, done.
+remote: Compressing objects: 100% (23/23), done.
+remote: Total 46 (delta 14), reused 43 (delta 11), pack-reused 0
+Receiving objects: 100% (46/46), 10.40 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (14/14), done.
+Checking connectivity... done.
+$ cd jenkins-aws
+</code></pre>
+
+<p>3.  Install the required Ansible roles for the playbook using the <code>ansible-galaxy</code> command as demonstrated below:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="err">$</span> <span class="n">ansible</span><span class="o">-</span><span class="n">galaxy</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">roles</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">force</span>
+<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">pemageyleg</span><span class="o">/</span><span class="n">Work</span><span class="o">/</span><span class="n">aws</span><span class="o">/</span><span class="n">demo</span><span class="o">/</span><span class="n">jenkins</span><span class="o">-</span><span class="n">aws</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span>
+<span class="o">-</span> <span class="n">aws</span><span class="o">-</span><span class="n">cloudformation</span> <span class="n">was</span> <span class="n">installed</span> <span class="n">successfully</span>
+<span class="o">-</span> <span class="n">extracting</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span> <span class="n">to</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">pemageyleg</span><span class="o">/</span><span class="n">Work</span><span class="o">/</span><span class="n">aws</span><span class="o">/</span><span class="n">demo</span><span class="o">/</span><span class="n">jenkins</span><span class="o">-</span><span class="n">aws</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">sts</span>
+<span class="o">-</span> <span class="n">aws</span><span class="o">-</span><span class="n">sts</span> <span class="n">was</span> <span class="n">installed</span> <span class="n">successfully</span>
+</code></pre></div>
+
+
+<p>5.  Review the <code>group_vars/all/vars.yml</code> file, which contains global settings for the playbook:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="n">cf_stack_name</span><span class="p">:</span> <span class="s2">&quot;jenkins-{{ env }}&quot;</span>
+<span class="n">cf_stack_tags</span><span class="p">:</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">owner</span><span class="p">:</span> <span class="n">CA</span> <span class="n">Intake</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">product</span><span class="p">:</span> <span class="n">Jenkins</span> <span class="n">Server</span> 
+  <span class="n">org</span><span class="p">:</span><span class="n">business</span><span class="p">:</span><span class="n">severity</span><span class="p">:</span> <span class="n">High</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">tech</span><span class="p">:</span><span class="n">environment</span><span class="p">:</span> <span class="s2">&quot;{{ env }}&quot;</span>
+  <span class="n">org</span><span class="p">:</span><span class="n">tech</span><span class="p">:</span><span class="n">contact</span><span class="p">:</span> <span class="n">pema</span><span class="nd">@casecommons.org</span>
+</code></pre></div>
+
+
+<p>You can see this stack has many different stack inputs, which revolve around application settings.</p>
+
+<p>One thing to note is that the <code>cf_stack_template</code> variable is not defined - this variable defaults to the path <code>templates/stack.yml.j2</code> in the local playbook, and you will find this playbook includes a large CloudFormation template in this location.</p>
+
+<h2 id="defining-a-new-environment">Defining a New Environment</h2>
+
+<p>We will now add a new environment called <strong>demo</strong> to the playbook, which will be used to create the Intake API application stack in the <strong>demo-resources</strong> account.</p>
+
+<p>1. Modify the <code>inventory</code> file so that it defines a new environment called <strong>demo</strong>, ensuring you specify <code>ansible_connection=local</code>:</p>
+
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span></span><span class="k">[dev]</span>
+<span class="na">dev ansible_connection</span><span class="o">=</span><span class="s">local</span>
+
+<span class="hll"><span class="k">[demo]</span>
+</span><span class="hll"><span class="na">demo ansible_connection</span><span class="o">=</span><span class="s">local</span>
+</span><span class="na">```</span>
+</code></pre></div>
+
+
+<p>2. Create a file called <code>group_vars/demo/vars.yml</code>, which will hold all environment specific configuration for the <strong>demo</strong> environment:</p>
+
+<pre><code class="language-bash">$ mkdir -p group_vars/demo
+$ touch group_vars/demo/vars.yml
+</code></pre>
+
+<p>4. Copy the existing settings from <code>group_vars/non-prod/vars.yml</code> to <code>group_vars/demo/vars.yml</code> and modify as shown below:</p>
+
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span></span><span class="c1"># STS role settings</span>
+<span class="hll"><span class="na">sts_role_arn: &quot;arn:aws:iam::429614120872:role/remoteAdmin&quot;</span>
+</span>
+<span class="c1"># Target VPC</span>
+<span class="hll"><span class="na">config_vpc_name: &quot;Default&quot;</span>
+</span>
+<span class="c1"># Application settings</span>
+<span class="hll"><span class="na">config_application_image_id: ami-bcdc54dc</span>
+</span><span class="hll"><span class="na">config_application_key_name: admin-shared-key</span>
+</span><span class="hll"><span class="na">config_application_docker_image: 429614120872.dkr.ecr.us-west-2.amazonaws.com/cwds/jenkins</span>
+</span><span class="hll"><span class="na">config_application_domain: ca.mycasebook.org</span>
+</span>
+<span class="c1"># Worker settings</span>
+<span class="hll"><span class="na">config_worker_instance_type: t2.medium</span>
+</span><span class="hll"><span class="na">config_worker_image_id: ami-bcdc54dc</span>
+</span><span class="hll"><span class="na">config_worker_key_name: admin-shared-key</span>
+</span><span class="hll"><span class="na">config_worker_docker_image: 429614120872.dkr.ecr.us-west-2.amazonaws.com/cwds/jenkins-slave</span>
+</span><span class="na">config_worker_service_desired_count: 1</span>
+
+<span class="c1"># Jenkins settings</span>
+<span class="hll"><span class="na">config_jenkins_password: AQECAHgohc0dbuzR1L3lEdEkDC96PMYUEV9nITogJU2vbocgQAAAAG4wbAYJKoZIhvcNAQcGoF8wXQIBADBYBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDG+ksTd04UBiWQgM8gIBEIAr8R1/ZhsZEUpEVKGiqwsiW5PTnhmuxeLWjObS7fkw6xfeQwKB6r4L9gSpwg</span><span class="o">=</span><span class="s">=</span>
+</span><span class="na">config_jenkins_slave_initial_heap_size: 2g</span>
+<span class="na">config_jenkins_slave_max_heap_size: 4g</span>
+
+<span class="c1"># Load balancer settings</span>
+<span class="hll"><span class="na">config_lb_certificate_arn:</span>
+</span>  <span class="na">Fn::ImportValue: CaMycasebookOrgCertArn</span>
+</code></pre></div>
+
+
+<p>Here we target the <strong>demo-resources</strong> account by specifying the <strong>demo-resources</strong> IAM <strong>admin</strong> role in the <code>sts_role_arn</code> variable, whilst the remaining settings configure the Jenkins stack specify to the <strong>demo-resources</strong> template account:</p>
+
+<ul>
+<li><code>config_application_image_id</code> - specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the <a href="https://casecommons.github.io/aws-docs/web-proxy/#creating-an-ecs-ami">AMI created earlier</a></li>
+<li><code>config_application_key_name</code> - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the <a href="https://casecommons.github.io/aws-docs/web-proxy/#creating-an-ec2-key-pair">EC2 key pair created earlier</a>.</li>
+<li><code>config_application_docker_image</code> - specifies the Docker image used to run the Jenkins master containers.  Notice this matches the <a href="https://casecommons.github.io/aws-docs/jenkins/#creating-the-jenkins-and-jenkins-slave-ecr-repositories">image we created earlier</a></li>
+<li><code>config_application_domain</code> - specifies the base domain that our application will be served from.
+config_worker_image_id: specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the <a href="https://casecommons.github.io/aws-docs/web-proxy/#creating-an-ecs-ami">AMI created earlier</a>
+config_worker_key_name: specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the <a href="https://casecommons.github.io/aws-docs/web-proxy/#creating-an-ec2-key-pair">EC2 key pair created earlier</a>.
+-d-key
+config_worker_docker_image: specifies the Docker image used to run the Jenkins master containers.  Notice this matches the <a href="https://casecommons.github.io/aws-docs/jenkins/#creating-the-jenkins-and-jenkins-slave-ecr-repositories">image we created earlier</a></li>
+<li>config_jenkins_password: encrypted ciphertext password for jenkins after using kms AQECAHgohc0dbuzR1L3lEdEkDC96PMYUEV9nITogJU2vbocgQAAAAG4wbAYJKoZIhvcNAQcGoF8wXQIBADBYBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDG+ksTd04UBiWQgM8gIBEIAr8R1/ZhsZEUpEVKGiqwsiW5PTnhmuxeLWjObS7fkw6xfeQwKB6r4L9gSpwg==</li>
+<li><code>config_lb_certificate_arn</code> - specifies the ARN of the AWS certificate manager (ACM) certificate to serve from the application load balancer for HTTPS connections.  Notice that we can specify this setting as a CloudFormation instrinsic function, as the template is configured to cast the configured value to a JSON object.  The intrinsic function imports the CloudFormation export <code>DemoCloudhotspotCoCertificateArn</code>, which was created earlier when we <a href="https://casecommons.github.io/aws-docs/intake-api/#creating-a-certificate">created the certificate</a> in the security resources playbook.</li>
+</ul>
+
+<p>2. In a local shell configured with an admin profile targetting the <strong>demo resources</strong> account, run the following command to generate ciphertext for the <code>config_jenkins_password</code> variable:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+$ aws kms encrypt --key-id 11710b57-c424-4df7-ab3d-20358820edd9 --plaintext $(openssl rand -base64 32)
+Enter MFA code: ******
+'{
+    &quot;KeyId&quot;: &quot;arn:aws:kms:us-west-2:160775127577:key/11710b57-c424-4df7-ab3d-20358820edd9&quot;,
+    &quot;CiphertextBlob&quot;: &quot;AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAIswgYgGCSqGSIb3DQEHBqB7MHkCAQAwdAYJKoZIhvcNAQcBMB4GCWCGSAFlAwQBLjARBAxUVkZgkHNkRWRcbtgCARCAR2bG8d33uID+nq01bRjHeNJzsFgTqrOxCoY7LmR+tyVT/3oTAQYePtsJC3Dt9zmOJ4G82Q36X4q0ng5r8YPaj15wp/en0tPY&quot;
+}
+</code></pre>
+
+<p>3. Copy the <code>CiphertextBlob</code> value from the <code>aws kms encrypt</code> command output and set the <code>config_jenkins_password</code> variable in <code>group_vars/demo/vars.yml</code> to this value:</p>
+
+<h2 id="running-the-playbook">Running the Playbook</h2>
+
+<p>Now that we&rsquo;ve defined environment settings for the <strong>demo</strong> environment targeting our <strong>demo-resources</strong> account, let&rsquo;s run the playbook.</p>
+
+<p>1. Ensure your local AWS environment is configured to target the <strong>demo-resources</strong> account:</p>
+
+<pre><code class="language-bash">$ export AWS_PROFILE=demo-resources-admin
+</code></pre>
+
+<p>2. Run the Ansible playbook targeting the <code>demo</code> environment as demonstrated below:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ ansible-playbook site.yml -e <span class="nv">env</span><span class="o">=</span>demo
+
+PLAY <span class="o">[</span>Assume Role<span class="o">]</span> *************************************************************
+
+TASK <span class="o">[</span>aws-sts : set_fact<span class="o">]</span> ******************************************************
+ok: <span class="o">[</span>demo<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : checking <span class="k">if</span> sts functions are sts_disabled<span class="o">]</span> ********************
+skipping: <span class="o">[</span>demo<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : setting empty sts_session_output result<span class="o">]</span> ***********************
+skipping: <span class="o">[</span>demo<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : setting sts_creds <span class="k">if</span> legacy AWS credentials are present <span class="o">(</span>e.g. <span class="k">for</span> Ansible Tower<span class="o">)]</span> ***
+skipping: <span class="o">[</span>demo<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-sts : assume sts role<span class="o">]</span> ***********************************************
+Enter MFA code: ******
+ok: <span class="o">[</span>demo<span class="o">]</span>
+...
+...
+TASK <span class="o">[</span>aws-cloudformation : <span class="nb">set</span> <span class="nb">local</span> path fact <span class="k">if</span> s3 upload disabled<span class="o">]</span> **********
+ok: <span class="o">[</span>demo<span class="o">]</span>
+
+TASK <span class="o">[</span>aws-cloudformation : configure application stack<span class="o">]</span> ************************
+...
+...
+PLAY RECAP *********************************************************************
+demo                       : <span class="nv">ok</span><span class="o">=</span><span class="m">18</span>   <span class="nv">changed</span><span class="o">=</span><span class="m">1</span>    <span class="nv">unreachable</span><span class="o">=</span><span class="m">0</span>    <span class="nv">failed</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+
+
+<p>3.  The playbook will take approxiately 10 minutes to create the CloudFormation stack and associated resources.  Whilst the CloudFormation stack is being created, you can review the CloudFormation stack that was generated in the <code>build/&lt;timestamp&gt;</code> folder:</p>
+
+<pre><code class="language-bash">$ tree build
+build
+└── 20170301224832
+    ├── jenkins-demo-config.json
+    ├── jenkins-demo-policy.json
+    ├── jenkins-demo-stack.json
+    └── jenkins-demo-stack.yml
+</code></pre>
+
+<p>The following shows the <code>jenkins-demo-stack.yml</code> file that was generated and uploaded to CloudFormation:</p>
+
+<pre><code class="language-python">AWSTemplateFormatVersion: &quot;2010-09-09&quot;
+
+Description: Jenkins - demo-resources
+
+Conditions:
+  WorkerSingleInstanceCondition:
+    Fn::Equals:
+      - Ref: WorkerServiceDesiredCount
+      - 1
+
+Parameters:
+  ApplicationImageId:
+    Type: String
+    Description: Application Amazon Machine Image Id
+  ApplicationInstanceType:
+    Type: String
+    Description: Application EC2 Instance Type
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m4.large
+  ApplicationAutoscalingDesiredCount:
+    Type: Number
+    Description: Application AutoScaling Group Desired Count
+    Default: 1
+  ApplicationDockerImage:
+    Type: String
+    Description: Docker Image for Application
+  ApplicationDockerImageTag:
+    Type: String
+    Description: Docker Image Tag for Application
+    Default: latest
+  ApplicationKeyName:
+    Type: String
+    Description: EC2 Key Pair for Application SSH Access
+  ApplicationDomain:
+    Type: String
+    Description: Base public domain of the application URL
+  ApplicationFileSystemMount:
+    Type: String
+    Description: EFS file system mount path
+    Default: /mnt/efs/jenkins
+  DockerGroupId:
+    Type: Number
+    Description: Docker Group ID of ECS Container Instance
+    Default: 497
+  WorkerImageId:
+    Type: String
+    Description: Worker Amazon Machine Image Id
+  WorkerInstanceType:
+    Type: String 
+    Description: Worker EC2 Instance Type
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m4.large
+  WorkerAutoscalingDesiredCount:
+    Type: Number 
+    Description: Worker AutoScaling Group Desired Count
+    Default: 1
+  WorkerServiceDesiredCount:
+    Type: Number
+    Description: Worker Service Desired Count
+    Default: 1
+  WorkerDockerImage:
+    Type: String
+    Description: Docker Image for Worker
+  WorkerDockerImageTag:
+    Type: String
+    Description: Docker Image Tag for Worker
+    Default: latest
+  WorkerKeyName:
+    Type: String
+    Description: EC2 Key Pair for Worker SSH Access
+  LogRetention:
+    Type: Number
+    Description: Log retention in days
+    Default: 7
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+  JenkinsMasterPort:
+    Type: Number
+    Description: Jenkins Master HTTP Port
+    Default: 8080
+  JenkinsMasterInitialHeapSize:
+    Type: String
+    Description: JVM Initial Heap Size for Jenkins Master
+    Default: &quot;256m&quot;
+  JenkinsMasterMaxHeapSize:
+    Type: String
+    Description: JVM Max Heap Size for Jenkins Master
+    Default: &quot;1g&quot;
+  JenkinsSlaveInitialHeapSize:
+    Type: String
+    Description: JVM Initial Heap Size for Jenkins Slaves
+    Default: &quot;512m&quot;
+  JenkinsSlaveMaxHeapSize:
+    Type: String
+    Description: JVM Max Heap Size for Jenkins Slaves
+    Default: &quot;1g&quot;
+  JenkinsSlavePort:
+    Type: Number
+    Description: Jenkins Agent JNLP Port
+    Default: 50000
+  JenkinsUsername:
+    Type: String
+    Description: Jenkins Administrative User
+    Default: admin
+  JenkinsPassword:
+    Type: String
+    Description: KMS encrypted Jenkins password
+  JenkinsUserId:
+    Type: String
+    Description: Jenkins User Id that owns the EFS File System Mount
+    Default: &quot;1000&quot;
+
+Resources:
+  ApplicationDnsRecord:
+    Type: &quot;AWS::Route53::RecordSet&quot;
+    Properties:
+      Name:
+        Fn::Sub: &quot;jenkins.${ApplicationDomain}&quot;
+      TTL: &quot;300&quot;
+      HostedZoneName:
+        Fn::Sub: &quot;${ApplicationDomain}.&quot;
+      Type: &quot;CNAME&quot;
+      Comment: 
+        Fn::Sub: &quot;${AWS::StackName} Application Record&quot;
+      ResourceRecords:
+        - Fn::Sub: &quot;${ApplicationLoadBalancer.DNSName}&quot;
+  ApplicationLoadBalancer:
+    Type: &quot;AWS::ElasticLoadBalancing::LoadBalancer&quot;
+    Properties:
+      Scheme: &quot;internet-facing&quot;
+      SecurityGroups:
+        - Ref: &quot;ApplicationLoadBalancerSecurityGroup&quot;
+      Subnets:
+        - Fn::ImportValue: &quot;DefaultPublicSubnetA&quot;
+        - Fn::ImportValue: &quot;DefaultPublicSubnetB&quot;
+      CrossZone: &quot;true&quot;
+      ConnectionSettings:
+        IdleTimeout: 600
+      ConnectionDrainingPolicy:
+        Enabled: &quot;true&quot;
+        Timeout: 60
+      Listeners:
+        - LoadBalancerPort: &quot;443&quot;
+          InstancePort: { &quot;Ref&quot;: &quot;JenkinsMasterPort&quot; }
+          Protocol: &quot;https&quot;
+          SSLCertificateId: {&quot;Fn::ImportValue&quot;: &quot;DemoPemageylegComCertificateArn&quot;}
+        - LoadBalancerPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+          InstancePort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+          Protocol: &quot;tcp&quot;
+      HealthCheck:
+        Target: 
+          Fn::Sub: &quot;HTTP:${JenkinsMasterPort}/login&quot;
+        HealthyThreshold: &quot;2&quot;
+        UnhealthyThreshold: &quot;10&quot;
+        Interval: &quot;30&quot;
+        Timeout: &quot;5&quot;
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: 
+            Fn::Sub: &quot;${AWS::StackName}-ApplicationLoadBalancer&quot;
+  ApplicationLoadBalancerSecurityGroup:
+    Type: &quot;AWS::EC2::SecurityGroup&quot;
+    Properties:
+      GroupDescription: &quot;Application Load Balancer Security Group&quot;
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      SecurityGroupIngress:
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: &quot;443&quot;
+          ToPort: &quot;443&quot;
+          CidrIp: &quot;0.0.0.0/0&quot;
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+          ToPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+          CidrIp: &quot;0.0.0.0/0&quot;
+  ApplicationLoadBalancerToApplicationAutoscalingEgress:
+    Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;JenkinsMasterPort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;JenkinsMasterPort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }
+      DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+  ApplicationLoadBalancerToApplicationAutoscalingIngress:
+    Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;JenkinsMasterPort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;JenkinsMasterPort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+      SourceSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }
+  ApplicationLoadBalancerToApplicationAutoscalingSlaveEgress:
+    Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }
+      DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+  ApplicationLoadBalancerToApplicationAutoscalingSlaveIngress:
+    Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      ToPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+      SourceSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }
+  ApplicationAutoscalingLaunchConfiguration:
+    Type: &quot;AWS::AutoScaling::LaunchConfiguration&quot;
+    Metadata:
+      AWS::CloudFormation::Init: 
+        config:
+          commands:
+            10_mount_create:
+              command: 
+                Fn::Sub: &quot;sudo mkdir -p ${ApplicationFileSystemMount}&quot;
+            11_mount_fstab:
+              command: 
+                Fn::Sub: echo -e &quot;${ApplicationFileSystem}.efs.${AWS::Region}.amazonaws.com:/ \t\t ${ApplicationFileSystemMount} \t\t nfs4 \t\t defaults \t\t 0 \t\t 0&quot; | sudo tee -a /etc/fstab
+            12_mount_efs:
+              command:
+                Fn::Sub: &quot;sudo mount -a&quot;
+            13_mount_permissions:
+              command:
+                Fn::Sub: &quot;sudo chown ${JenkinsUserId}:${JenkinsUserId} ${ApplicationFileSystemMount}&quot;
+            20_first_run:
+              command: &quot;sh firstrun.sh&quot;
+              env:
+                STACK_NAME: { &quot;Ref&quot;: &quot;AWS::StackName&quot; }
+                AUTOSCALING_GROUP: &quot;ApplicationAutoscaling&quot;
+                AWS_DEFAULT_REGION: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+                ECS_CLUSTER: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
+                DOCKER_NETWORK_MODE: &quot;host&quot;
+              cwd: &quot;/home/ec2-user/&quot;
+          files:
+            /etc/ecs/ecs.config:
+              content: 
+                Fn::Sub: &quot;ECS_CLUSTER=${ApplicationCluster}\n&quot;
+    Properties:
+      ImageId: { &quot;Ref&quot;: &quot;ApplicationImageId&quot; }
+      InstanceType: { &quot;Ref&quot;: &quot;ApplicationInstanceType&quot; }
+      AssociatePublicIpAddress: &quot;true&quot;
+      IamInstanceProfile: { &quot;Ref&quot;: &quot;ApplicationAutoscalingInstanceProfile&quot; }
+      KeyName: { &quot;Ref&quot;: &quot;ApplicationKeyName&quot; }
+      SecurityGroups:
+        - Ref: ApplicationAutoscalingSecurityGroup
+      UserData:
+        Fn::Base64:
+          Fn::Join: [&quot;&quot;, [
+            &quot;#!/bin/bash\n&quot;,
+            &quot;/opt/aws/bin/cfn-init -v &quot;,
+            &quot;    --stack &quot;, { &quot;Ref&quot; : &quot;AWS::StackName&quot; },
+            &quot;    --resource ApplicationAutoscalingLaunchConfiguration &quot;,
+            &quot;    --region &quot;, { &quot;Ref&quot; : &quot;AWS::Region&quot; },
+            &quot;\n&quot;,
+            &quot;/opt/aws/bin/cfn-signal -e $? --stack &quot;, { &quot;Ref&quot; : &quot;AWS::StackName&quot; },
+            &quot;    --resource ApplicationAutoscaling &quot;,
+            &quot;    --region &quot;, { &quot;Ref&quot; : &quot;AWS::Region&quot; },
+            &quot;\n&quot;,
+          ] ]
+  ApplicationAutoscaling:
+    Type: &quot;AWS::AutoScaling::AutoScalingGroup&quot;
+    DependsOn:
+      - ApplicationMountTargetA
+      - ApplicationMountTargetB
+      - ApplicationDmesgLogGroup
+      - ApplicationDockerLogGroup
+      - ApplicationEcsAgentLogGroup
+      - ApplicationEcsInitLogGroup
+      - ApplicationMessagesLogGroup
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: { &quot;Ref&quot;: &quot;ApplicationAutoscalingDesiredCount&quot; }
+        MinSuccessfulInstancesPercent: &quot;100&quot;
+        WaitOnResourceSignals: &quot;true&quot;
+        PauseTime: &quot;PT15M&quot;
+    CreationPolicy:
+      ResourceSignal:
+        Count: { &quot;Ref&quot;: &quot;ApplicationAutoscalingDesiredCount&quot; }
+        Timeout: &quot;PT15M&quot;
+    Properties:
+      VPCZoneIdentifier:
+        - Fn::ImportValue: &quot;DefaultPublicSubnetA&quot;
+        - Fn::ImportValue: &quot;DefaultPublicSubnetB&quot;
+      LaunchConfigurationName: { &quot;Ref&quot; : &quot;ApplicationAutoscalingLaunchConfiguration&quot; }
+      MinSize: &quot;0&quot;
+      MaxSize: &quot;4&quot;
+      DesiredCapacity: { &quot;Ref&quot;: &quot;ApplicationAutoscalingDesiredCount&quot; }
+      LoadBalancerNames: []
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: 
+            Fn::Sub: &quot;${AWS::StackName}-ApplicationAutoscaling-instance&quot;
+          PropagateAtLaunch: &quot;true&quot;
+  ApplicationAutoscalingSecurityGroup:
+    Type: &quot;AWS::EC2::SecurityGroup&quot;
+    Properties:
+      GroupDescription: &quot;Application Autoscaling Security Group&quot;
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      SecurityGroupIngress:
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: &quot;22&quot;
+          ToPort: &quot;22&quot;
+          CidrIp:
+            Fn::ImportValue: &quot;DefaultVpcCidr&quot;
+      SecurityGroupEgress:
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: &quot;udp&quot;
+          FromPort: 53
+          ToPort: 53
+          CidrIp:
+            Fn::Join: [&quot;&quot;, [
+              &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDnsServer&quot;, &quot;/32&quot;
+            ] ]
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: &quot;udp&quot;
+          FromPort: 123
+          ToPort: 123
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: 
+            Fn::Sub: &quot;${AWS::StackName}-ApplicationAutoscalingSecurityGroup&quot;
+  ApplicationAutoscalingToApplicationFileSystemEgress:
+    Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: 2049
+      ToPort: 2049
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+      DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationFileSystemSecurityGroup&quot; }  
+  ApplicationAutoscalingToApplicationFileSystemIngress:
+    Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: 2049
+      ToPort: 2049
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationFileSystemSecurityGroup&quot; }
+      SourceSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationAutoscalingSecurityGroup&quot; }
+  ApplicationAutoscalingInstanceRole:
+    Type: &quot;AWS::IAM::Role&quot;
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: &quot;2012-10-17&quot;
+        Statement:
+          - Effect: &quot;Allow&quot;
+            Principal:
+              Service: [ &quot;ec2.amazonaws.com&quot; ]
+            Action: [ &quot;sts:AssumeRole&quot; ]
+      Policies: 
+        - PolicyName: &quot;EC2ContainerInstancePolicy&quot;
+          PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+              - Effect: &quot;Allow&quot;
+                Action:
+                  - &quot;ecs:RegisterContainerInstance&quot;
+                  - &quot;ecs:DeregisterContainerInstance&quot;
+                Resource:
+                  Fn::Sub: &quot;arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ApplicationCluster}&quot;
+              - Effect: &quot;Allow&quot;
+                Action:
+                  - &quot;ecs:DiscoverPollEndpoint&quot;
+                  - &quot;ecs:Submit*&quot;
+                  - &quot;ecs:Poll&quot;
+                  - &quot;ecs:StartTelemetrySession&quot;
+                Resource: &quot;*&quot;
+              - Effect: &quot;Allow&quot;
+                Action: 
+                  - &quot;ecr:BatchCheckLayerAvailability&quot;
+                  - &quot;ecr:BatchGetImage&quot;
+                  - &quot;ecr:GetDownloadUrlForLayer&quot;
+                  - &quot;ecr:GetAuthorizationToken&quot;
+                Resource: &quot;*&quot;
+              - Effect: &quot;Allow&quot;
+                Action:
+                - &quot;kms:Decrypt&quot;
+                - &quot;kms:DescribeKey&quot;
+                Resource:
+                  Fn::ImportValue: &quot;CfnMasterKeyArn&quot;
+        - PolicyName: &quot;CloudwatchLogsPolicy&quot;
+          PolicyDocument: 
+            Version: &quot;2012-10-17&quot;
+            Statement:
+              - Effect: &quot;Allow&quot;
+                Action: 
+                - &quot;logs:CreateLogStream&quot;
+                - &quot;logs:PutLogEvents&quot;
+                - &quot;logs:DescribeLogStreams&quot;
+                Resource:
+                  Fn::Sub: &quot;arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AWS::StackName}*&quot;
+  ApplicationAutoscalingInstanceProfile:
+    Type: &quot;AWS::IAM::InstanceProfile&quot;
+    Properties:
+      Roles:
+        - Ref: &quot;ApplicationAutoscalingInstanceRole&quot;
+  ApplicationFileSystem:
+    Type: &quot;AWS::EFS::FileSystem&quot;
+    Properties:
+      FileSystemTags:
+        - Key: Name
+          Value:
+            Fn::Sub: ${AWS::StackName}-application-filesystem
+  ApplicationMountTargetA:
+    Type: &quot;AWS::EFS::MountTarget&quot;
+    Properties:
+      FileSystemId: { &quot;Ref&quot;: &quot;ApplicationFileSystem&quot; }
+      SecurityGroups:
+        - Ref: &quot;ApplicationFileSystemSecurityGroup&quot;
+      SubnetId:
+        Fn::ImportValue: DefaultHighSubnetA
+  ApplicationMountTargetB:
+    Type: &quot;AWS::EFS::MountTarget&quot;
+    Properties:
+      FileSystemId: { &quot;Ref&quot;: &quot;ApplicationFileSystem&quot; }
+      SecurityGroups:
+        - Ref: &quot;ApplicationFileSystemSecurityGroup&quot;
+      SubnetId:
+        Fn::ImportValue: DefaultHighSubnetB
+  ApplicationFileSystemSecurityGroup:
+    Type: &quot;AWS::EC2::SecurityGroup&quot;
+    Properties:
+      GroupDescription: &quot;Application EFS Security Group&quot;
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      SecurityGroupIngress: []
+      SecurityGroupEgress:
+        - IpProtocol: &quot;icmp&quot;
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 192.0.2.0/32
+  WorkerAutoscalingLaunchConfiguration:
+    Type: &quot;AWS::AutoScaling::LaunchConfiguration&quot;
+    Metadata:
+      AWS::CloudFormation::Init: 
+        config:
+          commands:
+            10_first_run:
+              command: &quot;sh firstrun.sh&quot;
+              env:
+                STACK_NAME: { &quot;Ref&quot;: &quot;AWS::StackName&quot; }
+                AUTOSCALING_GROUP: &quot;WorkerAutoscaling&quot;
+                AWS_DEFAULT_REGION: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+                ECS_CLUSTER: { &quot;Ref&quot;: &quot;WorkerCluster&quot; }
+              cwd: &quot;/home/ec2-user/&quot;
+          files:
+            /etc/ecs/ecs.config:
+              content: 
+                Fn::Sub: &quot;ECS_CLUSTER=${WorkerCluster}\n&quot;
+    Properties:
+      ImageId: { &quot;Ref&quot;: &quot;WorkerImageId&quot; }
+      InstanceType: { &quot;Ref&quot;: &quot;WorkerInstanceType&quot; }
+      AssociatePublicIpAddress: &quot;true&quot;
+      IamInstanceProfile: { &quot;Ref&quot;: &quot;WorkerAutoscalingInstanceProfile&quot; }
+      KeyName: { &quot;Ref&quot;: &quot;WorkerKeyName&quot; }
+      SecurityGroups:
+        - Ref: WorkerAutoscalingSecurityGroup
+      UserData:
+        Fn::Base64:
+          Fn::Join: [&quot;&quot;, [
+            &quot;#!/bin/bash\n&quot;,
+            &quot;/opt/aws/bin/cfn-init -v &quot;,
+            &quot;    --stack &quot;, { &quot;Ref&quot; : &quot;AWS::StackName&quot; },
+            &quot;    --resource WorkerAutoscalingLaunchConfiguration &quot;,
+            &quot;    --region &quot;, { &quot;Ref&quot; : &quot;AWS::Region&quot; },
+            &quot;\n&quot;,
+            &quot;/opt/aws/bin/cfn-signal -e $? --stack &quot;, { &quot;Ref&quot; : &quot;AWS::StackName&quot; },
+            &quot;    --resource WorkerAutoscaling &quot;,
+            &quot;    --region &quot;, { &quot;Ref&quot; : &quot;AWS::Region&quot; },
+            &quot;\n&quot;,
+          ] ]
+  WorkerAutoscaling:
+    Type: &quot;AWS::AutoScaling::AutoScalingGroup&quot;
+    DependsOn:
+      - WorkerDmesgLogGroup
+      - WorkerDockerLogGroup
+      - WorkerEcsAgentLogGroup
+      - WorkerEcsInitLogGroup
+      - WorkerMessagesLogGroup
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: { &quot;Ref&quot;: &quot;WorkerAutoscalingDesiredCount&quot; }
+        MinSuccessfulInstancesPercent: &quot;100&quot;
+        WaitOnResourceSignals: &quot;true&quot;
+        PauseTime: &quot;PT15M&quot;
+    CreationPolicy:
+      ResourceSignal:
+        Count: { &quot;Ref&quot;: &quot;WorkerAutoscalingDesiredCount&quot; }
+        Timeout: &quot;PT15M&quot;
+    Properties:
+      VPCZoneIdentifier:
+        - Fn::ImportValue: &quot;DefaultPublicSubnetA&quot;
+        - Fn::ImportValue: &quot;DefaultPublicSubnetB&quot;
+      LaunchConfigurationName: { &quot;Ref&quot; : &quot;WorkerAutoscalingLaunchConfiguration&quot; }
+      MinSize: &quot;0&quot;
+      MaxSize: &quot;4&quot;
+      DesiredCapacity: { &quot;Ref&quot;: &quot;WorkerAutoscalingDesiredCount&quot; }
+      LoadBalancerNames: []
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: 
+            Fn::Sub: &quot;${AWS::StackName}-WorkerAutoscaling-instance&quot;
+          PropagateAtLaunch: &quot;true&quot;
+  WorkerAutoscalingSecurityGroup:
+    Type: &quot;AWS::EC2::SecurityGroup&quot;
+    Properties:
+      GroupDescription: &quot;Worker Autoscaling Security Group&quot;
+      VpcId:
+        Fn::ImportValue: &quot;DefaultVpcId&quot;
+      SecurityGroupIngress:
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: &quot;22&quot;
+          ToPort: &quot;22&quot;
+          CidrIp:
+            Fn::ImportValue: &quot;DefaultVpcCidr&quot;
+      SecurityGroupEgress:
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 50000
+          ToPort: 50000
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: &quot;udp&quot;
+          FromPort: 53
+          ToPort: 53
+          CidrIp:
+            Fn::Join: [&quot;&quot;, [
+              &quot;Fn::ImportValue&quot;: &quot;DefaultVpcDnsServer&quot;, &quot;/32&quot;
+            ] ]
+        - IpProtocol: &quot;tcp&quot;
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: &quot;udp&quot;
+          FromPort: 123
+          ToPort: 123
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: &quot;Name&quot;
+          Value: 
+            Fn::Sub: &quot;${AWS::StackName}-WorkerAutoscalingSecurityGroup&quot;
+  WorkerAutoscalingToApplicationLoadBalancerEgress:
+    Type: &quot;AWS::EC2::SecurityGroupEgress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      ToPort:  { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;WorkerAutoscalingSecurityGroup&quot; }
+      DestinationSecurityGroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }  
+  WorkerAutoscalingToApplicationLoadBalancerIngress:
+    Type: &quot;AWS::EC2::SecurityGroupIngress&quot;
+    Properties:
+      IpProtocol: &quot;tcp&quot;
+      FromPort: { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      ToPort:  { &quot;Ref&quot;: &quot;JenkinsSlavePort&quot; }
+      GroupId: { &quot;Ref&quot;: &quot;ApplicationLoadBalancerSecurityGroup&quot; }
+      SourceSecurityGroupId: { &quot;Ref&quot;: &quot;WorkerAutoscalingSecurityGroup&quot; }
+  WorkerAutoscalingInstanceRole:
+    Type: &quot;AWS::IAM::Role&quot;
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: &quot;2012-10-17&quot;
+        Statement:
+          - Effect: &quot;Allow&quot;
+            Principal:
+              Service: [ &quot;ec2.amazonaws.com&quot; ]
+            Action: [ &quot;sts:AssumeRole&quot; ]
+      ManagedPolicyArns:
+        - &quot;arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser&quot;
+      Policies: 
+        - PolicyName: &quot;EC2ContainerInstancePolicy&quot;
+          PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+              - Effect: &quot;Allow&quot;
+                Action:
+                  - &quot;ecs:RegisterContainerInstance&quot;
+                  - &quot;ecs:DeregisterContainerInstance&quot;
+                Resource:
+                  Fn::Sub: &quot;arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${WorkerCluster}&quot;
+              - Effect: &quot;Allow&quot;
+                Action:
+                  - &quot;ecs:DiscoverPollEndpoint&quot;
+                  - &quot;ecs:Submit*&quot;
+                  - &quot;ecs:Poll&quot;
+                  - &quot;ecs:StartTelemetrySession&quot;
+                Resource: &quot;*&quot;
+              - Effect: &quot;Allow&quot;
+                Action:
+                - &quot;kms:Decrypt&quot;
+                - &quot;kms:DescribeKey&quot;
+                Resource:
+                  Fn::ImportValue: &quot;CfnMasterKeyArn&quot;
+        - PolicyName: &quot;CloudwatchLogsPolicy&quot;
+          PolicyDocument: 
+            Version: &quot;2012-10-17&quot;
+            Statement:
+              - Effect: &quot;Allow&quot;
+                Action: 
+                - &quot;logs:CreateLogStream&quot;
+                - &quot;logs:PutLogEvents&quot;
+                - &quot;logs:DescribeLogStreams&quot;
+                Resource:
+                  Fn::Sub: &quot;arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AWS::StackName}*&quot;
+  WorkerAutoscalingInstanceProfile:
+    Type: &quot;AWS::IAM::InstanceProfile&quot;
+    Properties:
+      Roles:
+        - Ref: &quot;WorkerAutoscalingInstanceRole&quot;
+  ApplicationCluster:
+    Type: &quot;AWS::ECS::Cluster&quot;
+  WorkerCluster:
+    Type: &quot;AWS::ECS::Cluster&quot;
+  JenkinsTaskDefinition:
+    Type: &quot;AWS::ECS::TaskDefinition&quot;
+    Properties:
+      NetworkMode: host
+      Volumes:
+      - Name: &quot;jenkins-home&quot;
+        Host:
+          SourcePath: { &quot;Ref&quot;: &quot;ApplicationFileSystemMount&quot; }
+      - Name: &quot;docker&quot;
+        Host:
+          SourcePath: &quot;/var/run/docker.sock&quot;
+      ContainerDefinitions:
+      - Name: &quot;jenkins&quot;
+        Image: 
+          Fn::Sub: ${ApplicationDockerImage}:${ApplicationDockerImageTag}
+        MemoryReservation: 100
+        PortMappings:
+          - ContainerPort: { &quot;Ref&quot;: &quot;JenkinsMasterPort&quot; }  
+        MountPoints:
+          - SourceVolume: &quot;jenkins-home&quot;
+            ContainerPath: &quot;/var/jenkins_home&quot;
+          - SourceVolume: &quot;docker&quot;
+            ContainerPath: &quot;/var/run/docker.sock&quot;
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Fn::Sub: ${AWS::StackName}/ecs/JenkinsService/jenkins
+            awslogs-region: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+            awslogs-stream-prefix: docker
+        Environment:
+          - Name: &quot;JAVA_TOOL_OPTIONS&quot;
+            Value:
+              Fn::Sub: &quot;-Xmx${JenkinsMasterMaxHeapSize} -Xms${JenkinsMasterInitialHeapSize}&quot;
+          - Name: &quot;DOCKER_GID&quot;
+            Value: { &quot;Ref&quot;: &quot;DockerGroupId&quot; }
+          - Name: &quot;JENKINS_USERNAME&quot;
+            Value: { &quot;Ref&quot;: &quot;JenkinsUsername&quot; }
+          - Name: &quot;KMS_JENKINS_PASSWORD&quot;
+            Value: { &quot;Ref&quot;: &quot;JenkinsPassword&quot; }
+  WorkerTaskDefinition:
+    Type: &quot;AWS::ECS::TaskDefinition&quot;
+    Properties:
+      Volumes:
+      - Name: &quot;docker&quot;
+        Host:
+          SourcePath: &quot;/var/run/docker.sock&quot;
+      ContainerDefinitions:
+      - Name: &quot;slave&quot;
+        Image: 
+          Fn::Sub: ${WorkerDockerImage}:${WorkerDockerImageTag}
+        MemoryReservation: 100
+        MountPoints:
+          - SourceVolume: &quot;docker&quot;
+            ContainerPath: &quot;/var/run/docker.sock&quot;
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Fn::Sub: ${AWS::StackName}/ecs/WorkerService/slave
+            awslogs-region: { &quot;Ref&quot;: &quot;AWS::Region&quot; }
+            awslogs-stream-prefix: docker
+        Environment:
+          - Name: &quot;JAVA_TOOL_OPTIONS&quot;
+            Value:
+              Fn::Sub: &quot;-Xmx${JenkinsSlaveMaxHeapSize} -Xms${JenkinsSlaveInitialHeapSize}&quot;
+          - Name: &quot;DOCKER_GID&quot;
+            Value: { &quot;Ref&quot;: &quot;DockerGroupId&quot; }
+          - Name: &quot;JENKINS_USERNAME&quot;
+            Value: { &quot;Ref&quot;: &quot;JenkinsUsername&quot; }
+          - Name: &quot;KMS_JENKINS_PASSWORD&quot;
+            Value: { &quot;Ref&quot;: &quot;JenkinsPassword&quot; }
+          - Name: &quot;JENKINS_SLAVE_LABELS&quot;
+            Value: &quot;docker&quot;
+          - Name: &quot;JENKINS_URL&quot;
+            Value:
+              Fn::Sub: &quot;https://jenkins.${ApplicationDomain}/&quot;
+  JenkinsService:
+    Type: &quot;AWS::ECS::Service&quot;
+    DependsOn:
+      - &quot;ApplicationAutoscaling&quot;
+    Properties:
+      Cluster: { &quot;Ref&quot;: &quot;ApplicationCluster&quot; }
+      TaskDefinition: { &quot;Ref&quot;: &quot;JenkinsTaskDefinition&quot; }
+      DesiredCount: 1
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 0
+        MaximumPercent: 100
+      LoadBalancers:
+        - ContainerName: &quot;jenkins&quot;
+          ContainerPort: { &quot;Ref&quot;: &quot;JenkinsMasterPort&quot;}
+          LoadBalancerName: {&quot;Ref&quot;: &quot;ApplicationLoadBalancer&quot;}
+      Role: { &quot;Ref&quot;: &quot;EcsServiceRole&quot; }
+  WorkerService:
+    Type: &quot;AWS::ECS::Service&quot;
+    DependsOn:
+      - &quot;WorkerAutoscaling&quot;
+      - &quot;JenkinsService&quot;
+    Properties:
+      Cluster: { &quot;Ref&quot;: &quot;WorkerCluster&quot; }
+      TaskDefinition: { &quot;Ref&quot;: &quot;WorkerTaskDefinition&quot; }
+      DesiredCount: { &quot;Ref&quot;: &quot;WorkerServiceDesiredCount&quot;}
+      DeploymentConfiguration:
+        MinimumHealthyPercent:
+          Fn::If:
+            - &quot;WorkerSingleInstanceCondition&quot;
+            - 0
+            - 50
+        MaximumPercent: 200
+  EcsServiceRole:
+    Type: &quot;AWS::IAM::Role&quot;
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: &quot;2012-10-17&quot;
+        Statement:
+          - Effect: &quot;Allow&quot;
+            Principal:
+              Service:
+                - &quot;ecs.amazonaws.com&quot;
+            Action:
+              - &quot;sts:AssumeRole&quot;
+      ManagedPolicyArns:
+        - &quot;arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole&quot;
+  ApplicationDmesgLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/dmesg
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  ApplicationDockerLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/docker
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  ApplicationEcsAgentLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-agent
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  ApplicationEcsInitLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-init
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  ApplicationMessagesLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/messages
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  WorkerDmesgLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/dmesg
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  WorkerDockerLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/docker
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  WorkerEcsAgentLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/ecs/ecs-agent
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  WorkerEcsInitLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/ecs/ecs-init
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  WorkerMessagesLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName: 
+        Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/messages
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  JenkinsServiceLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ecs/JenkinsService/jenkins
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+  WorkerServiceLogGroup:
+    Type: &quot;AWS::Logs::LogGroup&quot;
+    DeletionPolicy: &quot;Delete&quot;
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}/ecs/WorkerService/slave
+      RetentionInDays: { &quot;Ref&quot;: LogRetention }
+</code></pre>
+
+<p>4. Once the playbook execution completes successfully, login to the <strong>demo-resources</strong> account in the AWS console.  You should see a new CloudFormation stack called <strong>jenkins-demo</strong> in the <strong>CloudFormation</strong> dashboard:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/jenkins-stack.png" alt="Jenkins Demo Stack" /></p>
+
+<p>5. If you navigate to <strong>ECS &gt; Clusters</strong> you should be able to see the ECS cluster for the Jenkins application.</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/jenkins-clusters.png" alt="Jenkins ECS Cluster" /></p>
+
+<p>6. You can verify the jenkins is functional by browsing to <code>https://jenkins.demo.cloudhotspot.co/</code>:</p>
+
+<p><img src="https://casecommons.github.io/aws-docs/images/jenkins-deployed.png" alt="Browsing to Jenkins application" /></p>
+
+<h2 id="wrap-up">Wrap Up</h2>
+
+<p>We first published a Docker image required for the Jenkins stack to the ECR repository created earlier in this tutotial. We then created a new environment in the jenkns aws playbook, learned how to encrypt secrets using the AWS KMS key created earlier in the CloudFormation resources stack, and finally successully deployed the Jenkins stack.</p>
+
+
+			<aside class="copyright" role="note">
+				
+				&copy; 2017 Released under the AGPL license &ndash;
+				
+				Documentation built with
+				<a href="https://www.gohugo.io" target="_blank">Hugo</a>
+				using the
+				<a href="http://github.com/digitalcraftsman/hugo-material-docs" target="_blank">Material</a> theme.
+			</aside>
+
+			<footer class="footer">
+				
+
+<nav class="pagination" aria-label="Footer">
+  <div class="previous">
+  
+      <a href="https://casecommons.github.io/aws-docs/intake-accelerator/" title="Intake Accelerator Stack">
+        <span class="direction">
+          Previous
+        </span>
+        <div class="page">
+          <div class="button button-previous" role="button" aria-label="Previous">
+            <i class="icon icon-back"></i>
+          </div>
+          <div class="stretch">
+            <div class="title">
+              Intake Accelerator Stack
+            </div>
+          </div>
+        </div>
+      </a>
+  
+  </div>
+
+  <div class="next">
+  
+      <a href="https://casecommons.github.io/aws-docs/" title="Infrastructure Accelerator Tutorial">
+        <span class="direction">
+          Next
+        </span>
+        <div class="page">
+          <div class="stretch">
+            <div class="title">
+              Infrastructure Accelerator Tutorial
+            </div>
+          </div>
+          <div class="button button-next" role="button" aria-label="Next">
+            <i class="icon icon-forward"></i>
+          </div>
+        </div>
+      </a>
+  
+  </div>
+</nav>
+
+
+
+
+
+			</footer>
+		</div>
+	</article>
+
+	<div class="results" role="status" aria-live="polite">
+		<div class="scrollable">
+			<div class="wrapper">
+				<div class="meta"></div>
+				<div class="list"></div>
+			</div>
+		</div>
+	</div>
+</main>
+
+    <script>
+    
+      var base_url = '';
+      var repo_id  = '';
+    
+    </script>
+
+    <script src="https://casecommons.github.io/aws-docs/javascripts/application.js"></script>
+    
+
+    <script>
+      /* Add headers to scrollspy */
+      var headers   = document.getElementsByTagName("h2");
+      var scrollspy = document.getElementById('scrollspy');
+
+      if(scrollspy) {
+        if(headers.length > 0) {
+          for(var i = 0; i < headers.length; i++) {
+            var li = document.createElement("li");
+            li.setAttribute("class", "anchor");
+
+            var a  = document.createElement("a");
+            a.setAttribute("href", "#" + headers[i].id);
+            a.setAttribute("title", headers[i].innerHTML);
+            a.innerHTML = headers[i].innerHTML;
+
+            li.appendChild(a)
+            scrollspy.appendChild(li);
+          }
+        } else {
+          scrollspy.parentElement.removeChild(scrollspy)
+        }
+
+
+        /* Add permanent link next to the headers */
+        var headers = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+
+        for(var i = 0; i < headers.length; i++) {
+            var a = document.createElement("a");
+            a.setAttribute("class", "headerlink");
+            a.setAttribute("href", "#" + headers[i].id);
+            a.setAttribute("title", "Permanent link")
+            a.innerHTML = "#";
+            headers[i].appendChild(a);
+        }
+      }
+    </script>
+
+    
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
+
