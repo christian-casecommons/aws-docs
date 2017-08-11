@@ -19,7 +19,7 @@ The Jenkins stack relies on a number of supporting services and resources that w
 - [Creating a ECR Repositories]({{< relref "ecr-resources/index.md#defining-a-new-environment" >}})
 {{% /note %}}
 
-## Creating the jenkins and jenkins-slave ECR Repositories 
+## Creating the jenkins and jenkins-slave ECR Repositories
 
 1\.  Add  nginx and nginx-slave as additional ecr repositories in demo-resources environment
 
@@ -68,7 +68,7 @@ config_ecr_repos:
 
 3\.  Running the Playbook
 
-Now that we've updated environment settings for the **demo-resources** environment, let's run the playbook to create jenkins and jenkins-slave ECR repository resources for the environment.  
+Now that we've updated environment settings for the **demo-resources** environment, let's run the playbook to create jenkins and jenkins-slave ECR repository resources for the environment.
 
 1\. Ensure your local AWS environment is configured to target the **demo-resources** account:
 
@@ -130,7 +130,7 @@ remote: Total 140 (delta 81), reused 134 (delta 75), pack-reused 0
 Receiving objects: 100% (140/140), 25.46 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (81/81), done.
 Checking connectivity... done.
-$ cd docker-jenkins 
+$ cd docker-jenkins
 ```
 
 2\. Open the `Makefile` at the root of the **docker-jenkins** repository and modify the highlighted settings:
@@ -183,7 +183,7 @@ Login Succeeded
 5\. Run the `make build` command, which creates docker jenkins images:
 
 ```bash
-$ make build 
+$ make build
 make build
 => Building image...
 Step 1/15 : FROM jenkins:2.32.3-alpine
@@ -279,7 +279,7 @@ $ ansible-galaxy install -r roles/requirements.yml --force
 cf_stack_name: "jenkins-{{ env }}"
 cf_stack_tags:
   org:business:owner: CA Intake
-  org:business:product: Jenkins Server 
+  org:business:product: Jenkins Server
   org:business:severity: High
   org:tech:environment: "{{ env }}"
   org:tech:contact: pema@casecommons.org
@@ -346,11 +346,11 @@ config_lb_certificate_arn:
 Here we target the **demo-resources** account by specifying the **demo-resources** IAM **admin** role in the `sts_role_arn` variable, whilst the remaining settings configure the Jenkins stack specify to the **demo-resources** template account:
 
 - `config_application_image_id` - specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the [AMI created earlier]({{< relref "web-proxy/index.md#creating-an-ecs-ami" >}})
-- `config_application_key_name` - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}). 
+- `config_application_key_name` - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}).
 - `config_application_docker_image` - specifies the Docker image used to run the Jenkins master containers.  Notice this matches the [image we created earlier]({{< relref "jenkins/index.md#creating-the-jenkins-and-jenkins-slave-ecr-repositories" >}})
 - `config_application_domain` - specifies the base domain that our application will be served from.
 config_worker_image_id: specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the [AMI created earlier]({{< relref "web-proxy/index.md#creating-an-ecs-ami" >}})
-config_worker_key_name: specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}). 
+config_worker_key_name: specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}).
 -d-key
 config_worker_docker_image: specifies the Docker image used to run the Jenkins master containers.  Notice this matches the [image we created earlier]({{< relref "jenkins/index.md#creating-the-jenkins-and-jenkins-slave-ecr-repositories" >}})
 - config_jenkins_password: encrypted ciphertext password for jenkins after using kms AQECAHgohc0dbuzR1L3lEdEkDC96PMYUEV9nITogJU2vbocgQAAAAG4wbAYJKoZIhvcNAQcGoF8wXQIBADBYBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDG+ksTd04UBiWQgM8gIBEIAr8R1/ZhsZEUpEVKGiqwsiW5PTnhmuxeLWjObS7fkw6xfeQwKB6r4L9gSpwg==
@@ -361,7 +361,7 @@ config_worker_docker_image: specifies the Docker image used to run the Jenkins m
 
 ```bash
 $ export AWS_PROFILE=demo-resources-admin
-$ aws kms encrypt --key-id 11710b57-c424-4df7-ab3d-20358820edd9 --plaintext $(openssl rand -base64 32)
+$ aws kms encrypt --key-id 11710b57-c424-4df7-ab3d-20358820edd9 --plaintext "password"
 Enter MFA code: ******
 '{
     "KeyId": "arn:aws:kms:us-west-2:160775127577:key/11710b57-c424-4df7-ab3d-20358820edd9",
@@ -373,7 +373,7 @@ Enter MFA code: ******
 
 ## Running the Playbook
 
-Now that we've defined environment settings for the **demo** environment targeting our **demo-resources** account, let's run the playbook.  
+Now that we've defined environment settings for the **demo** environment targeting our **demo-resources** account, let's run the playbook.
 
 1\. Ensure your local AWS environment is configured to target the **demo-resources** account:
 
@@ -483,7 +483,7 @@ Parameters:
     Type: String
     Description: Worker Amazon Machine Image Id
   WorkerInstanceType:
-    Type: String 
+    Type: String
     Description: Worker EC2 Instance Type
     Default: t2.micro
     AllowedValues:
@@ -493,7 +493,7 @@ Parameters:
       - t2.large
       - m4.large
   WorkerAutoscalingDesiredCount:
-    Type: Number 
+    Type: Number
     Description: Worker AutoScaling Group Desired Count
     Default: 1
   WorkerServiceDesiredCount:
@@ -561,7 +561,7 @@ Resources:
       HostedZoneName:
         Fn::Sub: "${ApplicationDomain}."
       Type: "CNAME"
-      Comment: 
+      Comment:
         Fn::Sub: "${AWS::StackName} Application Record"
       ResourceRecords:
         - Fn::Sub: "${ApplicationLoadBalancer.DNSName}"
@@ -589,7 +589,7 @@ Resources:
           InstancePort: { "Ref": "JenkinsSlavePort" }
           Protocol: "tcp"
       HealthCheck:
-        Target: 
+        Target:
           Fn::Sub: "HTTP:${JenkinsMasterPort}/login"
         HealthyThreshold: "2"
         UnhealthyThreshold: "10"
@@ -597,7 +597,7 @@ Resources:
         Timeout: "5"
       Tags:
         - Key: "Name"
-          Value: 
+          Value:
             Fn::Sub: "${AWS::StackName}-ApplicationLoadBalancer"
   ApplicationLoadBalancerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
@@ -649,14 +649,14 @@ Resources:
   ApplicationAutoscalingLaunchConfiguration:
     Type: "AWS::AutoScaling::LaunchConfiguration"
     Metadata:
-      AWS::CloudFormation::Init: 
+      AWS::CloudFormation::Init:
         config:
           commands:
             10_mount_create:
-              command: 
+              command:
                 Fn::Sub: "sudo mkdir -p ${ApplicationFileSystemMount}"
             11_mount_fstab:
-              command: 
+              command:
                 Fn::Sub: echo -e "${ApplicationFileSystem}.efs.${AWS::Region}.amazonaws.com:/ \t\t ${ApplicationFileSystemMount} \t\t nfs4 \t\t defaults \t\t 0 \t\t 0" | sudo tee -a /etc/fstab
             12_mount_efs:
               command:
@@ -675,7 +675,7 @@ Resources:
               cwd: "/home/ec2-user/"
           files:
             /etc/ecs/ecs.config:
-              content: 
+              content:
                 Fn::Sub: "ECS_CLUSTER=${ApplicationCluster}\n"
     Properties:
       ImageId: { "Ref": "ApplicationImageId" }
@@ -730,7 +730,7 @@ Resources:
       LoadBalancerNames: []
       Tags:
         - Key: "Name"
-          Value: 
+          Value:
             Fn::Sub: "${AWS::StackName}-ApplicationAutoscaling-instance"
           PropagateAtLaunch: "true"
   ApplicationAutoscalingSecurityGroup:
@@ -771,7 +771,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: "Name"
-          Value: 
+          Value:
             Fn::Sub: "${AWS::StackName}-ApplicationAutoscalingSecurityGroup"
   ApplicationAutoscalingToApplicationFileSystemEgress:
     Type: "AWS::EC2::SecurityGroupEgress"
@@ -780,7 +780,7 @@ Resources:
       FromPort: 2049
       ToPort: 2049
       GroupId: { "Ref": "ApplicationAutoscalingSecurityGroup" }
-      DestinationSecurityGroupId: { "Ref": "ApplicationFileSystemSecurityGroup" }  
+      DestinationSecurityGroupId: { "Ref": "ApplicationFileSystemSecurityGroup" }
   ApplicationAutoscalingToApplicationFileSystemIngress:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
@@ -799,7 +799,7 @@ Resources:
             Principal:
               Service: [ "ec2.amazonaws.com" ]
             Action: [ "sts:AssumeRole" ]
-      Policies: 
+      Policies:
         - PolicyName: "EC2ContainerInstancePolicy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -818,7 +818,7 @@ Resources:
                   - "ecs:StartTelemetrySession"
                 Resource: "*"
               - Effect: "Allow"
-                Action: 
+                Action:
                   - "ecr:BatchCheckLayerAvailability"
                   - "ecr:BatchGetImage"
                   - "ecr:GetDownloadUrlForLayer"
@@ -831,11 +831,11 @@ Resources:
                 Resource:
                   Fn::ImportValue: "CfnMasterKeyArn"
         - PolicyName: "CloudwatchLogsPolicy"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: "Allow"
-                Action: 
+                Action:
                 - "logs:CreateLogStream"
                 - "logs:PutLogEvents"
                 - "logs:DescribeLogStreams"
@@ -884,7 +884,7 @@ Resources:
   WorkerAutoscalingLaunchConfiguration:
     Type: "AWS::AutoScaling::LaunchConfiguration"
     Metadata:
-      AWS::CloudFormation::Init: 
+      AWS::CloudFormation::Init:
         config:
           commands:
             10_first_run:
@@ -897,7 +897,7 @@ Resources:
               cwd: "/home/ec2-user/"
           files:
             /etc/ecs/ecs.config:
-              content: 
+              content:
                 Fn::Sub: "ECS_CLUSTER=${WorkerCluster}\n"
     Properties:
       ImageId: { "Ref": "WorkerImageId" }
@@ -950,7 +950,7 @@ Resources:
       LoadBalancerNames: []
       Tags:
         - Key: "Name"
-          Value: 
+          Value:
             Fn::Sub: "${AWS::StackName}-WorkerAutoscaling-instance"
           PropagateAtLaunch: "true"
   WorkerAutoscalingSecurityGroup:
@@ -995,7 +995,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: "Name"
-          Value: 
+          Value:
             Fn::Sub: "${AWS::StackName}-WorkerAutoscalingSecurityGroup"
   WorkerAutoscalingToApplicationLoadBalancerEgress:
     Type: "AWS::EC2::SecurityGroupEgress"
@@ -1004,7 +1004,7 @@ Resources:
       FromPort: { "Ref": "JenkinsSlavePort" }
       ToPort:  { "Ref": "JenkinsSlavePort" }
       GroupId: { "Ref": "WorkerAutoscalingSecurityGroup" }
-      DestinationSecurityGroupId: { "Ref": "ApplicationLoadBalancerSecurityGroup" }  
+      DestinationSecurityGroupId: { "Ref": "ApplicationLoadBalancerSecurityGroup" }
   WorkerAutoscalingToApplicationLoadBalancerIngress:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
@@ -1025,7 +1025,7 @@ Resources:
             Action: [ "sts:AssumeRole" ]
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
-      Policies: 
+      Policies:
         - PolicyName: "EC2ContainerInstancePolicy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -1050,11 +1050,11 @@ Resources:
                 Resource:
                   Fn::ImportValue: "CfnMasterKeyArn"
         - PolicyName: "CloudwatchLogsPolicy"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: "Allow"
-                Action: 
+                Action:
                 - "logs:CreateLogStream"
                 - "logs:PutLogEvents"
                 - "logs:DescribeLogStreams"
@@ -1082,11 +1082,11 @@ Resources:
           SourcePath: "/var/run/docker.sock"
       ContainerDefinitions:
       - Name: "jenkins"
-        Image: 
+        Image:
           Fn::Sub: ${ApplicationDockerImage}:${ApplicationDockerImageTag}
         MemoryReservation: 100
         PortMappings:
-          - ContainerPort: { "Ref": "JenkinsMasterPort" }  
+          - ContainerPort: { "Ref": "JenkinsMasterPort" }
         MountPoints:
           - SourceVolume: "jenkins-home"
             ContainerPath: "/var/jenkins_home"
@@ -1118,7 +1118,7 @@ Resources:
           SourcePath: "/var/run/docker.sock"
       ContainerDefinitions:
       - Name: "slave"
-        Image: 
+        Image:
           Fn::Sub: ${WorkerDockerImage}:${WorkerDockerImageTag}
         MemoryReservation: 100
         MountPoints:
@@ -1196,70 +1196,70 @@ Resources:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/dmesg
       RetentionInDays: { "Ref": LogRetention }
   ApplicationDockerLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/docker
       RetentionInDays: { "Ref": LogRetention }
   ApplicationEcsAgentLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-agent
       RetentionInDays: { "Ref": LogRetention }
   ApplicationEcsInitLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-init
       RetentionInDays: { "Ref": LogRetention }
   ApplicationMessagesLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/messages
       RetentionInDays: { "Ref": LogRetention }
   WorkerDmesgLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/dmesg
       RetentionInDays: { "Ref": LogRetention }
   WorkerDockerLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/docker
       RetentionInDays: { "Ref": LogRetention }
   WorkerEcsAgentLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/ecs/ecs-agent
       RetentionInDays: { "Ref": LogRetention }
   WorkerEcsInitLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/ecs/ecs-init
       RetentionInDays: { "Ref": LogRetention }
   WorkerMessagesLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/WorkerAutoscaling/var/log/messages
       RetentionInDays: { "Ref": LogRetention }
   JenkinsServiceLogGroup:

@@ -112,7 +112,7 @@ packer_packer_1 exited with code 0
 => Build complete
 {{< /highlight >}}
 
-The ECS AMI build will take a few minutes to complete.  Once the build has finished, take a note of the AMI ID, which in the output above is **ami-4662e126** 
+The ECS AMI build will take a few minutes to complete.  Once the build has finished, take a note of the AMI ID, which in the output above is **ami-4662e126**
 
 4\. Run the `make clean` command to clean up the local Docker environment.
 
@@ -151,6 +151,111 @@ The web proxy template requires an EC2 keypair name to be provided as an input, 
 $ mv ~/Downloads/admin.pem.txt ~/.ssh/demo-resources-admin.pem
 $ chmod 600 ~/.ssh/demo-resources-admin.pem
 ```
+
+## Creating the Proxy Image
+
+In this section we will demonstrate how to publish a Docker image to one of our newly created ECR repositories.  We will create an image for the **casecommons/squid** repository using the Docker squid image that is defined at https://github.com/casecommons/docker-squid.
+
+1\. Clone the Casecommons squid repository to your local environment:
+
+```bash
+$ git clone git@github.com:Casecommons/docker-squid.git
+Cloning into 'docker-squid'...
+remote: Counting objects: 62, done.
+remote: Total 62 (delta 0), reused 0 (delta 0), pack-reused 62
+Receiving objects: 100% (62/62), 12.48 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (16/16), done.
+$ cd docker-squid
+$ tree -L 1
+.
+├── Makefile
+├── Makefile.settings
+├── README.md
+├── docker
+└── src
+```
+
+2\. Open the `Makefile` at the root of the **docker-squid** repository and modify the highlighted settings:
+
+{{< highlight make "hl_lines=3 4 5 6" >}}
+# Project variables
+export PROJECT_NAME ?= squid
+ORG_NAME ?= casecommons
+REPO_NAME ?= squid
+DOCKER_REGISTRY ?= 160775127577.dkr.ecr.us-west-2.amazonaws.com
+AWS_ACCOUNT_ID ?= 160775127577
+DOCKER_LOGIN_EXPRESSION ?= $$(aws ecr get-login --registry-ids $(AWS_ACCOUNT_ID))
+...
+...
+{{< /highlight >}}
+
+Here we ensure the `Makefile` settings are configured with the correct Docker registry name (`DOCKER_REGISTRY`), organization name (`ORG_NAME`), repository name (`REPO_NAME`) and AWS account ID (`AWS_ACCOUNT_ID`).
+
+3\. Run the `make login` command to login to the ECR repository for the **demo-resources** account:
+
+```bash
+$ export AWS_PROFILE=demo-resources-admin
+$ make login
+=> Logging in to Docker registry ...
+Enter MFA code: *****
+Login Succeeded
+=> Logged in to Docker registry
+```
+
+4\. Run the `make release` command, which will build the squid image:
+
+```bash
+$ make release
+=> Building images...
+Building squid
+Step 1/11 : FROM alpine
+...
+...
+=> Build complete
+=> Starting squid service...
+Creating network "squid_default" with the default driver
+Creating squid_squid_1
+=> Release environment created
+=> Squid is running at http://172.16.154.128:32776
+```
+
+4\. Run the `make tag latest` command, which will tag the image with the `latest` tag:
+
+```bash
+$ make tag latest
+=> Tagging release image with tags latest...
+=> Tagging complete
+```
+
+5\. Run the `make publish` command, which will publish the image to your ECR repository:
+
+```bash
+$ make publish
+=> Publishing release image to 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/squid...
+The push refers to a repository [160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/squid]
+a99ab02493c4: Pushed
+de9eaa36d055: Pushed
+ac2f445f0e4a: Pushed
+6566ea35d012: Pushed
+60ab55d3379d: Pushed
+latest: digest: sha256:086598386c752d053436cb46aedc52f6c03026e53981936c4d8b867ce042ac66 size: 1362
+=> Publish complete
+```
+
+6\. Run the `make clean` command to clean up the local Docker environment.
+
+```bash
+$ make clean
+=> Destroying release environment...
+Stopping squid_squid_1 ... done
+Removing squid_squid_1 ... done
+Removing network squid_default
+=> Removing dangling images...
+```
+
+7\. In the AWS console, you should now be able to see your newly published image:
+
+![Squid Image](/images/ecr-squid-image.png)
 
 ## Creating the Playbook
 
@@ -224,7 +329,7 @@ cf_stack_inputs:
 
 Notice that we reference the [templates/proxy.yml.y2 template](https://github.com/casecommons/aws-cloudformation/blob/master/templates/proxy.yml.j2) that is embedded within the [aws-cloudformation role](https://github.com/casecommons/aws-cloudformation).
 
-We also add a dictionary called `cf_stack_inputs`, which provides values for input parameters defined in the proxy CloudFormation template.  
+We also add a dictionary called `cf_stack_inputs`, which provides values for input parameters defined in the proxy CloudFormation template.
 
 Notice that these settings reference environment specific settings prefixed with `config_`, which will we need to define in our environment settings.
 
@@ -281,7 +386,7 @@ config_proxy_network_mode: host
 
 Here we target the **demo-resources** account by specifying the **demo-resources** IAM **admin** role in the `sts_role_arn` variable, whilst the remaining settings configure the proxy template:
 
-- `config_application_keyname` - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}). 
+- `config_application_keyname` - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}).
 - `config_application_instance_type` - specifies the EC2 instance type for the ECS container instances that will be created.
 - `config_application_ami` - specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the [AMI created earlier]({{< relref "web-proxy/index.md#creating-an-ecs-ami" >}})
 - `config_az_count` - specifies the number of availability zones to place ECS conatiner instances into.
@@ -298,7 +403,7 @@ The squid Docker image created in [EC2 Container Registry Resources]({{< relref 
 
 ## Running the Playbook
 
-Now that we've defined environment settings for the **demo-resources** environment, let's run the playbook to create ECR repository resources for the environment.  
+Now that we've defined environment settings for the **demo-resources** environment, let's run the playbook to create ECR repository resources for the environment.
 
 1\. Ensure your local AWS environment is configured to target the **demo-resources** account:
 
@@ -369,7 +474,7 @@ Parameters:
   ApplicationAutoscalingDesiredCount:
     Type: Number
     Description: Application AutoScaling Group Desired Count
-    Default: 3      
+    Default: 3
   ProxyImage:
     Type: String
     Description: Docker Image for Proxy
@@ -405,7 +510,7 @@ Resources:
       HostedZoneName:
         Fn::Join: ["", [ "Fn::ImportValue": "DefaultVpcDomain", "." ] ]
       Type: "CNAME"
-      Comment: 
+      Comment:
         Fn::Sub: "Forward Proxy - ${Environment}"
       ResourceRecords:
         - Fn::Sub: "${ApplicationLoadBalancer.DNSName}"
@@ -510,7 +615,7 @@ Resources:
               cwd: "/home/ec2-user/"
           files:
             /etc/ecs/ecs.config:
-              content: 
+              content:
                 Fn::Sub: "ECS_CLUSTER=${ApplicationCluster}\n"
     Properties:
       ImageId: { "Ref": "ApplicationImageId" }
@@ -520,7 +625,7 @@ Resources:
       KeyName: { "Ref": "KeyName" }
       SecurityGroups:
         - Ref: "ApplicationAutoscalingSecurityGroup"
-      UserData: 
+      UserData:
         Fn::Base64:
           Fn::Join: ["\n", [
             "#!/bin/bash",
@@ -586,7 +691,7 @@ Resources:
                 Action:
                   - "ecs:RegisterContainerInstance"
                   - "ecs:DeregisterContainerInstance"
-                Resource: 
+                Resource:
                   Fn::Sub: "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ApplicationCluster}"
               - Effect: "Allow"
                 Action:
@@ -596,7 +701,7 @@ Resources:
                   - "ecs:StartTelemetrySession"
                 Resource: "*"
               - Effect: "Allow"
-                Action: 
+                Action:
                   - "ecr:BatchCheckLayerAvailability"
                   - "ecr:BatchGetImage"
                   - "ecr:GetDownloadUrlForLayer"
@@ -621,7 +726,7 @@ Resources:
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group: 
+            awslogs-group:
               Fn::Sub: ${AWS::StackName}/ecs/ProxyService/squid
             awslogs-region: { "Ref": "AWS::Region" }
         PortMappings:
@@ -634,7 +739,7 @@ Resources:
           Value: { "Ref": "ProxyWhitelist" }
   ProxyService:
     Type: "AWS::ECS::Service"
-    DependsOn: 
+    DependsOn:
       - ApplicationAutoscaling
       - ProxyServiceLogGroup
     Properties:
@@ -656,7 +761,7 @@ Resources:
         Version: "2012-10-17"
         Statement:
           - Effect: "Allow"
-            Principal: 
+            Principal:
               Service: [ "ecs.amazonaws.com" ]
             Action: [ "sts:AssumeRole" ]
       Path: "/"
@@ -666,35 +771,35 @@ Resources:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/dmesg
       RetentionInDays: 30
   DockerLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/docker
       RetentionInDays: 30
   EcsAgentLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-agent
       RetentionInDays: 30
   EcsInitLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-init
       RetentionInDays: 30
   MessagesLogGroup:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/messages
       RetentionInDays: 30
   ProxyServiceLogGroup:
@@ -704,7 +809,7 @@ Resources:
       LogGroupName:
         Fn::Sub: ${AWS::StackName}/ecs/ProxyService/squid
       RetentionInDays: 30
-   
+
 Outputs:
   ProxyURL:
     Description: "Squid Proxy URL"

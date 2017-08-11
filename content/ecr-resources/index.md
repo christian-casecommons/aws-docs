@@ -73,7 +73,7 @@ cf_stack_tags:
   org:business:severity: High
   org:tech:environment: "{{ env }}"
   org:tech:contact: pema@casecommons.org
-  
+
 # CloudFormation settings
 # This sets a policy that disables updates to existing resources
 # This requires you to explicitly set the cf_disable_stack_policy flag to true when running the playbook
@@ -131,6 +131,7 @@ config_ecr_repos:
   casecommons/elasticsearch: {}
   casecommons/nginx: {}
   casecommons/squid: {}
+  casecommons/ruby: {}
 ```
 
 Here we target the **demo-resources** account by specifying the **demo-resources** IAM **admin** role in the `sts_role_arn` variable, whilst the `config_ecr_repos` dicitionary defines the ECR repositories resources that will be created:
@@ -144,7 +145,7 @@ Here we target the **demo-resources** account by specifying the **demo-resources
 
 ## Running the Playbook
 
-Now that we've defined environment settings for the **demo-resources** environment, let's run the playbook to create ECR repository resources for the environment.  
+Now that we've defined environment settings for the **demo-resources** environment, let's run the playbook to create ECR repository resources for the environment.
 
 1\. Ensure your local AWS environment is configured to target the **demo-resources** account:
 
@@ -254,116 +255,9 @@ Notice the **Repository URI** setting for the **squid** repository - this is the
 
 We need to specify the **Repository URI** whenever we tag and publish images for this repository.
 
-## Publishing Docker Images
-
-In this section we will demonstrate how to publish a Docker image to one of our newly created ECR repositories.  We will create an image for the **casecommons/squid** repository using the Docker squid image that is defined at https://github.com/casecommons/docker-squid.
-
-1\. Clone the Casecommons squid repository to your local environment:
-
-```bash
-$ git clone git@github.com:Casecommons/docker-squid.git
-Cloning into 'docker-squid'...
-remote: Counting objects: 62, done.
-remote: Total 62 (delta 0), reused 0 (delta 0), pack-reused 62
-Receiving objects: 100% (62/62), 12.48 KiB | 0 bytes/s, done.
-Resolving deltas: 100% (16/16), done.
-$ cd docker-squid
-$ tree -L 1
-.
-├── Makefile
-├── Makefile.settings
-├── README.md
-├── docker
-└── src
-```
-
-2\. Open the `Makefile` at the root of the **docker-squid** repository and modify the highlighted settings:
-
-{{< highlight make "hl_lines=3 4 5 6" >}}
-# Project variables
-export PROJECT_NAME ?= squid
-ORG_NAME ?= casecommons
-REPO_NAME ?= squid
-DOCKER_REGISTRY ?= 160775127577.dkr.ecr.us-west-2.amazonaws.com
-AWS_ACCOUNT_ID ?= 160775127577
-DOCKER_LOGIN_EXPRESSION ?= $$(aws ecr get-login --registry-ids $(AWS_ACCOUNT_ID))
-...
-...
-{{< /highlight >}}
-
-Here we ensure the `Makefile` settings are configured with the correct Docker registry name (`DOCKER_REGISTRY`), organization name (`ORG_NAME`), repository name (`REPO_NAME`) and AWS account ID (`AWS_ACCOUNT_ID`).
-
-3\. Run the `make login` command to login to the ECR repository for the **demo-resources** account:
-
-```bash
-$ export AWS_PROFILE=demo-resources-admin
-$ make login
-=> Logging in to Docker registry ...
-Enter MFA code: *****
-Login Succeeded
-=> Logged in to Docker registry
-```
-
-4\. Run the `make release` command, which will build the squid image:
-
-```bash
-$ make release
-=> Building images...
-Building squid
-Step 1/11 : FROM alpine
-...
-...
-=> Build complete
-=> Starting squid service...
-Creating network "squid_default" with the default driver
-Creating squid_squid_1
-=> Release environment created
-=> Squid is running at http://172.16.154.128:32776
-```
-
-4\. Run the `make tag latest` command, which will tag the image with the `latest` tag:
-
-```bash
-$ make tag latest
-=> Tagging release image with tags latest...
-=> Tagging complete
-```
-
-5\. Run the `make publish` command, which will publish the image to your ECR repository:
-
-```bash
-$ make publish
-=> Publishing release image to 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/squid...
-The push refers to a repository [160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/squid]
-a99ab02493c4: Pushed
-de9eaa36d055: Pushed
-ac2f445f0e4a: Pushed
-6566ea35d012: Pushed
-60ab55d3379d: Pushed
-latest: digest: sha256:086598386c752d053436cb46aedc52f6c03026e53981936c4d8b867ce042ac66 size: 1362
-=> Publish complete
-```
-
-6\. Run the `make clean` command to clean up the local Docker environment.
-
-```bash
-$ make clean
-=> Destroying release environment...
-Stopping squid_squid_1 ... done
-Removing squid_squid_1 ... done
-Removing network squid_default
-=> Removing dangling images...
-```
-
-7\. In the AWS console, you should now be able to see your newly published image:
-
-![Squid Image](/images/ecr-squid-image.png)
-
-
-
 ## Wrap Up
 
-We created ECR repositories in our **demo-resources** account, which provides a private Docker registry and repositories for publishing Docker images, and learned how to publish Docker images to our ECR repositories.
+We created ECR repositories in our **demo-resources** account, which provides a private Docker registry and repositories for publishing Docker images.
 
 {{< note title="Note" >}}
 At this point you should commit your changes to the ECR resources playbook before continuing.
