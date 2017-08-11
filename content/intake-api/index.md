@@ -63,11 +63,11 @@ config_acm_certificates:
         ValidationDomain: "cloudhotspot.co"
 {{< /highlight >}}
 
-The optional `config_acm_certificates` variable defines a dictionary of named ACM certificates, and as you can see we add a single certificate that will have a subject name of `*.demo.cloudhotspot.co`.  
+The optional `config_acm_certificates` variable defines a dictionary of named ACM certificates, and as you can see we add a single certificate that will have a subject name of `*.demo.cloudhotspot.co`.
 
 Notice that we configure a subject alternative name of the bare domain `demo.cloudhotspot.co`, and also configure a `ValidationDomain` of `cloudhotspot.co` for the subject name and subject alternative name domains of the certificate.
 
-This validation domain can be either the domain of the subject name, or any parent domain of the subject name.  
+This validation domain can be either the domain of the subject name, or any parent domain of the subject name.
 
 In this example, we will be sending validation requests to the following email addresses:
 
@@ -117,6 +117,120 @@ TASK [aws-cloudformation : configure application stack] ************************
 ![Certificate Validation Success](/images/acm-approval-success.png)
 
 6\.  Note that because we are validating two domain names (the primary `*.demo.cloudhotspot.co` subject name and the `demo.cloudhotspot.co` subject alternative name), you must approve separate validation requests for each domain.
+
+## Creating a Ruby Image
+
+The Intake stack uses a custom Ruby image, which can be built by cloning the https://github.com/casecommons/docker-ruby.git repository locally.
+
+Before we can create the Intake API stack, we need to publish this image to the **casecommons/ruby** ECR repository that was established when we created [ECR resources]({{< relref "ecr-resources/index.md" >}})
+
+1\. Clone the Casecommons Docker Ruby repository to your local environment:
+
+```bash
+$ git clone git@github.com:Casecommons/docker-ruby.git
+Cloning into 'docker-ruby'...
+remote: Counting objects: 48, done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 48 (delta 0), reused 0 (delta 0), pack-reused 45
+Receiving objects: 100% (48/48), 13.61 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (10/10), done.
+$ cd docker-ruby
+$ tree -L 1
+.
+├── Makefile
+├── Makefile.settings
+├── README.md
+├── docker
+└── src
+```
+
+2\. Open the `Makefile` at the root of the **docker-ruby** repository and modify the highlighted settings:
+
+{{< highlight make "hl_lines=3 4 5 6" >}}
+# Project variables
+export PROJECT_NAME ?= ruby
+ORG_NAME ?= casecommons
+REPO_NAME ?= ruby
+DOCKER_REGISTRY ?= 160775127577.dkr.ecr.us-west-2.amazonaws.com
+AWS_ACCOUNT_ID ?= 160775127577
+DOCKER_LOGIN_EXPRESSION ?= eval $$(aws ecr get-login --registry-ids $(AWS_ACCOUNT_ID))
+...
+...
+{{< /highlight >}}
+
+Here we ensure the `Makefile` settings are configured with the correct Docker registry name (`DOCKER_REGISTRY`), organization name (`ORG_NAME`), repository name (`REPO_NAME`) and AWS account ID (`AWS_ACCOUNT_ID`).
+
+3\. Run the `make login` command to login to the ECR repository for the **demo-resources** account:
+
+```bash
+$ export AWS_PROFILE=demo-resources-admin
+$ make login
+=> Logging in to Docker registry ...
+Enter MFA code: *****
+Login Succeeded
+=> Logged in to Docker registry
+```
+
+4\. Run the `make release` command, which will build the ruby image
+
+```bash
+$ make release
+=> Building images...
+Building app
+Step 1/9 : FROM ruby:2.4.0
+...
+...
+=> Build complete
+=> Starting app service...
+Creating network "ruby_default" with the default driver
+Creating ruby_app_1
+=> Starting ruby service...
+Creating ruby_ruby_1
+=> Release environment created
+=> ruby container is running at http://192.168.99.100:32769
+```
+
+5\. Run the `make tag latest` command, which will tag the image with the `latest` tag:
+
+```bash
+$ make tag latest
+=> Tagging release image with tags latest...
+=> Tagging complete
+```
+
+6\. Run the `make publish` command, which will publish the image to your ECR repository:
+
+```bash
+$ make publish
+=> Publishing release image to 160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/ruby...
+The push refers to a repository [160775127577.dkr.ecr.us-west-2.amazonaws.com/casecommons/ruby]
+bacade763708: Pushed
+2030c63749a0: Pushed
+b0ef948bd579: Pushed
+32418e8b3e29: Pushed
+f6fb5b0f08d3: Pushed
+cec0d431e110: Pushed
+7cbcbac42c44: Pushed
+latest: digest: sha256:98792f09c0199156ce31236705021e1d81de2ac969e06862d0dea6bce03a79d1 size: 1780
+=> Publish complete
+```
+
+7\. Run the `make clean` command to clean up the local Docker environment.
+
+```bash
+$ make clean
+=> Destroying release environment...
+Stopping ruby_app_1 ... done
+Removing ruby_ruby_1 ... done
+Removing ruby_app_1 ... done
+Removing network ruby_default
+=> Removing dangling images...
+=> Clean complete
+```
+
+8\. In the AWS console under **ECS > Repositories**, you should now be able to see your newly published image in the **casecommons/ruby** repository:
+
+![Ruby Image](/images/ruby-image.png)
 
 ## Creating an Nginx Image
 
@@ -171,7 +285,7 @@ Login Succeeded
 => Logged in to Docker registry
 ```
 
-4\. Run the `make release` command, which will build the squid image, and then `curl` the output endpoint to verify Nginx is working as expected:
+4\. Run the `make release` command, which will build the nginx image, and then `curl` the output endpoint to verify Nginx is working as expected:
 
 ```bash
 $ make release
@@ -201,7 +315,7 @@ $ make tag latest
 => Tagging complete
 ```
 
-5\. Run the `make publish` command, which will publish the image to your ECR repository:
+6\. Run the `make publish` command, which will publish the image to your ECR repository:
 
 ```bash
 $ make publish
@@ -218,7 +332,7 @@ latest: digest: sha256:98792f09c0199156ce31236705021e1d81de2ac969e06862d0dea6bce
 => Publish complete
 ```
 
-6\. Run the `make clean` command to clean up the local Docker environment.
+7\. Run the `make clean` command to clean up the local Docker environment.
 
 ```bash
 $ make clean
@@ -233,7 +347,7 @@ Removing volume nginx_webroot
 => Clean complete
 ```
 
-7\. In the AWS console under **ECS > Repositories**, you should now be able to see your newly published image in the **casecommons/nginx** repository:
+8\. In the AWS console under **ECS > Repositories**, you should now be able to see your newly published image in the **casecommons/nginx** repository:
 
 ![Nginx Image](/images/nginx-image.png)
 
@@ -241,7 +355,7 @@ Removing volume nginx_webroot
 
 The Intake API stack requires Elasticsearch and creates an ECS cluster with that runs a single Elasticsearch container.
 
-Although we will be using the official Elasticsearch image as published on Docker Cloud (aka Docker Hub), we need to publish this image to the **casecommons/elasticsearch** ECR repository that was established when we created [ECR resources]({{< relref "ecr-resources/index.md" >}}), as our ECS container instances can only reach the Internet via the [Web Proxy]({{< relref "web-proxy/index.md" >}}), and the default whitelist on the proxy only allows access to AWS API and service endpoints include the EC2 container registry, but does not permit access to Docker Cloud. 
+Although we will be using the official Elasticsearch image as published on Docker Cloud (aka Docker Hub), we need to publish this image to the **casecommons/elasticsearch** ECR repository that was established when we created [ECR resources]({{< relref "ecr-resources/index.md" >}}), as our ECS container instances can only reach the Internet via the [Web Proxy]({{< relref "web-proxy/index.md" >}}), and the default whitelist on the proxy only allows access to AWS API and service endpoints include the EC2 container registry, but does not permit access to Docker Cloud.
 
 1\. Pull the Elasticsearch from Docker Cloud to your local environment.
 
@@ -344,7 +458,7 @@ Now that we have built the Intake base Docker image, we can build and publish th
 1\. Clone the Intake API application to your local environment and ensure you checkout the **workflow_enhancements** branch:
 
 {{< highlight make "hl_lines=9" >}}
-$ git clone git@github.com:ca-cwds/intake_api.git
+$ git clone git@github.com:pgeyleg/intake_api.git
 Cloning into 'intake_api_prototype'...
 remote: Counting objects: 2140, done.
 remote: Compressing objects: 100% (188/188), done.
@@ -789,22 +903,22 @@ config_db_password: xxxxx
 config_log_retention: 30
 config_log_deletion_policy: Delete
 
-# CloudFormation custom resource settings 
+# CloudFormation custom resource settings
 config_cfn_lambda_kms_decrypt_version: "BIUpXhvw6w3f1LTctGVZxOpFD38lCHH1"
 config_cfn_lambda_ecs_tasks_version: "MiOiZi.9.AHyYQcFibBAvWYFD4xFJJ1c"
 {{< /highlight >}}
 
 Here we target the **demo-resources** account by specifying the **demo-resources** IAM **admin** role in the `sts_role_arn` variable, whilst the remaining settings configure the Intake APi application stack specify to the **demo-resources** template account:
 
-- `config_application_keyname` - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}). 
+- `config_application_keyname` - specifies the name of the EC2 key pair that ECS container instances will be created with.  Notice this matches the name of the [EC2 key pair created earlier]({{< relref "web-proxy/index.md#creating-an-ec2-key-pair" >}}).
 - `config_application_ami` - specifies the AMI ID of the image used to create the ECS container instances.  Notice this matches the ID of the [AMI created earlier]({{< relref "web-proxy/index.md#creating-an-ecs-ami" >}})
 - `config_application_image` - specifies the Docker image used to run the Intake API application containers.  Notice this matches the [image we created earlier]({{< relref "intake-api/index.md#creating-the-intake-api-image" >}})
 - `config_application_secret_key_base` - an encrypted application setting that provides cryptographic material for an application secret key.  We will securely generate an encrypted value for this setting shortly.
 - `config_application_domain` - specifies the base domain that our application will be served from.
 - `config_nginx_image` - specifies the Docker image used to run the Intake API Nginx containers.  Notice this matches the [image we created earlier]({{< relref "intake-api/index.md#creating-an-nginx-image" >}})
 - `config_lb_certificate_arn` - specifies the ARN of the AWS certificate manager (ACM) certificate to serve from the application load balancer for HTTPS connections.  Notice that we can specify this setting as a CloudFormation instrinsic function, as the template is configured to cast the configured value to a JSON object.  The intrinsic function imports the CloudFormation export `DemoCloudhotspotCoCertificateArn`, which was created earlier when we [created the certificate]({{< relref "intake-api/index.md#creating-a-certificate" >}}) in the security resources playbook.
-- `config_es_keyname` - specifies the name of the EC2 key pair that ECS container instances will be created with. 
-- `config_es_ami` - specifies the AMI ID of the image used to create the ECS container instances.  
+- `config_es_keyname` - specifies the name of the EC2 key pair that ECS container instances will be created with.
+- `config_es_ami` - specifies the AMI ID of the image used to create the ECS container instances.
 - `config_es_image` - specifies the Docker image used to run the Intake API Elasticsearch containers.  Notice this matches the [image we created earlier]({{< relref "intake-api/index.md#creating-an-elasticsearch-image" >}})
 - `config_db_password` - the encrypted password for the Intake API database.  We will securely generate an encrypted value for this setting shortly.
 - `config_cfn_lambda_kms_decrypt_version` - the S3 object version of the KMS decrypt Lambda function used for KMS decrypt custom resources.  Notice the object version matches [the version we published earlier]({{< relref "intake-api/index.md#creating-lambda-functions" >}}).
@@ -885,7 +999,7 @@ config_db_password: AQECAHjbSbOZ8FLk7XffvdtrDewDyQKH9bOaMrY6jf+N3si+SQAAAHEwbwYJ
 
 ## Running the Playbook
 
-Now that we've defined environment settings for the **demo** environment targeting our **demo-resources** account, let's run the playbook.  
+Now that we've defined environment settings for the **demo** environment targeting our **demo-resources** account, let's run the playbook.
 
 1\. Ensure your local AWS environment is configured to target the **demo-resources** account:
 
@@ -1043,15 +1157,15 @@ Resources:
   ApplicationDnsRecord:
     Type: "AWS::Route53::RecordSet"
     Properties:
-      Name: 
+      Name:
         Fn::Sub: "${Environment}-intake-api.${ApplicationDomain}"
       TTL: "300"
-      HostedZoneName: 
+      HostedZoneName:
         Fn::Sub: "${ApplicationDomain}."
       Type: "CNAME"
-      Comment: 
+      Comment:
         Fn::Sub: "Intake API Application - ${Environment}"
-      ResourceRecords: 
+      ResourceRecords:
         - Fn::Sub: "${ApplicationLoadBalancer.DNSName}"
   ApplicationLoadBalancer:
     Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
@@ -1062,7 +1176,7 @@ Resources:
       Subnets:
         - Fn::ImportValue: DefaultPublicSubnetA
         - Fn::ImportValue: DefaultPublicSubnetB
-      LoadBalancerAttributes: 
+      LoadBalancerAttributes:
         - Key: "deletion_protection.enabled"
           Value: false
         - Key: "idle_timeout.timeout_seconds"
@@ -1170,7 +1284,7 @@ Resources:
               cwd: "/home/ec2-user/"
           files:
             /etc/ecs/ecs.config:
-              content: 
+              content:
                 Fn::Sub: "ECS_CLUSTER=${ApplicationCluster}\n"
     Properties:
       ImageId: { "Ref": "ApplicationAMI" }
@@ -1179,19 +1293,19 @@ Resources:
       KeyName: { "Ref": "ApplicationKeyName" }
       SecurityGroups:
         - Ref: "ApplicationAutoscalingSecurityGroup"
-      UserData: 
+      UserData:
         Fn::Base64:
           Fn::Join: ["\n", [
             "#!/bin/bash",
             "set -e",
             "Fn::Join": ["", [
               "Fn::Sub": "/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ApplicationAutoscalingLaunchConfiguration --region ${AWS::Region}",
-              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL", 
+              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL",
               "    --https-proxy ", "Fn::ImportValue": "DefaultProxyURL"
             ] ],
             "Fn::Join": ["", [
               "Fn::Sub": "/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ApplicationAutoscaling --region ${AWS::Region}",
-              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL", 
+              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL",
               "    --https-proxy ", "Fn::ImportValue": "DefaultProxyURL"
             ] ]
           ] ]
@@ -1266,7 +1380,7 @@ Resources:
                 Action:
                   - "ecs:RegisterContainerInstance"
                   - "ecs:DeregisterContainerInstance"
-                Resource: 
+                Resource:
                   Fn::Sub: "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ApplicationCluster}"
               - Effect: "Allow"
                 Action:
@@ -1276,7 +1390,7 @@ Resources:
                   - "ecs:StartTelemetrySession"
                 Resource: "*"
               - Effect: "Allow"
-                Action: 
+                Action:
                   - "ecr:BatchCheckLayerAvailability"
                   - "ecr:BatchGetImage"
                   - "ecr:GetDownloadUrlForLayer"
@@ -1305,9 +1419,9 @@ Resources:
       HostedZoneName:
         Fn::ImportValue: DefaultVpcZone
       Type: "CNAME"
-      Comment: 
+      Comment:
         Fn::Sub: "Intake API Elasticsearch - ${Environment}"
-      ResourceRecords: 
+      ResourceRecords:
         - Fn::Sub: "${ElasticsearchLoadBalancer.DNSName}"
   ElasticsearchLoadBalancer:
     Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
@@ -1318,7 +1432,7 @@ Resources:
       Subnets:
         - Fn::ImportValue: DefaultHighSubnetA
         - Fn::ImportValue: DefaultHighSubnetB
-      LoadBalancerAttributes: 
+      LoadBalancerAttributes:
         - Key: "deletion_protection.enabled"
           Value: false
         - Key: "idle_timeout.timeout_seconds"
@@ -1418,7 +1532,7 @@ Resources:
               cwd: "/home/ec2-user/"
           files:
             /etc/ecs/ecs.config:
-              content: 
+              content:
                 Fn::Sub: "ECS_CLUSTER=${ElasticsearchCluster}\n"
     Properties:
       ImageId: { "Ref": "ElasticsearchAMI" }
@@ -1427,19 +1541,19 @@ Resources:
       KeyName: { "Ref": "ElasticsearchKeyName" }
       SecurityGroups:
         - Ref: "ElasticsearchAutoscalingSecurityGroup"
-      UserData: 
+      UserData:
         Fn::Base64:
           Fn::Join: ["\n", [
             "#!/bin/bash",
             "set -e",
             "Fn::Join": ["", [
               "Fn::Sub": "/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ElasticsearchAutoscalingLaunchConfiguration --region ${AWS::Region}",
-              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL", 
+              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL",
               "    --https-proxy ", "Fn::ImportValue": "DefaultProxyURL"
             ] ],
             "Fn::Join": ["", [
               "Fn::Sub": "/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ElasticsearchAutoscaling --region ${AWS::Region}",
-              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL", 
+              "    --http-proxy ", "Fn::ImportValue": "DefaultProxyURL",
               "    --https-proxy ", "Fn::ImportValue": "DefaultProxyURL"
             ] ]
           ] ]
@@ -1498,7 +1612,7 @@ Resources:
                 Action:
                   - "ecs:RegisterContainerInstance"
                   - "ecs:DeregisterContainerInstance"
-                Resource: 
+                Resource:
                   Fn::Sub: "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ElasticsearchCluster}"
               - Effect: "Allow"
                 Action:
@@ -1508,7 +1622,7 @@ Resources:
                   - "ecs:StartTelemetrySession"
                 Resource: "*"
               - Effect: "Allow"
-                Action: 
+                Action:
                   - "ecr:BatchCheckLayerAvailability"
                   - "ecr:BatchGetImage"
                   - "ecr:GetDownloadUrlForLayer"
@@ -1548,7 +1662,7 @@ Resources:
     Type: "AWS::RDS::DBSubnetGroup"
     Properties:
       DBSubnetGroupDescription: "intake-api-demo-ApplicationDatabase-db-subnet-group"
-      SubnetIds: 
+      SubnetIds:
         - Fn::ImportValue: DefaultHighSubnetA
         - Fn::ImportValue: DefaultHighSubnetB
       Tags:
@@ -1601,7 +1715,7 @@ Resources:
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group: 
+            awslogs-group:
               Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/intake-api
             awslogs-region: { "Ref": "AWS::Region" }
             awslogs-stream-prefix: docker
@@ -1665,21 +1779,21 @@ Resources:
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group: 
+            awslogs-group:
               Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/nginx
             awslogs-region: { "Ref": "AWS::Region" }
         PortMappings:
         - ContainerPort: { "Ref": "ApplicationPort" }
           Protocol: tcp
         Environment:
-          - Name: HTTP_PORT 
+          - Name: HTTP_PORT
             Value: { "Ref": "ApplicationPort" }
           - Name: WEB_ROOT
             Value: /intake_api_prototype/public
           - Name: UPSTREAM_URL
             Value: unix:///tmp/app.sock
           - Name: HEALTHCHECK
-            Value: 
+            Value:
               Fn::Sub: curl -fs localhost:${ApplicationPort}/api/v1/screenings
         MountPoints:
           - SourceVolume: webroot
@@ -1699,7 +1813,7 @@ Resources:
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group: 
+            awslogs-group:
               Fn::Sub: ${AWS::StackName}/ecs/IntakeApiService/adhoc
             awslogs-region: { "Ref": "AWS::Region" }
         Environment:
@@ -1769,7 +1883,7 @@ Resources:
         Version: "2012-10-17"
         Statement:
           - Effect: "Allow"
-            Principal: 
+            Principal:
               Service: [ "ecs.amazonaws.com" ]
             Action: [ "sts:AssumeRole" ]
       Path: "/"
@@ -1783,7 +1897,7 @@ Resources:
       NetworkMode: host
       Volumes:
         - Name: esdata
-          Host: 
+          Host:
             SourcePath: /ecs/esdata
       ContainerDefinitions:
       - Name: elasticsearch
@@ -1793,7 +1907,7 @@ Resources:
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group: 
+            awslogs-group:
               Fn::Sub: ${AWS::StackName}/ecs/ElasticsearchService/elasticsearch
             awslogs-region: { "Ref": "AWS::Region" }
         PortMappings:
@@ -1898,7 +2012,7 @@ Resources:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/dmesg
       RetentionInDays: { "Ref": "LogRetention" }
   DockerLogGroup:
@@ -1912,7 +2026,7 @@ Resources:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ApplicationAutoscaling/var/log/ecs/ecs-agent
       RetentionInDays: { "Ref": "LogRetention" }
   EcsInitLogGroup:
@@ -1954,7 +2068,7 @@ Resources:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ElasticsearchAutoscaling/var/log/dmesg
       RetentionInDays: { "Ref": "LogRetention" }
   ElasticsearchDockerLogGroup:
@@ -1968,7 +2082,7 @@ Resources:
     Type: "AWS::Logs::LogGroup"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: 
+      LogGroupName:
         Fn::Sub: ${AWS::StackName}/ec2/ElasticsearchAutoscaling/var/log/ecs/ecs-agent
       RetentionInDays: { "Ref": "LogRetention" }
   ElasticsearchEcsInitLogGroup:
@@ -1995,7 +2109,7 @@ Resources:
   DbPasswordDecrypt:
     Type: "Custom::KMSDecrypt"
     Properties:
-      ServiceToken: 
+      ServiceToken:
         Fn::Sub: ${KMSDecrypter.Arn}
       Ciphertext: { "Ref": "DbPassword" }
   KMSDecrypterLogGroup:
@@ -2010,18 +2124,18 @@ Resources:
     DependsOn:
       - "KMSDecrypterLogGroup"
     Properties:
-      Description: 
+      Description:
         Fn::Sub: "${AWS::StackName} KMS Decrypter"
       Handler: "cfn_kms_decrypt.handler"
       MemorySize: 128
       Runtime: "python2.7"
       Timeout: 300
-      Role: 
+      Role:
         Fn::Sub: ${KMSDecrypterRole.Arn}
-      FunctionName: 
+      FunctionName:
         Fn::Sub: "${AWS::StackName}-cfnKmsDecrypt"
       Code:
-        S3Bucket: 
+        S3Bucket:
           Fn::Sub: "${AWS::AccountId}-cfn-lambda"
         S3Key: "cfnKmsDecrypt.zip"
         S3ObjectVersion: { "Ref": "LambdaCfnKmsDecryptVersion" }
@@ -2059,7 +2173,7 @@ Resources:
             - "logs:DeleteLogGroup"
             - "logs:DeleteRetentionPolicy"
             - "logs:DeleteSubscriptionFilter"
-            Resource: 
+            Resource:
               Fn::Sub: "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-cfnKmsDecrypt:*:*"
   EcsTaskRunnerLogGroup:
     Type: "AWS::Logs::LogGroup"
@@ -2073,18 +2187,18 @@ Resources:
     DependsOn:
       - "EcsTaskRunnerLogGroup"
     Properties:
-      Description: 
+      Description:
         Fn::Sub: "${AWS::StackName} ECS Task Runner"
       Handler: "ecs_tasks.handler"
       MemorySize: 128
       Runtime: "python2.7"
       Timeout: 300
-      Role: 
+      Role:
         Fn::Sub: ${EcsTaskRunnerRole.Arn}
-      FunctionName: 
+      FunctionName:
         Fn::Sub: "${AWS::StackName}-cfnEcsTasks"
       Code:
-        S3Bucket: 
+        S3Bucket:
           Fn::Sub: "${AWS::AccountId}-cfn-lambda"
         S3Key: "cfnEcsTasks.zip"
         S3ObjectVersion: { "Ref": "LambdaCfnEcsTasksVersion" }
@@ -2121,7 +2235,7 @@ Resources:
             Resource: "*"
             Condition:
               ArnEquals:
-                ecs:cluster: 
+                ecs:cluster:
                   Fn::Sub: "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ApplicationCluster}"
           - Sid: "ManageLambdaLogs"
             Effect: "Allow"
@@ -2135,7 +2249,7 @@ Resources:
             - "logs:DeleteLogGroup"
             - "logs:DeleteRetentionPolicy"
             - "logs:DeleteSubscriptionFilter"
-            Resource: 
+            Resource:
               Fn::Sub: "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-cfnEcsTasks:*:*"
 ```
 
