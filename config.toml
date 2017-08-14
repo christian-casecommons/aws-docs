@@ -92,8 +92,23 @@ publishDir = "docs"
   weight = 80
 
 [[menu.main]]
+  name   = "Frontend Application"
+  url    = "frontend/"
+  weight = 81
+
+[[menu.main]]
+  name   = "DNS Configuration"
+  url    = "dns/"
+  weight = 82
+
+[[menu.main]]
   name   = "Jenkins Stack"
   url    = "jenkins/"
+  weight = 90
+
+[[menu.main]]
+  name   = "Miscellaneous"
+  url    = "misc/"
   weight = 90
 
 [blackfriday]
