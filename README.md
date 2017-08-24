@@ -68,3 +68,19 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
 See www.gnu.org/licenses/agpl.html
+
+## Release Notes
+
+### Version 0.2.0
+
+- **NEW FEATURE** : Added misc section covering the use of generic certificates template `https://github.com/Casecommons/aws-docs/pull/6`
+
+### Version 0.1.0
+
+- **NEW FEATURE** : Added sections covering dns configuration and orchestration of the frontend app `https://github.com/Casecommons/aws-docs/pull/5`
+
+### Version 0.0.1
+
+- **BUG FIX** : Fixed errors present in current documentation `https://github.com/Casecommons/aws-docs/pull/4`
+
+
